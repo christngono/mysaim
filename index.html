@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title data-i18n="page-title">Formation IA - SAIM</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:      #0284C7;
+      --blue-dark: #075985;
+      --blue-light:#E0F2FE;
+      --accent:    #F59E0B;
+      --green:     #10B981;
+      --text:      #1E293B;
+      --muted:     #64748B;
+      --bg:        #F8FAFC;
+      --white:     #FFFFFF;
+      --radius:    12px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+
+    /* ===== LANGUAGE SELECTOR ===== */
+    #lang-select {
+      position: fixed; inset: 0; z-index: 2000;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #075985 0%, #0284C7 60%, #0EA5E9 100%);
+      text-align: center; padding: 2rem;
+    }
+    #lang-select img { width: 160px; margin-bottom: 2.5rem; filter: drop-shadow(0 4px 20px rgba(0,0,0,0.35)); animation: floatIn 0.8s ease both; }
+    #lang-select h2 { color: var(--white); font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; animation: floatIn 0.8s 0.15s ease both; }
+    #lang-select p  { color: rgba(255,255,255,0.75); font-size: 1rem; margin-bottom: 2.5rem; animation: floatIn 0.8s 0.25s ease both; }
+    .lang-buttons { display: flex; gap: 1.25rem; flex-wrap: wrap; justify-content: center; animation: floatIn 0.8s 0.35s ease both; }
+    .lang-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+      background: rgba(255,255,255,0.12); border: 2px solid rgba(255,255,255,0.3);
+      color: var(--white); border-radius: 16px; padding: 1.5rem 2.5rem;
+      cursor: pointer; font-size: 1rem; font-weight: 700; transition: all 0.2s; backdrop-filter: blur(8px);
+    }
+    .lang-btn:hover { background: rgba(255,255,255,0.25); border-color: var(--white); transform: translateY(-4px) scale(1.04); box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+    .lang-btn .flag { font-size: 3rem; line-height: 1; }
+    .lang-btn .lang-name { font-size: 1.1rem; }
+    .lang-btn .lang-sub { font-size: 0.78rem; opacity: 0.75; font-weight: 400; }
+    #lang-select.hidden { opacity: 0; transform: scale(1.04); pointer-events: none; transition: opacity 0.6s ease, transform 0.6s ease; }
+
+    /* ===== LANDING ===== */
+    #landing {
+      position: fixed; inset: 0; z-index: 1000;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; background: url('images/image_qui_apprend.jpg') center/cover no-repeat;
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    #landing::before { content:''; position:absolute; inset:0; background: linear-gradient(135deg, rgba(2,132,199,0.87) 0%, rgba(7,89,133,0.93) 100%); }
+    #landing .landing-content { position:relative; z-index:1; padding:2rem; max-width:700px; }
+    #landing .landing-logo { width:160px; margin-bottom:2rem; filter:drop-shadow(0 4px 16px rgba(0,0,0,0.4)); animation:floatIn 1s ease both; }
+    #landing h1 { font-size:clamp(1.6rem,4vw,2.6rem); font-weight:800; color:var(--white); line-height:1.25; margin-bottom:1rem; animation:floatIn 1s 0.2s ease both; }
+    #landing > .landing-content > p { font-size:1.1rem; color:rgba(255,255,255,0.85); margin-bottom:2.5rem; animation:floatIn 1s 0.4s ease both; }
+    #btn-start {
+      display:inline-flex; align-items:center; gap:0.6rem; background:var(--accent);
+      color:#1a1a1a; font-size:1.1rem; font-weight:700; padding:1rem 2.5rem;
+      border:none; border-radius:50px; cursor:pointer; transition:transform 0.2s, box-shadow 0.2s;
+      box-shadow:0 8px 32px rgba(245,158,11,0.4); animation:floatIn 1s 0.6s ease both;
+    }
+    #btn-start:hover { transform:translateY(-3px) scale(1.03); box-shadow:0 12px 40px rgba(245,158,11,0.55); }
+    #btn-start svg { width:22px; height:22px; }
+    #landing.hidden { opacity:0; transform:scale(1.05); pointer-events:none; }
+
+    /* ===== COURSE ===== */
+    #course { display:none; opacity:0; transition:opacity 0.6s ease; }
+    #course.visible { display:block; opacity:1; }
+
+    /* ===== NAVBAR ===== */
+    nav { position:sticky; top:0; z-index:100; display:flex; align-items:center; gap:1rem; padding:0.8rem 2rem; background:var(--white); box-shadow:0 2px 16px rgba(0,0,0,0.08); }
+    nav img { height:44px; }
+    nav .nav-title { font-size:0.95rem; font-weight:600; color:var(--blue-dark); flex:1; }
+    nav .nav-badge { background:var(--blue-light); color:var(--blue-dark); font-size:0.75rem; font-weight:700; padding:0.25rem 0.75rem; border-radius:50px; white-space:nowrap; }
+    .lang-toggle { display:flex; gap:0.3rem; }
+    .lang-toggle button {
+      background:none; border:1.5px solid #E2E8F0; border-radius:6px;
+      padding:0.2rem 0.55rem; font-size:0.75rem; font-weight:700; cursor:pointer;
+      color:var(--muted); transition:all 0.15s;
+    }
+    .lang-toggle button.active { background:var(--blue); border-color:var(--blue); color:var(--white); }
+    .lang-toggle button:hover:not(.active) { border-color:var(--blue); color:var(--blue); }
+
+    /* ===== LAYOUT ===== */
+    .container { max-width:900px; margin:0 auto; padding:0 1.5rem; }
+    section { padding:3.5rem 0; }
+    section + section { border-top:1px solid #E2E8F0; }
+
+    .section-label { display:inline-block; background:var(--blue-light); color:var(--blue-dark); font-size:0.75rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:0.3rem 0.9rem; border-radius:50px; margin-bottom:0.75rem; }
+    h2 { font-size:clamp(1.4rem,3vw,2rem); font-weight:800; color:var(--blue-dark); margin-bottom:1rem; }
+    h3 { font-size:1.2rem; font-weight:700; color:var(--blue); margin:2rem 0 0.75rem; display:flex; align-items:center; gap:0.5rem; }
+    h3::before { content:''; display:inline-block; width:4px; height:1.2em; background:var(--blue); border-radius:2px; }
+    h4 { font-size:1rem; font-weight:700; color:var(--text); margin:1.5rem 0 0.5rem; }
+    p  { margin-bottom:0.9rem; color:#334155; }
+
+    /* ===== SAIM INTRO ===== */
+    .saim-intro { background:linear-gradient(135deg,var(--blue-dark) 0%,var(--blue) 100%); color:var(--white); border-radius:var(--radius); padding:2.5rem 2rem; display:flex; align-items:center; gap:2rem; flex-wrap:wrap; }
+    .saim-intro .saim-icon { font-size:3.5rem; flex-shrink:0; }
+    .saim-intro p { color:rgba(255,255,255,0.9); margin-bottom:0; }
+    .saim-intro h2 { color:var(--white); margin-bottom:0.5rem; }
+
+    /* ===== OBJECTIVES ===== */
+    .objectives-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1rem; margin-top:1.5rem; }
+    .obj-card { background:var(--white); border:1.5px solid #E2E8F0; border-radius:var(--radius); padding:1.25rem 1.5rem; display:flex; align-items:flex-start; gap:1rem; transition:box-shadow 0.2s,border-color 0.2s,transform 0.2s; opacity:0; transform:translateY(20px); }
+    .obj-card.visible { animation:fadeUp 0.5s ease forwards; }
+    .obj-card:hover { box-shadow:0 8px 24px rgba(2,132,199,0.12); border-color:var(--blue); transform:translateY(-2px); }
+    .obj-icon { width:44px; height:44px; border-radius:10px; background:var(--blue-light); display:flex; align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0; }
+    .obj-card p { margin:0; font-size:0.95rem; color:var(--text); font-weight:500; }
+
+    /* ===== IMAGE ===== */
+    .illus-image { width:100%; max-height:420px; object-fit:cover; border-radius:var(--radius); box-shadow:0 8px 40px rgba(0,0,0,0.14); }
+
+    /* ===== MODULES ===== */
+    .modules-list { display:flex; flex-direction:column; gap:0.75rem; margin-top:1.5rem; }
+    .module-badge { display:flex; align-items:center; gap:1rem; background:var(--white); border:1.5px solid #E2E8F0; border-radius:var(--radius); padding:1rem 1.5rem; font-weight:600; transition:border-color 0.2s,box-shadow 0.2s; }
+    .module-badge:hover { border-color:var(--blue); box-shadow:0 4px 16px rgba(2,132,199,0.1); }
+    .module-num { width:36px; height:36px; border-radius:50%; background:var(--blue); color:var(--white); display:flex; align-items:center; justify-content:center; font-size:0.85rem; font-weight:800; flex-shrink:0; }
+    .module-badge.active .module-num { background:var(--accent); color:#1a1a1a; }
+    .module-badge.active { border-color:var(--accent); background:#FFFBEB; }
+
+    /* ===== HIGHLIGHTS ===== */
+    .highlight { background:linear-gradient(120deg,#FEF3C7 0%,#FDE68A 100%); color:#92400E; border-radius:4px; padding:0 4px; font-weight:700; }
+    .highlight-blue { background:linear-gradient(120deg,var(--blue-light) 0%,#BAE6FD 100%); color:var(--blue-dark); border-radius:4px; padding:0 4px; font-weight:700; }
+
+    /* ===== BOXES ===== */
+    .info-box { background:var(--blue-light); border-left:4px solid var(--blue); border-radius:0 var(--radius) var(--radius) 0; padding:1.25rem 1.5rem; margin:1.5rem 0; }
+    .info-box p { margin:0; color:var(--blue-dark); }
+    .retenir-box { background:#ECFDF5; border-left:4px solid var(--green); border-radius:0 var(--radius) var(--radius) 0; padding:1.25rem 1.5rem; margin:1.5rem 0; }
+    .retenir-box .retenir-title { font-size:0.8rem; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; color:var(--green); margin-bottom:0.5rem; }
+    .retenir-box p { margin:0; color:#065F46; }
+
+    /* ===== EXAMPLE CARDS ===== */
+    .example-card { background:var(--white); border:1.5px solid #E2E8F0; border-radius:var(--radius); overflow:hidden; margin:1.5rem 0; box-shadow:0 4px 20px rgba(0,0,0,0.06); }
+    .example-card-header { background:linear-gradient(90deg,var(--blue-dark),var(--blue)); color:var(--white); padding:1rem 1.5rem; display:flex; align-items:center; gap:0.75rem; font-weight:700; }
+    .example-card-header .ex-icon { width:36px; height:36px; background:rgba(255,255,255,0.2); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; }
+    .example-card-body { padding:1.5rem; }
+    .example-card img { width:100%; border-radius:8px; border:1px solid #E2E8F0; margin-top:1rem; box-shadow:0 4px 16px rgba(0,0,0,0.08); }
+    .alice-intro { display:flex; align-items:center; gap:1.25rem; background:#F8FAFC; border-radius:10px; padding:1rem 1.25rem; margin-bottom:1rem; }
+    .alice-intro img { width:70px; height:70px; border-radius:50%; object-fit:cover; object-position:top; border:3px solid var(--blue-light); flex-shrink:0; }
+    .alice-intro p { margin:0; font-size:0.95rem; }
+
+    /* ===== SERVERS ===== */
+    .server-block { display:grid; grid-template-columns:1fr 1fr; gap:2rem; align-items:center; margin:1.5rem 0; }
+    .server-block img { width:100%; border-radius:var(--radius); box-shadow:0 8px 32px rgba(0,0,0,0.14); }
+    .server-text p { margin-bottom:0.75rem; }
+
+    /* ===== TOOLS ===== */
+    .tools-grid { display:flex; flex-wrap:wrap; gap:0.75rem; margin:1rem 0; }
+    .tool-chip { display:flex; align-items:center; gap:0.5rem; background:var(--white); border:1.5px solid #E2E8F0; border-radius:50px; padding:0.4rem 1rem 0.4rem 0.6rem; font-weight:700; font-size:0.9rem; color:var(--blue-dark); box-shadow:0 2px 8px rgba(0,0,0,0.05); }
+    .tool-chip .dot { width:10px; height:10px; border-radius:50%; background:var(--blue); }
+
+    /* ===== FINISH ===== */
+    .finish-section { text-align:center; padding:4rem 1.5rem; background:linear-gradient(180deg,transparent,var(--blue-light)); }
+    .finish-section p { color:var(--muted); margin-bottom:1.5rem; font-size:1rem; }
+    #btn-finish { display:inline-flex; align-items:center; gap:0.75rem; background:linear-gradient(135deg,var(--green),#059669); color:var(--white); font-size:1.15rem; font-weight:800; padding:1.1rem 2.8rem; border:none; border-radius:50px; cursor:pointer; box-shadow:0 8px 32px rgba(16,185,129,0.35); transition:transform 0.2s,box-shadow 0.2s; }
+    #btn-finish:hover { transform:translateY(-3px) scale(1.03); box-shadow:0 12px 40px rgba(16,185,129,0.5); }
+    #btn-finish svg { width:22px; height:22px; }
+
+    /* ===== POPUP ===== */
+    #popup-overlay { display:none; position:fixed; inset:0; z-index:3000; background:rgba(0,0,0,0.55); backdrop-filter:blur(4px); align-items:center; justify-content:center; }
+    #popup-overlay.active { display:flex; }
+    #popup { background:var(--white); border-radius:20px; padding:3rem 2.5rem; max-width:480px; width:90%; text-align:center; box-shadow:0 32px 80px rgba(0,0,0,0.2); animation:popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both; position:relative; overflow:hidden; }
+    .popup-confetti { position:absolute; top:0; left:0; right:0; height:8px; background:linear-gradient(90deg,#F59E0B,#10B981,#0284C7,#F59E0B,#EF4444,#10B981); background-size:200%; animation:rainbowSlide 2s linear infinite; }
+    .popup-trophy { font-size:5rem; margin-bottom:1rem; animation:bounce 1s ease infinite alternate; }
+    #popup h2 { font-size:1.8rem; color:var(--blue-dark); margin-bottom:0.75rem; }
+    #popup p  { color:var(--muted); margin-bottom:2rem; font-size:1rem; }
+    #btn-close-popup { background:linear-gradient(135deg,var(--blue),var(--blue-dark)); color:var(--white); border:none; border-radius:50px; padding:0.9rem 2.5rem; font-size:1rem; font-weight:700; cursor:pointer; transition:transform 0.2s; }
+    #btn-close-popup:hover { transform:scale(1.05); }
+    .confetti-container { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+    .confetti-piece { position:absolute; width:10px; height:10px; border-radius:2px; animation:confettiFall linear forwards; }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes floatIn { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeUp  { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes popIn   { from{opacity:0;transform:scale(0.6)} to{opacity:1;transform:scale(1)} }
+    @keyframes bounce  { from{transform:translateY(0)} to{transform:translateY(-10px)} }
+    @keyframes rainbowSlide { from{background-position:0%} to{background-position:200%} }
+    @keyframes confettiFall { 0%{opacity:1;top:-10%} 100%{opacity:0.3;top:110%} }
+
+    @media(max-width:640px){
+      .server-block{grid-template-columns:1fr}
+      nav .nav-title{font-size:0.8rem}
+      .saim-intro{flex-direction:column;text-align:center}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== LANGUAGE SELECTOR ===== -->
+<div id="lang-select">
+  <img src="images/saimlogo.png" alt="Logo SAIM" />
+  <h2 id="ls-title">Choisissez votre langue</h2>
+  <p id="ls-sub">Choose your language</p>
+  <div class="lang-buttons">
+    <button class="lang-btn" onclick="chooseLang('fr')">
+      <span class="flag">🇫🇷</span>
+      <span class="lang-name">Français</span>
+      <span class="lang-sub">Continuer en français</span>
+    </button>
+    <button class="lang-btn" onclick="chooseLang('en')">
+      <span class="flag">🇬🇧</span>
+      <span class="lang-name">English</span>
+      <span class="lang-sub">Continue in English</span>
+    </button>
+  </div>
+</div>
+
+<!-- ===== LANDING PAGE ===== -->
+<div id="landing" style="display:none;">
+  <div class="landing-content">
+    <img src="images/saimlogo.png" alt="Logo SAIM" class="landing-logo" />
+    <h1 data-i18n="landing-title"></h1>
+    <p  data-i18n="landing-sub"></p>
+    <button id="btn-start">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      <span data-i18n="btn-start"></span>
+    </button>
+  </div>
+</div>
+
+<!-- ===== COURSE PAGE ===== -->
+<div id="course">
+
+  <nav>
+    <img src="images/saimlogo.png" alt="Logo SAIM" />
+    <span class="nav-title" data-i18n="nav-title"></span>
+    <span class="nav-badge" data-i18n="nav-badge"></span>
+    <div class="lang-toggle">
+      <button id="toggle-fr" onclick="switchLang('fr')">FR</button>
+      <button id="toggle-en" onclick="switchLang('en')">EN</button>
+    </div>
+  </nav>
+
+  <!-- QUI SOMMES-NOUS -->
+  <section>
+    <div class="container">
+      <div class="saim-intro">
+        <div class="saim-icon">🌍</div>
+        <div>
+          <h2 data-i18n="who-h2"></h2>
+          <p data-i18n="who-p"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OBJECTIFS -->
+  <section>
+    <div class="container">
+      <span class="section-label" data-i18n="obj-label"></span>
+      <h2 data-i18n="obj-h2"></h2>
+      <p data-i18n="obj-intro"></p>
+      <div class="objectives-grid">
+        <div class="obj-card"><div class="obj-icon">🧠</div><p data-i18n="obj-1"></p></div>
+        <div class="obj-card"><div class="obj-icon">🛠</div><p data-i18n="obj-2"></p></div>
+        <div class="obj-card"><div class="obj-icon">✍</div><p data-i18n="obj-3"></p></div>
+        <div class="obj-card"><div class="obj-icon">⚡</div><p data-i18n="obj-4"></p></div>
+        <div class="obj-card"><div class="obj-icon">🚀</div><p data-i18n="obj-5"></p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMAGE ILLUSTRATIVE -->
+  <section style="padding:1rem 0;">
+    <div class="container">
+      <img src="images/image_chatgpt.jpg" alt="Introduction à l'IA" class="illus-image" />
+    </div>
+  </section>
+
+  <!-- PROGRAMME -->
+  <section>
+    <div class="container">
+      <span class="section-label" data-i18n="prog-label"></span>
+      <h2 data-i18n="prog-h2"></h2>
+      <div class="modules-list">
+        <div class="module-badge active"><div class="module-num">1</div><span data-i18n="mod1-badge"></span></div>
+        <div class="module-badge"><div class="module-num">2</div><span data-i18n="mod2-badge"></span></div>
+        <div class="module-badge"><div class="module-num">3</div><span data-i18n="mod3-badge"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODULE 1 -->
+  <section>
+    <div class="container">
+      <span class="section-label" data-i18n="mod1-label"></span>
+      <h2 data-i18n="mod1-h2"></h2>
+      <p data-i18n="mod1-intro"></p>
+
+      <h3 data-i18n="def-h3"></h3>
+      <p  data-i18n="def-p1"></p>
+      <h4 data-i18n="daily-h4"></h4>
+
+      <div class="info-box"><p data-i18n="daily-social"></p></div>
+      <div class="info-box"><p data-i18n="daily-email"></p></div>
+
+      <div class="retenir-box">
+        <div class="retenir-title" data-i18n="summary-label"></div>
+        <p data-i18n="summary-p"></p>
+      </div>
+
+      <h3 data-i18n="how-h3"></h3>
+      <p data-i18n="how-p1"></p>
+      <p data-i18n="how-p2"></p>
+      <div class="info-box"><p data-i18n="how-example"></p></div>
+      <p data-i18n="how-model"></p>
+      <h4 data-i18n="model-h4"></h4>
+      <p data-i18n="model-p"></p>
+
+      <div class="retenir-box">
+        <div class="retenir-title" data-i18n="remember-label"></div>
+        <p data-i18n="remember-p"></p>
+      </div>
+
+      <h3 data-i18n="where-h3"></h3>
+      <div class="server-block">
+        <img src="images/server.jpg" alt="Salle de serveurs" />
+        <div class="server-text">
+          <p data-i18n="where-p1"></p>
+          <p data-i18n="where-p2"></p>
+        </div>
+      </div>
+
+      <h3 data-i18n="genai-h3"></h3>
+      <p data-i18n="genai-tools-intro"></p>
+      <div class="tools-grid">
+        <div class="tool-chip"><span class="dot"></span> ChatGPT</div>
+        <div class="tool-chip"><span class="dot" style="background:#4285F4;"></span> Gemini</div>
+        <div class="tool-chip"><span class="dot" style="background:#CC785C;"></span> Claude</div>
+        <div class="tool-chip"><span class="dot" style="background:#1DA1F2;"></span> Grok</div>
+      </div>
+      <p data-i18n="genai-p"></p>
+
+      <h3 data-i18n="apps-h3"></h3>
+      <p data-i18n="apps-p"></p>
+
+      <!-- EXEMPLE A : EMAIL -->
+      <div class="example-card">
+        <div class="example-card-header">
+          <div class="ex-icon">✉</div>
+          <div>
+            <div style="font-size:0.75rem;opacity:0.8;" data-i18n="ex-a-tag"></div>
+            <span data-i18n="ex-a-title"></span>
+          </div>
+        </div>
+        <div class="example-card-body">
+          <div class="alice-intro">
+            <img src="images/image_Annie.jpeg" alt="Alice" />
+            <p data-i18n="ex-a-alice"></p>
+          </div>
+          <p data-i18n="ex-a-p"></p>
+          <img src="images/capture_generation_email.jpeg" alt="ChatGPT email" />
+          <p style="margin-top:0.75rem;font-size:0.88rem;color:var(--muted);text-align:center;" data-i18n="ex-a-caption"></p>
+        </div>
+      </div>
+
+      <!-- EXEMPLE B : IMAGE -->
+      <div class="example-card">
+        <div class="example-card-header" style="background:linear-gradient(90deg,#7C3AED,#5B21B6);">
+          <div class="ex-icon">🎨</div>
+          <div>
+            <div style="font-size:0.75rem;opacity:0.8;" data-i18n="ex-b-tag"></div>
+            <span data-i18n="ex-b-title"></span>
+          </div>
+        </div>
+        <div class="example-card-body">
+          <p data-i18n="ex-b-p1"></p>
+          <p data-i18n="ex-b-p2"></p>
+          <img src="images/capture_generation_Image.jpeg" alt="ChatGPT image generation" />
+          <p style="margin-top:0.75rem;font-size:0.88rem;color:var(--muted);text-align:center;" data-i18n="ex-b-caption"></p>
+          <div class="retenir-box" style="margin-top:1.25rem;">
+            <div class="retenir-title" data-i18n="conclusion-label"></div>
+            <p data-i18n="conclusion-p"></p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FINISH -->
+  <div class="finish-section">
+    <p data-i18n="finish-p"></p>
+    <button id="btn-finish">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <span data-i18n="btn-finish"></span>
+    </button>
+  </div>
+
+</div><!-- end #course -->
+
+<!-- ===== POPUP ===== -->
+<div id="popup-overlay">
+  <div id="popup">
+    <div class="popup-confetti"></div>
+    <div class="confetti-container" id="confetti-container"></div>
+    <div class="popup-trophy">🏆</div>
+    <h2 data-i18n="popup-title"></h2>
+    <p  data-i18n="popup-body"></p>
+    <button id="btn-close-popup"><span data-i18n="popup-btn"></span></button>
+  </div>
+</div>
+
+<script>
+// ==================== TRANSLATIONS ====================
+const T = {
+  fr: {
+    'page-title':   'Formation IA - SAIM',
+    'landing-title':'Maîtriser l\'Intelligence Artificielle pour la productivité professionnelle',
+    'landing-sub':  'Formation SAIM &mdash; Module 1 : Introduction à l\'IA &amp; l\'IA Générative',
+    'btn-start':    'Démarrer le cours',
+    'nav-title':    'Maîtriser l\'IA pour la productivité professionnelle',
+    'nav-badge':    'Module 1',
+    'who-h2':       'Qui sommes-nous ?',
+    'who-p':        'Nous sommes <strong>SAIM</strong>, une initiative camerounaise qui a pour objectif de vulgariser les technologies d\'Intelligence Artificielle (IA) pour tous. Notre but ? Faire de l\'IA un levier de croissance pour notre pays. Car vous le savez : <em>l\'intelligence artificielle, c\'est l\'affaire de tous !</em>',
+    'obj-label':    'Ce que vous allez apprendre',
+    'obj-h2':       'Vos objectifs de formation',
+    'obj-intro':    'À la fin de cette formation, vous serez capables de :',
+    'obj-1':        'Comprendre les bases de l\'IA sans mal de tête.',
+    'obj-2':        'Utiliser efficacement les outils d\'IA dans votre travail.',
+    'obj-3':        'Rédiger des <strong>"prompts"</strong> (instructions) performants.',
+    'obj-4':        'Automatiser certaines tâches répétitives.',
+    'obj-5':        'Booster votre productivité concrètement.',
+    'prog-label':   'Le programme',
+    'prog-h2':      '3 modules pour tout maîtriser',
+    'mod1-badge':   'Introduction à l\'IA et à l\'IA générative &nbsp;<strong>(en cours)</strong>',
+    'mod2-badge':   'Optimiser sa productivité avec l\'IA',
+    'mod3-badge':   'L\'art du Prompting — comment bien parler à l\'IA',
+    'mod1-label':   'Module 1',
+    'mod1-h2':      'Introduction à l\'Intelligence Artificielle et l\'IA Générative',
+    'mod1-intro':   'Aujourd\'hui, on attaque la première partie : <em>C\'est quoi l\'IA et à quoi ça sert concrètement ?</em> Allez, c\'est parti, on lance !',
+    'def-h3':       '1. Définition : C\'est quoi l\'IA ?',
+    'def-p1':       'L\'<span class="highlight-blue">IA</span> est déjà tout autour de nous. Vous en entendez parler partout : <span class="highlight">ChatGPT</span>, <span class="highlight">Gemini</span>, des robots ou des drones intelligents... On dit même souvent que le pays qui maîtrisera l\'IA contrôlera le monde. Mais de quoi s\'agit-il vraiment ?',
+    'daily-h4':     'L\'IA dans votre quotidien :',
+    'daily-social': '<strong>📱 Réseaux sociaux (Facebook, TikTok) :</strong> Votre fil d\'actualité est unique. Il est construit spécialement pour vous selon vos goûts, vos "likes" et vos intérêts. Ce n\'est pas de la magie, c\'est de l\'<span class="highlight-blue">IA</span> qui travaille pour vous proposer le contenu le plus pertinent.',
+    'daily-email':  '<strong>📧 Vos emails :</strong> Quand vous répondez à un collègue et que votre boîte mail vous suggère la suite de la phrase en gris clair (ex: <em>"J\'espère que vous allez bien"</em>), c\'est encore l\'<span class="highlight-blue">IA</span> !',
+    'summary-label':'En résumé',
+    'summary-p':    'L\'<span class="highlight-blue">IA</span> est une technologie informatique qui permet de résoudre des problèmes complexes qu\'on pensait réservés aux humains (comme comprendre une image ou raisonner). Ce n\'est pas un cerveau humain, c\'est un outil super puissant.',
+    'how-h3':       '2. Comment ça fonctionne ?',
+    'how-p1':       'L\'IA ne fonctionne pas à l\'eau (je rigole !), elle fonctionne avec de la <span class="highlight">Data</span> (des données). Pour qu\'une IA devienne intelligente, on doit lui donner énormément de données pour l\'entraîner.',
+    'how-p2':       '<strong>C\'est quoi la "<span class="highlight">Data</span>" ?</strong> Ce sont les images, textes, vidéos, sons ou documents que nous partageons chaque jour sur Internet ou que nous avons dans nos ordinateurs.',
+    'how-example':  '<strong>L\'exemple pour bien comprendre :</strong> Pour qu\'une IA reconnaisse la différence entre un homme et une femme, on lui montre des milliers de photos. Elle apprend les traits caractéristiques. À la fin, si vous lui montrez une photo qu\'elle n\'a jamais vue, elle saura répondre. C\'est ce qu\'on appelle le <span class="highlight">Machine Learning</span> (l\'apprentissage automatique).',
+    'how-model':    'Une fois cet entraînement terminé, on obtient un <span class="highlight">Modèle d\'IA</span>.',
+    'model-h4':     'C\'est quoi un "Modèle d\'IA" ?',
+    'model-p':      'Imaginez que le <span class="highlight">Modèle d\'IA</span>, c\'est le cerveau entraîné de la machine. C\'est le résultat final de tout l\'apprentissage. C\'est ce "cerveau" informatique qui permet à l\'IA d\'effectuer une tâche bien précise, comme reconnaître un visage ou traduire une phrase.',
+    'remember-label':'À retenir',
+    'remember-p':   'Une IA, c\'est un ensemble de technologies informatiques qui, pour fonctionner, a besoin de <span class="highlight">Data</span>. On doit entraîner son <span class="highlight">Modèle d\'IA</span> avec ces données pour qu\'il apprenne à résoudre des problèmes. Une fois suffisamment entraînée, elle devient capable de résoudre des problèmes de manière autonome.',
+    'where-h3':     '3. Où se cache cette IA ?',
+    'where-p1':     'Les <span class="highlight">Modèles d\'IA</span> et les données sont stockés dans des <strong>serveurs</strong>. Imaginez de gros ordinateurs (des unités centrales géantes) qui tournent 24h/24 dans de grandes salles climatisées.',
+    'where-p2':     'Ces serveurs sont connectés à Internet et c\'est ce qui vous permet d\'accéder aux outils IA depuis votre téléphone ou votre ordinateur, n\'importe où dans le monde.',
+    'genai-h3':     '4. C\'est quoi une IA Générative (GenAI) ?',
+    'genai-tools-intro': 'C\'est l\'IA dont tout le monde parle en ce moment ! Voici les plus connus :',
+    'genai-p':      'L\'<span class="highlight-blue">IA Générative</span> (<span class="highlight">GenAI</span>) est une branche de l\'IA qui se concentre sur la <strong>création de contenu</strong> : textes, images, vidéos et audio. Pour les modèles textuels, ils regardent d\'énormes quantités de textes afin d\'apprendre à produire eux-mêmes de nouveaux textes au style humain.',
+    'apps-h3':      '5. Découvrez les applications de la GenAI',
+    'apps-p':       'La <span class="highlight">GenAI</span> peut gérer un large éventail de tâches utiles et faciliter la résolution des défis du quotidien. Voici deux exemples concrets :',
+    'ex-a-tag':     'Exemple A',
+    'ex-a-title':   'Aide à l\'écriture — Rédiger un email difficile avec l\'IA',
+    'ex-a-alice':   '<strong>Alice</strong> doit envoyer un e-mail à sa cheffe au sujet d\'une situation injuste : un collègue s\'est attribué son travail. Le message est délicat — elle veut exprimer sa frustration sans paraître accusatrice. En plus, l\'anglais n\'est pas sa langue maternelle.',
+    'ex-a-p':       'Dans ce type de situation, la <span class="highlight">GenAI</span> peut être très utile ! Elle peut rédiger un message formel, professionnel et équilibré à partir d\'une simple instruction — qu\'on appelle un <span class="highlight">prompt</span>.',
+    'ex-a-caption': 'Capture : ChatGPT générant un email professionnel et calme pour Alice',
+    'ex-b-tag':     'Exemple B',
+    'ex-b-title':   'Génération d\'images — Dessiner une carte avec l\'IA',
+    'ex-b-p1':      'Cette fois, Alice veut créer une <strong>carte d\'anniversaire</strong> pour son ami Bob. Elle imagine une illustration façon dessin animé avec des ballons et l\'animal préféré de Bob : un raton laveur.',
+    'ex-b-p2':      'Les modèles de <span class="highlight">GenAI</span> peuvent transformer des descriptions textuelles en images — on parle de modèles <span class="highlight">text-to-image</span>. Voyons comment Alice peut donner vie à son idée !',
+    'ex-b-caption': 'Capture : Une image générée à partir d\'une description textuelle dans ChatGPT',
+    'conclusion-label':'Conclusion',
+    'conclusion-p': 'Comme vous le voyez, on peut utiliser des modèles de <span class="highlight">GenAI</span> pour obtenir des visuels prêts à l\'emploi simplement en rédigeant une description précise. C\'est la puissance du <span class="highlight">prompt</span> !',
+    'finish-p':     'Vous avez parcouru l\'intégralité du Module 1 — bravo pour votre engagement !',
+    'btn-finish':   'J\'ai terminé ce module',
+    'popup-title':  'Félicitations !',
+    'popup-body':   'Vous avez terminé le <strong>Module 1</strong> avec succès.<br/>Vous connaissez maintenant les bases de l\'IA, du <span style="font-weight:700;color:#0284C7;">Machine Learning</span> et de la <span style="font-weight:700;color:#7C3AED;">GenAI</span>.<br/><br/>Continuez sur cette lancée — les modules suivants vous attendent !',
+    'popup-btn':    'Continuer ma formation',
+  },
+  en: {
+    'page-title':   'AI Training - SAIM',
+    'landing-title':'Mastering Artificial Intelligence for Professional Productivity',
+    'landing-sub':  'SAIM Training &mdash; Module 1: Introduction to AI &amp; Generative AI',
+    'btn-start':    'Start the course',
+    'nav-title':    'Mastering AI for Professional Productivity',
+    'nav-badge':    'Module 1',
+    'who-h2':       'Who are we?',
+    'who-p':        'We are <strong>SAIM</strong>, a Cameroonian initiative aiming to make Artificial Intelligence (AI) accessible to everyone. Our goal? To make AI a driver of growth for our country. Because as you know: <em>artificial intelligence is everyone\'s business!</em>',
+    'obj-label':    'What you will learn',
+    'obj-h2':       'Your training objectives',
+    'obj-intro':    'By the end of this training, you will be able to:',
+    'obj-1':        'Understand the basics of AI without headaches.',
+    'obj-2':        'Effectively use AI tools in your work.',
+    'obj-3':        'Write powerful <strong>"prompts"</strong> (instructions).',
+    'obj-4':        'Automate certain repetitive tasks.',
+    'obj-5':        'Concretely boost your productivity.',
+    'prog-label':   'The program',
+    'prog-h2':      '3 modules to master it all',
+    'mod1-badge':   'Introduction to AI and Generative AI &nbsp;<strong>(in progress)</strong>',
+    'mod2-badge':   'Optimizing productivity with AI',
+    'mod3-badge':   'The Art of Prompting — how to talk to AI effectively',
+    'mod1-label':   'Module 1',
+    'mod1-h2':      'Introduction to Artificial Intelligence and Generative AI',
+    'mod1-intro':   'Today, we tackle the first part: <em>What is AI and what is it actually used for?</em> Let\'s go!',
+    'def-h3':       '1. Definition: What is AI?',
+    'def-p1':       '<span class="highlight-blue">AI</span> is already all around us. You hear about it everywhere: <span class="highlight">ChatGPT</span>, <span class="highlight">Gemini</span>, intelligent robots and drones... People even say that the country that masters AI will control the world. But what exactly is it?',
+    'daily-h4':     'AI in your daily life:',
+    'daily-social': '<strong>📱 Social media (Facebook, TikTok):</strong> Your news feed is unique. It\'s built specifically for you based on your tastes, likes and interests. It\'s not magic — it\'s <span class="highlight-blue">AI</span> working to show you the most relevant content.',
+    'daily-email':  '<strong>📧 Your emails:</strong> When you reply to a colleague and your email client suggests the next part of your sentence in light gray (e.g. <em>"I hope you are doing well"</em>), that\'s <span class="highlight-blue">AI</span> again!',
+    'summary-label':'In summary',
+    'summary-p':    '<span class="highlight-blue">AI</span> is a computer technology that solves complex problems once thought to be exclusive to humans (like understanding an image or reasoning). It\'s not a human brain — it\'s a super powerful tool.',
+    'how-h3':       '2. How does it work?',
+    'how-p1':       'AI doesn\'t run on water (just kidding!), it runs on <span class="highlight">Data</span>. For AI to become intelligent, it must be given enormous amounts of data to train on.',
+    'how-p2':       '<strong>What is "<span class="highlight">Data</span>"?</strong> It\'s the images, texts, videos, sounds or documents we share every day on the Internet or store on our computers.',
+    'how-example':  '<strong>A concrete example:</strong> To teach AI to recognize the difference between a man and a woman, it is shown thousands of photos labeled "man" or "woman". It learns the distinguishing features. Shown a new photo, it can identify correctly. This is called <span class="highlight">Machine Learning</span>.',
+    'how-model':    'Once this training is complete, we get an <span class="highlight">AI Model</span>.',
+    'model-h4':     'What is an "AI Model"?',
+    'model-p':      'Think of the <span class="highlight">AI Model</span> as the machine\'s trained brain. It\'s the end result of all the learning. This computational "brain" allows AI to perform a specific task, like recognizing a face or translating a sentence.',
+    'remember-label':'Key takeaway',
+    'remember-p':   'AI is a set of computer technologies that need <span class="highlight">Data</span> to work. You must train its <span class="highlight">AI Model</span> with data so it learns to solve problems. Once sufficiently trained, it can solve problems autonomously.',
+    'where-h3':     '3. Where does AI live?',
+    'where-p1':     '<span class="highlight">AI Models</span> and data are stored in <strong>servers</strong>. Think of large computers (giant processing units) running 24/7 in large air-conditioned rooms.',
+    'where-p2':     'These servers are connected to the Internet, which is what lets you access AI tools from your phone or computer, anywhere in the world.',
+    'genai-h3':     '4. What is Generative AI (GenAI)?',
+    'genai-tools-intro': 'This is the AI everyone is talking about right now! Here are the most well-known:',
+    'genai-p':      '<span class="highlight-blue">Generative AI</span> (<span class="highlight">GenAI</span>) is a branch of AI focused on <strong>content creation</strong>: text, images, videos and audio. Text models are trained on enormous amounts of text to learn how to produce new human-style text.',
+    'apps-h3':      '5. Discover GenAI applications',
+    'apps-p':       '<span class="highlight">GenAI</span> can handle a wide range of useful tasks and help solve everyday challenges. Here are two concrete examples:',
+    'ex-a-tag':     'Example A',
+    'ex-a-title':   'Writing assistant — Drafting a difficult email with AI',
+    'ex-a-alice':   '<strong>Alice</strong> needs to send an email to her manager about an unfair situation: a colleague took credit for her work. The message is delicate — she wants to express her frustration without sounding accusatory. On top of that, English is not her native language.',
+    'ex-a-p':       'In this type of situation, <span class="highlight">GenAI</span> can be very helpful! It can write a formal, professional and balanced message from a simple instruction — what we call a <span class="highlight">prompt</span>.',
+    'ex-a-caption': 'Screenshot: ChatGPT drafting a professional and calm email for Alice',
+    'ex-b-tag':     'Example B',
+    'ex-b-title':   'Image generation — Drawing a card with AI',
+    'ex-b-p1':      'This time, Alice wants to create a <strong>birthday card</strong> for her friend Bob. She envisions a cartoon-style illustration featuring both of them with balloons and Bob\'s favorite animal: a raccoon.',
+    'ex-b-p2':      '<span class="highlight">GenAI</span> models can turn text descriptions into images — these are called <span class="highlight">text-to-image</span> models. Let\'s see how Alice can bring her idea to life!',
+    'ex-b-caption': 'Screenshot: An image generated from a text description in ChatGPT',
+    'conclusion-label':'Conclusion',
+    'conclusion-p': 'As you can see, <span class="highlight">GenAI</span> models let you create ready-to-use visuals simply by writing a precise description. That\'s the power of a <span class="highlight">prompt</span>!',
+    'finish-p':     'You have completed Module 1 — well done for your commitment!',
+    'btn-finish':   'I\'ve finished this module',
+    'popup-title':  'Congratulations!',
+    'popup-body':   'You have successfully completed <strong>Module 1</strong>.<br/>You now know the basics of AI, <span style="font-weight:700;color:#0284C7;">Machine Learning</span> and <span style="font-weight:700;color:#7C3AED;">GenAI</span>.<br/><br/>Keep it up — the next modules are waiting for you!',
+    'popup-btn':    'Continue my training',
+  }
+};
+
+// ==================== ACTIVE LANG ====================
+let currentLang = 'fr';
+
+function applyLang(lang) {
+  currentLang = lang;
+  document.documentElement.lang = lang;
+  const dict = T[lang];
+
+  // Update page title
+  document.title = dict['page-title'];
+
+  // Update all [data-i18n] elements
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key] !== undefined) el.innerHTML = dict[key];
+  });
+
+  // Update toggle buttons state
+  document.getElementById('toggle-fr').classList.toggle('active', lang === 'fr');
+  document.getElementById('toggle-en').classList.toggle('active', lang === 'en');
+}
+
+function chooseLang(lang) {
+  applyLang(lang);
+  const ls = document.getElementById('lang-select');
+  const lp = document.getElementById('landing');
+  ls.classList.add('hidden');
+  setTimeout(() => {
+    ls.style.display = 'none';
+    lp.style.display = 'flex';
+    requestAnimationFrame(() => lp.style.opacity = '1');
+  }, 600);
+}
+
+function switchLang(lang) {
+  applyLang(lang);
+}
+
+// ==================== LANDING -> COURSE ====================
+document.getElementById('btn-start').addEventListener('click', () => {
+  const landing = document.getElementById('landing');
+  const course  = document.getElementById('course');
+  landing.classList.add('hidden');
+  setTimeout(() => {
+    landing.style.display = 'none';
+    course.style.display = 'block';
+    requestAnimationFrame(() => course.classList.add('visible'));
+    window.scrollTo({ top: 0 });
+  }, 800);
+});
+
+// ==================== SCROLL ANIMATIONS ====================
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), i * 80);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.obj-card').forEach(c => observer.observe(c));
+
+// ==================== POPUP ====================
+const popup       = document.getElementById('popup-overlay');
+const confettiBox = document.getElementById('confetti-container');
+const COLORS = ['#F59E0B','#10B981','#0284C7','#EF4444','#8B5CF6','#EC4899','#F97316'];
+
+function spawnConfetti() {
+  confettiBox.innerHTML = '';
+  for (let i = 0; i < 55; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+    const size  = 6 + Math.random() * 8;
+    p.style.cssText = `left:${Math.random()*100}%;background:${color};width:${size}px;height:${size}px;border-radius:${Math.random()>.5?'50%':'2px'};transform:rotate(${Math.random()*360}deg);animation-duration:${2+Math.random()*2}s;animation-delay:${Math.random()*1.2}s;`;
+    confettiBox.appendChild(p);
+  }
+}
+
+document.getElementById('btn-finish').addEventListener('click', () => {
+  popup.classList.add('active');
+  spawnConfetti();
+});
+document.getElementById('btn-close-popup').addEventListener('click', () => popup.classList.remove('active'));
+popup.addEventListener('click', e => { if (e.target === popup) popup.classList.remove('active'); });
+
+// Init landing hidden (shown only after lang selection)
+document.getElementById('landing').style.opacity = '0';
+document.getElementById('landing').style.transition = 'opacity 0.5s ease';
+</script>
+
+</body>
+</html>

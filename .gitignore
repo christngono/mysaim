@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+
+# Build output
+frontend/dist/
+
+# Environment secrets — NE JAMAIS COMMITTER
+backend/.env
+.env
+
+# Database locale (sera régénérée sur le serveur via seed.js)
+backend/db/saim.db
+backend/db/saim.db-shm
+backend/db/saim.db-wal
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Scripts ponctuels (optionnel : les garder si tu veux les jouer sur le serveur)
+# backend/add_quiz_module2.js
+# backend/add_exercise_module2.js
