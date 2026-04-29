@@ -110,6 +110,19 @@ router.post('/lessons/:id/complete', requireAuth, (req, res) => {
   res.json({ success: true });
 });
 
+// ─── POST /courses/track-time ────────────────────────────────────────────────
+router.post('/track-time', requireAuth, (req, res) => {
+  const { section_type, section_id, module_id, duration_seconds } = req.body;
+  if (!section_type || !section_id || !duration_seconds || duration_seconds < 5) {
+    return res.json({ ok: true });
+  }
+  db.prepare(`
+    INSERT INTO section_time (user_id, section_type, section_id, module_id, duration_seconds)
+    VALUES (?, ?, ?, ?, ?)
+  `).run(req.user.id, section_type, section_id, module_id || null, Math.min(duration_seconds, 86400));
+  res.json({ ok: true });
+});
+
 // ─── GET /courses/progress  (overall user progress) ──────────────────────────
 router.get('/progress', requireAuth, (req, res) => {
   const total = db.prepare('SELECT COUNT(*) as cnt FROM lessons WHERE is_published = 1').get().cnt;

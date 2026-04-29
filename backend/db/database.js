@@ -204,6 +204,21 @@ function initDB() {
     );
   `);
 
+  // ─── Section time tracking ────────────────────────────────────────────────────
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS section_time (
+      id               INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id          INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      section_type     TEXT    NOT NULL,
+      section_id       INTEGER NOT NULL,
+      module_id        INTEGER REFERENCES modules(id) ON DELETE SET NULL,
+      duration_seconds INTEGER NOT NULL DEFAULT 0,
+      recorded_at      TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_time_user   ON section_time(user_id);
+    CREATE INDEX IF NOT EXISTS idx_time_module ON section_time(module_id);
+  `);
+
   console.log('✅ Database initialized');
 }
 

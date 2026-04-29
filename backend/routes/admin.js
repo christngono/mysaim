@@ -135,6 +135,26 @@ router.get('/stats', requireAdmin, (req, res) => {
   res.json(stats);
 });
 
+// ─── TIME STATS ───────────────────────────────────────────────────────────────
+router.get('/time-stats', requireAdmin, (req, res) => {
+  const rows = db.prepare(`
+    SELECT
+      st.user_id,
+      u.first_name,
+      u.last_name,
+      st.section_type,
+      st.module_id,
+      COALESCE(m.title_fr, 'Module inconnu') AS module_title,
+      SUM(st.duration_seconds) AS total_seconds
+    FROM section_time st
+    JOIN users u ON u.id = st.user_id
+    LEFT JOIN modules m ON m.id = st.module_id
+    GROUP BY st.user_id, st.section_type, st.module_id
+    ORDER BY st.user_id, st.module_id, st.section_type
+  `).all();
+  res.json(rows);
+});
+
 // ─── PROGRESS ─────────────────────────────────────────────────────────────────
 router.get('/progress', requireAdmin, (req, res) => {
   const users = db.prepare(`
@@ -505,6 +525,19 @@ router.get('/exercises/:id/questions', requireAdmin, (req, res) => {
     'SELECT * FROM exercise_questions WHERE exercise_id = ? ORDER BY order_index'
   ).all(req.params.id);
   res.json(questions);
+});
+
+// ─── MARK LESSON COMPLETE FOR USER ───────────────────────────────────────────
+router.post('/users/:userId/progress/complete', requireAdmin, (req, res) => {
+  const { lesson_id } = req.body;
+  if (!lesson_id) return res.status(400).json({ error: 'Missing lesson_id' });
+  db.prepare(`
+    INSERT INTO user_progress (user_id, lesson_id, completed, completed_at, started_at)
+    VALUES (?, ?, 1, datetime('now'), datetime('now'))
+    ON CONFLICT(user_id, lesson_id) DO UPDATE
+    SET completed = 1, completed_at = COALESCE(completed_at, datetime('now'))
+  `).run(req.params.userId, lesson_id);
+  res.json({ success: true });
 });
 
 // ─── RESET USER PROGRESS ──────────────────────────────────────────────────────
