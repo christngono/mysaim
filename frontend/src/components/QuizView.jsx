@@ -4,7 +4,7 @@ import { useT } from '../i18n/translations'
 import api from '../api/axios'
 
 // ─── Result screen ────────────────────────────────────────────────────────────
-function QuizResult({ result, score, total, passed, passingScore, t, lang, onRetake, onClose }) {
+function QuizResult({ result, score, total, passed, passingScore, t, lang, onRetake, onClose, afterPassedBtn }) {
   return (
     <div className="max-w-2xl mx-auto">
       {/* Score banner */}
@@ -69,12 +69,13 @@ function QuizResult({ result, score, total, passed, passingScore, t, lang, onRet
       </div>
 
       {/* Actions */}
-      <div className="flex gap-3 justify-center">
+      <div className="flex flex-wrap gap-3 justify-center">
         {!passed && (
           <button onClick={onRetake} className="btn-primary">
             {t('quiz_retake')} →
           </button>
         )}
+        {passed && afterPassedBtn}
         <button onClick={onClose} className="btn-secondary">
           {passed ? '← Continuer la formation' : 'Fermer'}
         </button>
@@ -84,7 +85,7 @@ function QuizResult({ result, score, total, passed, passingScore, t, lang, onRet
 }
 
 // ─── Main Quiz component ──────────────────────────────────────────────────────
-export default function QuizView({ moduleId, quizInfo, onClose, onPassed }) {
+export default function QuizView({ moduleId, onClose, onPassed, afterPassedBtn }) {
   const { lang } = useLang()
   const t = useT(lang)
 
@@ -157,7 +158,10 @@ export default function QuizView({ moduleId, quizInfo, onClose, onPassed }) {
           {lang === 'fr' ? 'Votre meilleur score' : 'Your best score'} :{' '}
           <span className="font-bold text-emerald-600">{quizData.best_attempt.score}/{quizData.best_attempt.total}</span>
         </p>
-        <button onClick={onClose} className="btn-primary mt-6">← {lang === 'fr' ? 'Retour' : 'Back'}</button>
+        <div className="flex flex-wrap gap-3 justify-center mt-6">
+          {afterPassedBtn}
+          <button onClick={onClose} className="btn-secondary">← {lang === 'fr' ? 'Retour' : 'Back'}</button>
+        </div>
       </div>
     )
   }
@@ -174,6 +178,7 @@ export default function QuizView({ moduleId, quizInfo, onClose, onPassed }) {
         lang={lang}
         onRetake={loadQuiz}
         onClose={onClose}
+        afterPassedBtn={afterPassedBtn}
       />
     )
   }

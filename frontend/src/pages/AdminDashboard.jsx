@@ -348,7 +348,13 @@ function SectionDashboard() {
       <h1 className="text-2xl font-extrabold text-slate-800 mb-6">Tableau de bord</h1>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {cards.map(c => (
+        {!stats ? [1, 2, 3, 4].map(i => (
+          <div key={i} className="card p-5 animate-pulse">
+            <div className="w-8 h-8 bg-slate-200 rounded-lg mb-2" />
+            <div className="h-8 bg-slate-200 rounded w-2/3 mb-2" />
+            <div className="h-3 bg-slate-200 rounded w-1/2" />
+          </div>
+        )) : cards.map(c => (
           <div key={c.label} className="card p-5">
             <div className="text-2xl mb-2">{c.icon}</div>
             <div className="text-3xl font-extrabold text-slate-800">{c.value ?? '—'}</div>
@@ -1292,14 +1298,30 @@ function SectionQuotes() {
 }
 
 // ─── Section: Progression ─────────────────────────────────────────────────────
+function fmtMinutes(seconds) {
+  if (!seconds) return '0 min'
+  const m = Math.round(seconds / 60)
+  if (m < 60) return `${m} min`
+  return `${Math.floor(m / 60)}h ${m % 60}min`
+}
+
 function SectionProgress() {
   const [data, setData]             = useState([])
+  const [timeStats, setTimeStats]   = useState([])
+  const [loading, setLoading]       = useState(true)
   const [expanded, setExpanded]     = useState(null)
   const [resetModal, setResetModal] = useState(null) // { user }
   const [resetting, setResetting]   = useState(false)
 
   const load = useCallback(() => {
-    api.get('/admin/progress').then(r => setData(r.data)).catch(() => {})
+    setLoading(true)
+    Promise.all([
+      api.get('/admin/progress'),
+      api.get('/admin/time-stats'),
+    ]).then(([prog, time]) => {
+      setData(prog.data)
+      setTimeStats(time.data)
+    }).catch(() => {}).finally(() => setLoading(false))
   }, [])
 
   useEffect(() => { load() }, [load])
@@ -1320,8 +1342,20 @@ function SectionProgress() {
   return (
     <div>
       <h1 className="text-2xl font-extrabold text-slate-800 mb-6">Progression des apprenants</h1>
+      {loading && (
+        <div className="space-y-3 animate-pulse">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="card p-4 flex items-center gap-4">
+              <div className="w-4 h-4 bg-slate-200 rounded" />
+              <div className="flex-1 h-4 bg-slate-200 rounded" />
+              <div className="w-24 h-3 bg-slate-200 rounded" />
+              <div className="w-10 h-5 bg-slate-200 rounded" />
+            </div>
+          ))}
+        </div>
+      )}
       <div className="space-y-3">
-        {data.map(u => (
+        {!loading && data.map(u => (
           <div key={u.id} className="card overflow-hidden">
             {/* Row header */}
             <div className="flex items-center gap-4 p-4 hover:bg-slate-50">
@@ -1394,6 +1428,13 @@ function SectionProgress() {
                           <span className="flex-1">{l.title_fr}</span>
                           <span className="text-slate-400 hidden sm:block">Début: {fmtDate(l.started_at)}</span>
                           <span className="text-slate-400 hidden sm:block">Fin: {fmtDate(l.completed_at)}</span>
+                          {!l.completed && (
+                            <button
+                              onClick={() => api.post(`/admin/users/${u.id}/progress/complete`, { lesson_id: l.lesson_id }).then(load)}
+                              className="flex-shrink-0 text-xs text-emerald-600 hover:text-emerald-800 font-bold px-2 py-0.5 rounded hover:bg-emerald-50 transition-all"
+                              title="Valider cette leçon"
+                            >✓ Valider</button>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -1402,13 +1443,28 @@ function SectionProgress() {
                         Quiz: {m.quiz_score}/{m.quiz_total} {m.quiz_passed ? '✓ Réussi' : '✗ Échoué'}
                       </div>
                     )}
+                    {/* Time spent per section type */}
+                    {(() => {
+                      const rows = timeStats.filter(t => t.user_id === u.id && t.module_id === m.module_id)
+                      if (!rows.length) return null
+                      const labels = { lesson: '📖 Leçons', quiz: '📝 Quiz', exercise: '📋 Exercice', question: '💬 Q&A' }
+                      return (
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          {rows.map(t => (
+                            <span key={t.section_type} className="text-xs px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full font-medium">
+                              {labels[t.section_type] || t.section_type} · {fmtMinutes(t.total_seconds)}
+                            </span>
+                          ))}
+                        </div>
+                      )
+                    })()}
                   </div>
                 ))}
               </div>
             )}
           </div>
         ))}
-        {data.length === 0 && <p className="text-sm text-slate-400">Aucun apprenant.</p>}
+        {!loading && data.length === 0 && <p className="text-sm text-slate-400">Aucun apprenant.</p>}
       </div>
 
       {/* Reset modal */}
