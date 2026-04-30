@@ -150,6 +150,57 @@ function ContentBlock({ section, lang, keywords }) {
       </div>
     )
   }
+  if (section.type === 'heading') {
+    return (
+      <div className="mt-10 mb-4 pb-2 border-b-2 border-saim-100">
+        <h3 className="text-base font-extrabold text-saim-700 uppercase tracking-wide">{section.title}</h3>
+      </div>
+    )
+  }
+  if (section.type === 'steps') {
+    const items = section.items || []
+    return (
+      <div className="my-5 space-y-4">
+        {section.title && <p className="font-semibold text-slate-700 mb-3">{section.title}</p>}
+        <ol className="space-y-4">
+          {items.map((item, idx) => (
+            <li key={idx} className="flex items-start gap-4">
+              <span className="flex-shrink-0 w-7 h-7 rounded-full bg-saim-500 text-white text-sm font-bold flex items-center justify-center mt-0.5">{idx + 1}</span>
+              <div className="flex-1">
+                {item.title && <strong className="block text-slate-800 mb-1">{item.title}</strong>}
+                <span className="text-slate-600 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: highlight(typeof item === 'string' ? item : (item.text || ''), keywords) }} />
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    )
+  }
+  if (section.type === 'table') {
+    return (
+      <div className="my-5 overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+        {section.title && <p className="font-semibold text-slate-700 px-4 pt-4 mb-3">{section.title}</p>}
+        <table className="w-full text-sm border-collapse">
+          <thead>
+            <tr className="bg-saim-700 text-white">
+              {(section.headers || []).map((h, i) => (
+                <th key={i} className="text-left px-4 py-3 font-semibold">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {(section.rows || []).map((row, i) => (
+              <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-saim-50'}>
+                {row.map((cell, j) => (
+                  <td key={j} className="px-4 py-3 border-b border-slate-100 text-slate-700">{cell}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )
+  }
   return null
 }
 
