@@ -276,70 +276,133 @@ export default function LandingPage({ onLoginClick, onEnterDashboard }) {
     <div className="min-h-screen">
       <Navbar onLoginClick={onLoginClick} scrollTo={scrollTo} />
 
-      {/* ─── HERO ──────────────────────────────────────────────────────────── */}
+      {/* ─── HERO SLIDESHOW ────────────────────────────────────────────────── */}
       <section ref={(el) => { refs.hero.current = el; heroRef.current = el }}
         id="hero" className="relative min-h-screen flex items-center overflow-hidden">
 
-        {/* Parallax background */}
-        <motion.div className="absolute inset-0" style={{ y: heroBgY }}>
-          <img src="/images/image_qui_apprend.jpg" alt="Hero"
-            className="w-full h-full object-cover scale-110" />
-          <div className="absolute inset-0 bg-gradient-to-br from-saim-700/90 via-saim-600/85 to-saim-800/90" />
-        </motion.div>
+        {/* Slideshow background — cross-fade */}
+        <AnimatePresence mode="sync">
+          <motion.div key={`bg-${slideIdx}`} className="absolute inset-0"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 1 }}
+            style={{ y: heroBgY }}>
+            <img src={slide.bg} alt={slide.title}
+              className="w-full h-full object-cover scale-110" />
+            <div className={`absolute inset-0 bg-gradient-to-br ${slide.gradient}`} />
+          </motion.div>
+        </AnimatePresence>
 
-        {/* Floating decorative orbs */}
+        {/* Decorative orbs */}
         <motion.div className="absolute top-20 right-20 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none"
           animate={{ scale: [1, 1.15, 1], opacity: [0.4, 0.7, 0.4] }}
           transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }} />
-        <motion.div className="absolute bottom-32 left-10 w-48 h-48 bg-saim-300/10 rounded-full blur-2xl pointer-events-none"
+        <motion.div className="absolute bottom-32 left-10 w-48 h-48 bg-white/5 rounded-full blur-2xl pointer-events-none"
           animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
           transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 2 }} />
 
-        {/* Hero content with parallax */}
-        <motion.div className="relative z-10 max-w-7xl mx-auto px-6 py-32 lg:py-40"
+        {/* Slide counter top-right */}
+        <div className="absolute top-24 right-8 z-20 text-white/50 text-sm font-bold tabular-nums select-none">
+          {slideIdx + 1} / {formations.length}
+        </div>
+
+        {/* Slide content */}
+        <motion.div className="relative z-10 max-w-7xl mx-auto px-6 py-32 lg:py-40 w-full"
           style={{ y: heroTextY, opacity: heroOpacity }}>
-          <div className="max-w-3xl">
-            <motion.p
-              className="inline-flex items-start gap-2 bg-white/15 backdrop-blur text-white text-sm font-medium px-4 py-2.5 rounded-xl mb-6 max-w-xl leading-relaxed"
-              initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.1 }}>
-              🌍 {t('hero_tag')}
-            </motion.p>
-            <motion.h1
-              className="text-4xl lg:text-6xl font-extrabold text-white leading-tight mb-6"
-              initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.25 }}>
-              {t('hero_title')}
-            </motion.h1>
-            <motion.p
-              className="text-lg text-white/85 mb-10 max-w-xl"
-              initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.4 }}>
-              {t('hero_sub')}
-            </motion.p>
-            <motion.div className="flex flex-wrap gap-4"
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.55 }}>
-              {user ? (
-                <button onClick={onEnterDashboard} className="btn-accent text-base px-8 py-3">
-                  {t('nav_dashboard')} →
-                </button>
-              ) : (
-                <>
-                  <button onClick={() => scrollTo('contact')} className="btn-accent text-base px-8 py-3">
-                    Nous contacter →
+          <AnimatePresence mode="wait">
+            <motion.div key={`content-${slideIdx}`} className="max-w-3xl"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.55, ease: 'easeOut' }}>
+
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur border border-white/20 text-white text-sm font-semibold px-4 py-2 rounded-full mb-6">
+                <span>{slide.icon}</span>
+                <span>Formation SAIM</span>
+                <span className="w-1 h-1 rounded-full bg-white/40" />
+                <span className="font-extrabold">{slide.price} FCFA</span>
+                <span className="text-white/60 font-normal">/ personne</span>
+              </div>
+
+              {/* Title */}
+              <h1 className="text-4xl lg:text-6xl font-extrabold text-white leading-tight mb-5">
+                {slide.title}
+              </h1>
+
+              {/* Description */}
+              <p className="text-lg text-white/85 mb-6 max-w-xl leading-relaxed">
+                {slide.desc}
+              </p>
+
+              {/* Audience tags */}
+              <div className="flex flex-wrap gap-2 mb-10">
+                {slide.tags.map(tag => (
+                  <span key={tag}
+                    className="text-xs bg-white/15 backdrop-blur border border-white/20 text-white/90 px-3 py-1.5 rounded-full font-medium">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              {/* CTA buttons */}
+              <div className="flex flex-wrap gap-4">
+                {user ? (
+                  <button onClick={onEnterDashboard} className="btn-accent text-base px-8 py-3">
+                    {t('nav_dashboard')} →
                   </button>
-                  <button onClick={() => scrollTo('about')} className="inline-flex items-center gap-2 text-white border-2 border-white/40 hover:border-white hover:bg-white/10 font-semibold px-8 py-3 rounded-full transition-all text-base">
-                    {t('hero_learn')}
-                  </button>
-                </>
-              )}
+                ) : (
+                  <>
+                    <button onClick={onLoginClick}
+                      className="btn-accent text-base px-8 py-3">
+                      S'essayer gratuitement →
+                    </button>
+                    <button onClick={() => scrollTo('about')}
+                      className="inline-flex items-center gap-2 text-white border-2 border-white/40 hover:border-white hover:bg-white/10 font-semibold px-8 py-3 rounded-full transition-all text-base">
+                      En savoir plus
+                    </button>
+                  </>
+                )}
+              </div>
             </motion.div>
-          </div>
+          </AnimatePresence>
         </motion.div>
 
-        <button onClick={() => scrollTo('about')} className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/60 hover:text-white animate-bounce-slow">
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+        {/* Prev arrow */}
+        <button
+          onClick={() => setSlideIdx(i => (i - 1 + formations.length) % formations.length)}
+          className="absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/10 backdrop-blur border border-white/25 text-white flex items-center justify-center hover:bg-white/25 transition-all">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+
+        {/* Next arrow */}
+        <button
+          onClick={() => setSlideIdx(i => (i + 1) % formations.length)}
+          className="absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/10 backdrop-blur border border-white/25 text-white flex items-center justify-center hover:bg-white/25 transition-all">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+
+        {/* Navigation dots */}
+        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5">
+          {formations.map((f, i) => (
+            <button key={i} onClick={() => setSlideIdx(i)}
+              className={`transition-all duration-400 rounded-full ${
+                i === slideIdx
+                  ? `w-8 h-2.5 ${f.accentDot}`
+                  : 'w-2.5 h-2.5 bg-white/35 hover:bg-white/60'
+              }`} />
+          ))}
+        </div>
+
+        {/* Scroll down */}
+        <button onClick={() => scrollTo('about')}
+          className="absolute bottom-7 left-1/2 -translate-x-1/2 z-20 text-white/50 hover:text-white transition-colors animate-bounce-slow">
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
         </button>
       </section>
 
