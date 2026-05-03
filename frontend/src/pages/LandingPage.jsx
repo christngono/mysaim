@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { useRef, useState, useEffect } from 'react'
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { useLang } from '../context/LangContext'
 import { useT } from '../i18n/translations'
@@ -230,6 +230,9 @@ export default function LandingPage({ onLoginClick, onEnterDashboard }) {
       tagBg: 'bg-saim-50 text-saim-700',
       iconBg: 'bg-saim-100',
       priceCls: 'text-saim-700',
+      bg: '/images/image_qui_apprend.jpg',
+      gradient: 'from-saim-700/90 via-saim-600/85 to-saim-800/90',
+      accentDot: 'bg-saim-400',
     },
     {
       icon: '📣',
@@ -241,6 +244,9 @@ export default function LandingPage({ onLoginClick, onEnterDashboard }) {
       tagBg: 'bg-amber-50 text-amber-700',
       iconBg: 'bg-amber-100',
       priceCls: 'text-amber-700',
+      bg: '/images/image_chatgpt.jpg',
+      gradient: 'from-amber-900/90 via-amber-700/80 to-saim-900/90',
+      accentDot: 'bg-amber-400',
     },
     {
       icon: '🎬',
@@ -252,8 +258,19 @@ export default function LandingPage({ onLoginClick, onEnterDashboard }) {
       tagBg: 'bg-violet-50 text-violet-700',
       iconBg: 'bg-violet-100',
       priceCls: 'text-violet-700',
+      bg: '/images/capture_generation_Image.jpeg',
+      gradient: 'from-violet-900/90 via-violet-700/80 to-saim-900/90',
+      accentDot: 'bg-violet-400',
     },
   ]
+
+  const [slideIdx, setSlideIdx] = useState(0)
+  const slide = formations[slideIdx]
+
+  useEffect(() => {
+    const timer = setInterval(() => setSlideIdx(i => (i + 1) % formations.length), 5500)
+    return () => clearInterval(timer)
+  }, [slideIdx])
 
   return (
     <div className="min-h-screen">
