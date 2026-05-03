@@ -219,17 +219,41 @@ export default function LandingPage({ onLoginClick, onEnterDashboard }) {
     { icon: '🚀', key: 'obj_5' },
   ]
 
-  const modules = [
-    { num: 1, icon: '🤖', color: 'saim',    titleKey: 'mod1_title', descKey: 'mod1_desc' },
-    { num: 2, icon: '⚡', color: 'amber',   titleKey: 'mod2_title', descKey: 'mod2_desc' },
-    { num: 3, icon: '✍️', color: 'emerald', titleKey: 'mod3_title', descKey: 'mod3_desc' },
+  const formations = [
+    {
+      icon: '⚡',
+      color: 'saim',
+      title: 'Maîtriser l\'IA pour la productivité professionnelle',
+      desc: 'Intégrez l\'intelligence artificielle dans votre quotidien professionnel pour travailler mieux, plus vite et plus intelligemment.',
+      tags: ['Cadres', 'Managers', 'Dirigeants', 'Consultants', 'Professionnels'],
+      price: '20 000',
+      tagBg: 'bg-saim-50 text-saim-700',
+      iconBg: 'bg-saim-100',
+      priceCls: 'text-saim-700',
+    },
+    {
+      icon: '📣',
+      color: 'amber',
+      title: 'Utiliser l\'IA dans le marketing',
+      desc: 'Créez du contenu percutant, automatisez vos campagnes et amplifiez votre impact commercial grâce aux outils IA.',
+      tags: ['Marketeurs', 'Communicants', 'Entrepreneurs', 'Community managers', 'PME'],
+      price: '25 000',
+      tagBg: 'bg-amber-50 text-amber-700',
+      iconBg: 'bg-amber-100',
+      priceCls: 'text-amber-700',
+    },
+    {
+      icon: '🎬',
+      color: 'violet',
+      title: 'Montage vidéo avec les outils IA',
+      desc: 'Produisez des vidéos publicitaires, films et animations de qualité professionnelle rapidement grâce à l\'IA.',
+      tags: ['Créateurs de contenu', 'Agences com', 'Entrepreneurs', 'Freelances', 'Médias'],
+      price: '30 000',
+      tagBg: 'bg-violet-50 text-violet-700',
+      iconBg: 'bg-violet-100',
+      priceCls: 'text-violet-700',
+    },
   ]
-
-  const colorMap = {
-    saim:    { bg: 'bg-saim-100',    text: 'text-saim-700',    num: 'bg-saim-500' },
-    amber:   { bg: 'bg-amber-100',   text: 'text-amber-700',   num: 'bg-amber-500' },
-    emerald: { bg: 'bg-emerald-100', text: 'text-emerald-700', num: 'bg-emerald-500' },
-  }
 
   return (
     <div className="min-h-screen">
@@ -406,48 +430,52 @@ export default function LandingPage({ onLoginClick, onEnterDashboard }) {
         </div>
       </section>
 
-      {/* ─── TRAINING / MODULES ────────────────────────────────────────────── */}
+      {/* ─── NOS FORMATIONS ────────────────────────────────────────────────── */}
       <section ref={refs.training} id="training" className="py-24 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div className="text-center mb-14"
             variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            <span className="section-chip">{t('training_label')}</span>
-            <h2 className="text-3xl lg:text-4xl font-extrabold text-saim-800 mt-3 mb-4">{t('training_title')}</h2>
-            <p className="text-slate-500 max-w-xl mx-auto">{t('training_sub')}</p>
+            <span className="section-chip">Nos formations</span>
+            <h2 className="text-3xl lg:text-4xl font-extrabold text-saim-800 mt-3 mb-4">Nos Formations</h2>
+            <p className="text-slate-500 max-w-xl mx-auto">Choisissez la formation qui correspond à votre besoin professionnel</p>
           </motion.div>
 
-          <motion.div className="grid md:grid-cols-3 gap-6 mb-14"
+          <motion.div className="grid md:grid-cols-3 gap-8"
             variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            {modules.map(m => {
-              const c = colorMap[m.color]
-              return (
-                <motion.div key={m.num} variants={cardItem}
-                  className="card p-6 hover:shadow-lg transition-all group"
-                  whileHover={{ y: -6, transition: { duration: 0.25 } }}>
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className={`w-10 h-10 rounded-full ${c.num} text-white flex items-center justify-center font-extrabold text-sm`}>{m.num}</div>
-                    <span className="text-2xl">{m.icon}</span>
+            {formations.map((f, i) => (
+              <motion.div key={i} variants={cardItem}
+                className="card p-8 flex flex-col hover:shadow-xl transition-all border-2 border-transparent hover:border-saim-100"
+                whileHover={{ y: -8, transition: { duration: 0.25 } }}>
+                <div className="mb-5">
+                  <div className={`w-14 h-14 rounded-2xl ${f.iconBg} flex items-center justify-center text-3xl mb-5`}>
+                    {f.icon}
                   </div>
-                  <h3 className="font-bold text-slate-800 mb-2 group-hover:text-saim-700 transition-colors">{t(m.titleKey)}</h3>
-                  <p className="text-sm text-slate-500">{t(m.descKey)}</p>
-                </motion.div>
-              )
-            })}
-          </motion.div>
-
-          <motion.div className="relative rounded-2xl overflow-hidden shadow-2xl"
-            variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            <img src="/images/image_chatgpt.jpg" alt="AI Training" className="w-full h-72 object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-saim-800/80 to-transparent flex items-end p-8">
-              <motion.div
-                initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }}
-                viewport={viewOpts} transition={{ delay: 0.3 }}>
-                <h3 className="text-white font-bold text-xl mb-2">Prêt à commencer ?</h3>
-                <button onClick={() => scrollTo('contact')} className="btn-accent text-sm">
-                  Contactez-nous →
-                </button>
+                  <h3 className="text-lg font-extrabold text-saim-800 mb-3 leading-snug">{f.title}</h3>
+                  <p className="text-slate-500 text-sm leading-relaxed">{f.desc}</p>
+                </div>
+                <div className="mb-6 flex-1">
+                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">Pour qui ?</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {f.tags.map(tag => (
+                      <span key={tag} className={`text-xs px-2.5 py-1 rounded-full font-medium ${f.tagBg}`}>{tag}</span>
+                    ))}
+                  </div>
+                </div>
+                <div className="border-t border-slate-100 pt-5 mt-auto">
+                  <div className="mb-4">
+                    <div className="text-xs text-slate-400 font-medium mb-0.5">Prix</div>
+                    <div className={`text-2xl font-extrabold ${f.priceCls}`}>
+                      {f.price} <span className="text-base font-bold text-slate-500">FCFA</span>
+                      <span className="text-xs font-medium text-slate-400 ml-1">/ personne</span>
+                    </div>
+                  </div>
+                  <button onClick={onLoginClick}
+                    className="btn-primary w-full justify-center text-sm">
+                    S'essayer gratuitement →
+                  </button>
+                </div>
               </motion.div>
-            </div>
+            ))}
           </motion.div>
         </div>
       </section>
