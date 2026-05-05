@@ -4,7 +4,7 @@ import { useLang } from '../context/LangContext'
 import { useT } from '../i18n/translations'
 import LangToggle from './LangToggle'
 
-export default function Navbar({ onLoginClick, scrollTo, onAboutPage }) {
+export default function Navbar({ onLoginClick, scrollTo, onAboutPage, onFormationPage }) {
   const { user, logout } = useAuth()
   const { lang } = useLang()
   const t = useT(lang)
@@ -14,7 +14,7 @@ export default function Navbar({ onLoginClick, scrollTo, onAboutPage }) {
   const navLinks = [
     { key: 'home',     label: 'Accueil',           action: () => scrollTo('hero') },
     { key: 'about',    label: t('nav_about'),       action: () => onAboutPage ? onAboutPage() : scrollTo('about') },
-    { key: 'training', label: t('nav_training'),    action: () => scrollTo('training') },
+    { key: 'training', label: t('nav_training'),    action: () => onFormationPage ? onFormationPage() : scrollTo('training') },
     { key: 'contact',  label: t('nav_contact'),     action: () => scrollTo('contact') },
   ]
 

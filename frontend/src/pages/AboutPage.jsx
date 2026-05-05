@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { useLang } from '../context/LangContext'
 import { useT } from '../i18n/translations'
@@ -21,190 +21,6 @@ const cardItem = {
 const viewOpts = { once: true, margin: '-60px' }
 
 // ─── Données programmes ───────────────────────────────────────────────────────
-const programs = [
-  {
-    icon: '⚡',
-    color: 'saim',
-    title: "Maîtriser l'IA pour la Productivité Professionnelle",
-    price: '20 000 FCFA',
-    tags: ['Cadres', 'Managers', 'Dirigeants', 'Consultants', 'Professionnels'],
-    modules: [
-      {
-        title: "Module 1 : Introduction à l'IA et à l'IA Générative",
-        items: [
-          "Qu'est-ce que l'IA ? Définitions et applications concrètes.",
-          "Comment fonctionne l'IA : Le rôle de la Data et du Machine Learning.",
-          "L'IA Générative (GenIA) : Création de textes, images, vidéos.",
-          "Forces, limites et biais des modèles d'IA.",
-        ],
-      },
-      {
-        title: "Module 2 : Optimiser sa Productivité avec l'IA",
-        items: [
-          "Identification des tâches répétitives et chronophages.",
-          "Outils d'IA pour l'automatisation et l'efficacité (assistants textuels, outils bureautiques).",
-          "Cas pratiques d'intégration de l'IA dans les workflows professionnels.",
-        ],
-      },
-      {
-        title: "Module 3 : L'Art du Prompting",
-        items: [
-          "Comprendre l'importance d'un bon prompt.",
-          "Formuler des prompts clairs, précis et efficaces.",
-          "Techniques avancées : Prompting contextuel, itératif, few-shot.",
-          "Exercices pratiques pour différents cas d'utilisation.",
-        ],
-      },
-      {
-        title: "Module 4 : Découvrir les Requêtes Multimodales",
-        items: [
-          "Comprendre l'IA multimodale : texte, image, son, vidéo.",
-          "Comment interagir avec des IA qui combinent plusieurs types de données.",
-          "Cas d'usage des requêtes multimodales en entreprise.",
-        ],
-      },
-      {
-        title: "Module 5 : Utilisation de l'IA dans son Domaine d'Activité",
-        items: [
-          "Identifier les opportunités d'intégration de l'IA dans votre métier.",
-          "Adapter les outils d'IA aux spécificités de votre secteur.",
-          "Développer des stratégies d'adoption de l'IA personnalisées.",
-        ],
-      },
-    ],
-  },
-  {
-    icon: '📣',
-    color: 'amber',
-    title: "Utiliser l'IA dans le Marketing",
-    price: '25 000 FCFA',
-    tags: ['Marketeurs', 'Communicants', 'Entrepreneurs', 'Community managers', 'PME'],
-    modules: [
-      {
-        title: "Module 1 : Fondamentaux de l'IA pour le Marketing",
-        items: [
-          "Panorama des outils d'IA dédiés au marketing.",
-          "Comprendre l'impact de l'IA sur les stratégies marketing.",
-          "Éthique et IA dans la communication.",
-        ],
-      },
-      {
-        title: "Module 2 : Création de Contenu et Rédaction Assistée par l'IA",
-        items: [
-          "Génération de textes marketing (articles de blog, posts réseaux sociaux, emails).",
-          "Création de visuels et d'images avec l'IA (DALL-E, Midjourney).",
-          "Optimisation du contenu pour le SEO grâce à l'IA.",
-        ],
-      },
-      {
-        title: "Module 3 : Automatisation et Personnalisation des Campagnes",
-        items: [
-          "Utilisation de l'IA pour la segmentation d'audience.",
-          "Automatisation des campagnes email et des chatbots.",
-          "Analyse prédictive des comportements clients.",
-        ],
-      },
-      {
-        title: "Module 4 : Mesure de Performance et Optimisation",
-        items: [
-          "Tableaux de bord IA pour le suivi des KPIs marketing.",
-          "Optimisation des campagnes publicitaires avec l'IA.",
-          "Études de cas et bonnes pratiques.",
-        ],
-      },
-    ],
-  },
-  {
-    icon: '🎬',
-    color: 'violet',
-    title: "Montage Vidéo avec les Outils IA",
-    price: '30 000 FCFA',
-    tags: ['Créateurs de contenu', 'Agences com', 'Entrepreneurs', 'Freelances', 'Médias'],
-    modules: [
-      {
-        title: "Module 1 : Introduction à l'IA dans la Production Vidéo",
-        items: [
-          "Présentation des outils d'IA pour le montage et la création vidéo.",
-          "Comprendre les workflows de production vidéo assistés par l'IA.",
-          "Notions de base de la narration visuelle.",
-        ],
-      },
-      {
-        title: "Module 2 : Génération et Amélioration d'Assets Vidéo par l'IA",
-        items: [
-          "Création de scripts et de storyboards avec l'IA.",
-          "Génération d'images et de séquences vidéo à partir de texte (text-to-video).",
-          "Amélioration de la qualité vidéo (upscaling, stabilisation, colorisation) avec l'IA.",
-        ],
-      },
-      {
-        title: "Module 3 : Montage et Post-Production Intelligents",
-        items: [
-          "Montage automatique de séquences vidéo.",
-          "Suppression d'objets indésirables, retouche faciale par l'IA.",
-          "Génération de voix off et de sous-titres automatiques.",
-        ],
-      },
-      {
-        title: "Module 4 : Effets Spéciaux et Animation par l'IA",
-        items: [
-          "Création d'effets visuels complexes.",
-          "Animation de personnages et de scènes.",
-          "Optimisation pour différentes plateformes de diffusion.",
-        ],
-      },
-    ],
-  },
-  {
-    icon: '🧠',
-    color: 'emerald',
-    title: "Spécialisation des Modèles IA pour les Professionnels",
-    price: 'Sur devis',
-    tags: ['Data scientists', 'Ingénieurs', 'Chercheurs', 'CTO', 'Développeurs'],
-    modules: [
-      {
-        title: "Module 1 : Fondamentaux des Modèles Spécialisés",
-        items: [
-          "Rappel sur les architectures de modèles (LLM, Vision Transformers).",
-          "Introduction au Fine-Tuning et à l'entraînement sur données spécifiques.",
-          "Évaluation des performances et métriques clés.",
-        ],
-      },
-      {
-        title: "Module 2 : Personnalisation et Adaptation des Modèles",
-        items: [
-          "Techniques de Fine-Tuning : LoRA, QLoRA, etc.",
-          "Intégration de bases de connaissances externes (RAG — Retrieval Augmented Generation).",
-          "Développement de modèles d'IA sur mesure pour des cas d'usage précis.",
-        ],
-      },
-      {
-        title: "Module 3 : Déploiement et Gestion des Modèles en Production",
-        items: [
-          "Mise en production de modèles IA : infrastructures et bonnes pratiques.",
-          "Monitoring et maintenance des performances des modèles.",
-          "Sécurité et éthique des modèles spécialisés.",
-        ],
-      },
-      {
-        title: "Module 4 : Cas Pratiques Avancés et Projets",
-        items: [
-          "Études de cas d'intégration réussie de modèles spécialisés par secteur.",
-          "Atelier de développement d'un mini-projet de personnalisation de modèle.",
-          "Optimisation des coûts et des ressources pour les déploiements IA.",
-        ],
-      },
-    ],
-  },
-]
-
-const colorMap = {
-  saim:    { bg: 'bg-saim-50',    badge: 'bg-saim-100 text-saim-700',    tab: 'border-saim-500 text-saim-700',    btn: 'bg-saim-500 hover:bg-saim-600',    dot: 'bg-saim-500'    },
-  amber:   { bg: 'bg-amber-50',   badge: 'bg-amber-100 text-amber-700',   tab: 'border-amber-500 text-amber-700',   btn: 'bg-amber-500 hover:bg-amber-600',   dot: 'bg-amber-500'   },
-  violet:  { bg: 'bg-violet-50',  badge: 'bg-violet-100 text-violet-700',  tab: 'border-violet-500 text-violet-700',  btn: 'bg-violet-500 hover:bg-violet-600',  dot: 'bg-violet-500'  },
-  emerald: { bg: 'bg-emerald-50', badge: 'bg-emerald-100 text-emerald-700', tab: 'border-emerald-500 text-emerald-700', btn: 'bg-emerald-500 hover:bg-emerald-600', dot: 'bg-emerald-500' },
-}
-
 const galleryEdc = [
   '/uploads/apropos/image_edc1.jpeg',
   '/uploads/apropos/image_edc2.jpeg',
@@ -248,7 +64,7 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
               <button className="px-3 py-2 text-sm font-semibold text-saim-600 bg-saim-50 rounded-lg cursor-default">
                 À propos
               </button>
-              <button onClick={onGoLanding}
+              <button onClick={() => onFormationPage?.()}
                 className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-saim-600 hover:bg-saim-50 rounded-lg transition-colors">
                 {t('nav_training')}
               </button>
@@ -322,7 +138,7 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
               <button className="block w-full text-left px-4 py-2 text-sm text-saim-600 font-semibold bg-saim-50 rounded-lg">
                 À propos
               </button>
-              <button onClick={() => { onGoLanding(); setMenuOpen(false) }}
+              <button onClick={() => { onFormationPage?.(); setMenuOpen(false) }}
                 className="block w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg">
                 {t('nav_training')}
               </button>
@@ -612,127 +428,6 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
         </div>
       </section>
 
-      {/* ─── PROGRAMMES ───────────────────────────────────────────────────── */}
-      <section className="py-24 bg-white">
-        <div className="max-w-4xl mx-auto px-6">
-          <motion.div className="text-center mb-14"
-            variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            <span className="section-chip">Nos programmes</span>
-            <h2 className="text-3xl lg:text-4xl font-extrabold text-saim-800 mt-3 mb-4">Formations et Programmes Détaillés</h2>
-            <p className="text-slate-500 max-w-xl mx-auto">
-              Découvrez nos programmes phares, conçus pour vous équiper des compétences IA les plus recherchées.
-            </p>
-          </motion.div>
-
-          {/* Onglets programmes */}
-          <div className="flex flex-wrap gap-2 mb-10 justify-center">
-            {programs.map((p, i) => {
-              const tcm = colorMap[p.color]
-              const isActive = activeProgram === i
-              return (
-                <button key={i}
-                  onClick={() => { setActiveProgram(i); setOpenModules({}) }}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all border-2 ${
-                    isActive
-                      ? `${tcm.tab} bg-white shadow-md border-current`
-                      : 'border-transparent bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}>
-                  <span>{p.icon}</span>
-                  <span className="hidden sm:inline">{p.title.split(' ').slice(0, 4).join(' ')}&hellip;</span>
-                  <span className="sm:hidden">{p.icon}</span>
-                </button>
-              )
-            })}
-          </div>
-
-          {/* Contenu programme actif */}
-          <AnimatePresence mode="wait">
-            <motion.div key={activeProgram}
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.35 }}>
-
-              {/* En-tête programme */}
-              <div className={`rounded-2xl p-8 mb-6 ${cm.bg}`}>
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className={`inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wide px-3 py-1.5 rounded-full mb-4 ${cm.badge}`}>
-                      <span>{prog.icon}</span> Formation SAIM
-                    </div>
-                    <h3 className="text-xl lg:text-2xl font-extrabold text-saim-800 mb-4">{prog.title}</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {prog.tags.map(tag => (
-                        <span key={tag} className={`text-xs px-3 py-1 rounded-full font-medium ${cm.badge}`}>{tag}</span>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <div className="text-xs text-slate-500 font-medium mb-0.5">Prix</div>
-                    <div className="text-2xl font-extrabold text-saim-700">{prog.price}</div>
-                    {prog.price !== 'Sur devis' && (
-                      <div className="text-xs text-slate-400">/ personne</div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Accordéon modules */}
-              <div className="space-y-3 mb-8">
-                {prog.modules.map((mod, mi) => {
-                  const key = `${activeProgram}-${mi}`
-                  const isOpen = !!openModules[key]
-                  return (
-                    <div key={mi} className="card overflow-hidden">
-                      <button
-                        onClick={() => toggleModule(key)}
-                        className="w-full flex items-center justify-between p-5 text-left hover:bg-slate-50 transition-colors">
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <span className={`w-8 h-8 rounded-full ${cm.badge} flex items-center justify-center text-sm font-extrabold flex-shrink-0`}>
-                            {mi + 1}
-                          </span>
-                          <span className="font-semibold text-slate-800 text-sm leading-snug">{mod.title}</span>
-                        </div>
-                        <svg className={`w-5 h-5 text-slate-400 flex-shrink-0 ml-3 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
-                          fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </button>
-                      <AnimatePresence initial={false}>
-                        {isOpen && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.3, ease: 'easeInOut' }}>
-                            <div className="px-5 pb-5 border-t border-slate-100">
-                              <ul className="mt-4 space-y-2.5">
-                                {mod.items.map((item, ii) => (
-                                  <li key={ii} className="flex items-start gap-2.5 text-sm text-slate-600">
-                                    <span className={`w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0 ${cm.dot}`} />
-                                    {item}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  )
-                })}
-              </div>
-
-              {/* CTA programme */}
-              <div className="text-center">
-                <button onClick={onLoginClick}
-                  className={`inline-flex items-center gap-2 text-white font-bold px-8 py-3.5 rounded-full ${cm.btn} transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95`}>
-                  S'essayer gratuitement →
-                </button>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </section>
-
       {/* ─── CTA FINAL ────────────────────────────────────────────────────── */}
       <section className="py-20 bg-gradient-to-br from-saim-600 to-saim-900 relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
@@ -750,9 +445,9 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
           </motion.p>
           <motion.div className="flex flex-wrap justify-center gap-4"
             variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            <button onClick={onLoginClick}
+            <button onClick={() => onFormationPage?.()}
               className="inline-flex items-center gap-2 bg-white text-saim-700 hover:bg-saim-50 font-extrabold px-8 py-3.5 rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all">
-              S'essayer gratuitement
+              Voir nos formations →
             </button>
             <button onClick={onGoLanding}
               className="inline-flex items-center gap-2 border-2 border-white/60 hover:border-white text-white hover:bg-white/10 font-bold px-8 py-3.5 rounded-full transition-all">

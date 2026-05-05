@@ -3,6 +3,7 @@ import { useAuth } from './context/AuthContext'
 import { useLang } from './context/LangContext'
 import LandingPage from './pages/LandingPage'
 import AboutPage from './pages/AboutPage'
+import FormationPage from './pages/FormationPage'
 import UserDashboard from './pages/UserDashboard'
 import AdminDashboard from './pages/AdminDashboard'
 import AuthModal from './components/AuthModal'
@@ -47,6 +48,7 @@ export default function App() {
           onLoginClick={() => setAuthMode('login')}
           onRegisterClick={() => setAuthMode('register')}
           onAboutPage={() => setView('about')}
+          onFormationPage={() => setView('formation')}
           onEnterDashboard={() => {
             if (user) setView('dashboard')
             else setAuthMode('login')
@@ -57,6 +59,15 @@ export default function App() {
       {view === 'about' && (
         <AboutPage
           onGoLanding={() => setView('landing')}
+          onLoginClick={() => setAuthMode('login')}
+          onFormationPage={() => setView('formation')}
+        />
+      )}
+
+      {view === 'formation' && (
+        <FormationPage
+          onGoLanding={() => setView('landing')}
+          onAboutPage={() => setView('about')}
           onLoginClick={() => setAuthMode('login')}
         />
       )}
