@@ -166,7 +166,7 @@ function FormuleSection({ t, scrollTo }) {
 }
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
-export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPage }) {
+export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPage, onFormationPage }) {
   const { user } = useAuth()
   const { lang } = useLang()
   const t = useT(lang)
@@ -274,7 +274,7 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
 
   return (
     <div className="min-h-screen">
-      <Navbar onLoginClick={onLoginClick} scrollTo={scrollTo} onAboutPage={onAboutPage} />
+      <Navbar onLoginClick={onLoginClick} scrollTo={scrollTo} onAboutPage={onAboutPage} onFormationPage={onFormationPage} />
 
       {/* ─── HERO SLIDESHOW ────────────────────────────────────────────────── */}
       <section ref={(el) => { refs.hero.current = el; heroRef.current = el }}
