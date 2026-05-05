@@ -12,9 +12,10 @@ export default function Navbar({ onLoginClick, scrollTo, onAboutPage }) {
   const [dropOpen, setDropOpen] = useState(false)
 
   const navLinks = [
-    { key: 'about',    label: t('nav_about'),    action: () => onAboutPage ? onAboutPage() : scrollTo('about') },
-    { key: 'training', label: t('nav_training'), action: () => scrollTo('training') },
-    { key: 'contact',  label: t('nav_contact'),  action: () => scrollTo('contact') },
+    { key: 'home',     label: 'Accueil',           action: () => scrollTo('hero') },
+    { key: 'about',    label: t('nav_about'),       action: () => onAboutPage ? onAboutPage() : scrollTo('about') },
+    { key: 'training', label: t('nav_training'),    action: () => scrollTo('training') },
+    { key: 'contact',  label: t('nav_contact'),     action: () => scrollTo('contact') },
   ]
 
   return (
@@ -109,7 +110,7 @@ export default function Navbar({ onLoginClick, scrollTo, onAboutPage }) {
             {navLinks.map(link => (
               <button
                 key={link.key}
-                onClick={() => { scrollTo(link.id); setMenuOpen(false) }}
+                onClick={() => { link.action(); setMenuOpen(false) }}
                 className="block w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg"
               >
                 {link.label}

@@ -12,7 +12,7 @@ const fadeUp = {
 }
 const staggerGrid = {
   hidden:  {},
-  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
+  visible: { transition: { staggerChildren: 0.1 } },
 }
 const cardItem = {
   hidden:  { opacity: 0, y: 30, scale: 0.97 },
@@ -199,32 +199,28 @@ const programs = [
 ]
 
 const colorMap = {
-  saim:    { bg: 'bg-saim-50',    badge: 'bg-saim-100 text-saim-700',    tab: 'border-saim-500 text-saim-700',    btn: 'bg-saim-500 hover:bg-saim-600',    dot: 'bg-saim-500'    },
-  amber:   { bg: 'bg-amber-50',   badge: 'bg-amber-100 text-amber-700',   tab: 'border-amber-500 text-amber-700',   btn: 'bg-amber-500 hover:bg-amber-600',   dot: 'bg-amber-500'   },
-  violet:  { bg: 'bg-violet-50',  badge: 'bg-violet-100 text-violet-700',  tab: 'border-violet-500 text-violet-700',  btn: 'bg-violet-500 hover:bg-violet-600',  dot: 'bg-violet-500'  },
+  saim:    { bg: 'bg-saim-50',    badge: 'bg-saim-100 text-saim-700',     tab: 'border-saim-500 text-saim-700',     btn: 'bg-saim-500 hover:bg-saim-600',     dot: 'bg-saim-500'    },
+  amber:   { bg: 'bg-amber-50',   badge: 'bg-amber-100 text-amber-700',    tab: 'border-amber-500 text-amber-700',    btn: 'bg-amber-500 hover:bg-amber-600',    dot: 'bg-amber-500'   },
+  violet:  { bg: 'bg-violet-50',  badge: 'bg-violet-100 text-violet-700',   tab: 'border-violet-500 text-violet-700',   btn: 'bg-violet-500 hover:bg-violet-600',   dot: 'bg-violet-500'  },
   emerald: { bg: 'bg-emerald-50', badge: 'bg-emerald-100 text-emerald-700', tab: 'border-emerald-500 text-emerald-700', btn: 'bg-emerald-500 hover:bg-emerald-600', dot: 'bg-emerald-500' },
 }
 
-const galleryEdc = [
-  '/uploads/apropos/image_edc1.jpeg',
-  '/uploads/apropos/image_edc2.jpeg',
-  '/uploads/apropos/image_edc3.jpeg',
-  '/uploads/apropos/image3_edc.jpeg',
-]
-const galleryMintp = [
-  '/uploads/apropos/formationMINTP1.jpeg',
-  '/uploads/apropos/image_mintp2.jpeg',
-  '/uploads/apropos/image_mintp3.jpeg',
-]
-
 // ─── Composant principal ──────────────────────────────────────────────────────
-export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }) {
+export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick }) {
   const { user, logout } = useAuth()
   const { lang } = useLang()
   const t = useT(lang)
 
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [dropOpen, setDropOpen] = useState(false)
+  const [menuOpen, setMenuOpen]           = useState(false)
+  const [dropOpen, setDropOpen]           = useState(false)
+  const [activeProgram, setActiveProgram] = useState(0)
+  const [openModules, setOpenModules]     = useState({})
+
+  const toggleModule = (key) =>
+    setOpenModules(prev => ({ ...prev, [key]: !prev[key] }))
+
+  const prog = programs[activeProgram]
+  const cm   = colorMap[prog.color]
 
   return (
     <div className="min-h-screen bg-white">
@@ -234,22 +230,20 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center h-16 gap-4">
 
-            {/* Logo */}
             <button onClick={onGoLanding} className="flex-shrink-0">
               <img src="/images/saimlogo.png" alt="SAIM" className="h-10" />
             </button>
 
-            {/* Desktop links */}
             <div className="hidden md:flex items-center gap-1 flex-1 ml-6">
               <button onClick={onGoLanding}
                 className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-saim-600 hover:bg-saim-50 rounded-lg transition-colors">
                 Accueil
               </button>
-              <button className="px-3 py-2 text-sm font-semibold text-saim-600 bg-saim-50 rounded-lg cursor-default">
-                À propos
-              </button>
-              <button onClick={onGoLanding}
+              <button onClick={onAboutPage}
                 className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-saim-600 hover:bg-saim-50 rounded-lg transition-colors">
+                {t('nav_about')}
+              </button>
+              <button className="px-3 py-2 text-sm font-semibold text-saim-600 bg-saim-50 rounded-lg cursor-default">
                 {t('nav_training')}
               </button>
               <button onClick={onGoLanding}
@@ -258,7 +252,6 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
               </button>
             </div>
 
-            {/* Right side */}
             <div className="hidden md:flex items-center gap-3 ml-auto">
               <a href="https://wa.me/237677518862" target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-1.5 bg-[#25D366] hover:bg-[#1ebe5d] text-white text-xs font-bold px-3 py-1.5 rounded-full transition-all active:scale-95">
@@ -301,7 +294,6 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
               )}
             </div>
 
-            {/* Mobile burger */}
             <button onClick={() => setMenuOpen(!menuOpen)}
               className="md:hidden ml-auto p-2 rounded-lg text-slate-600 hover:bg-slate-100">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -312,18 +304,17 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
             </button>
           </div>
 
-          {/* Mobile menu */}
           {menuOpen && (
             <div className="md:hidden border-t border-slate-100 py-3 space-y-1">
               <button onClick={() => { onGoLanding(); setMenuOpen(false) }}
                 className="block w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg">
                 Accueil
               </button>
-              <button className="block w-full text-left px-4 py-2 text-sm text-saim-600 font-semibold bg-saim-50 rounded-lg">
-                À propos
-              </button>
-              <button onClick={() => { onGoLanding(); setMenuOpen(false) }}
+              <button onClick={() => { onAboutPage(); setMenuOpen(false) }}
                 className="block w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg">
+                {t('nav_about')}
+              </button>
+              <button className="block w-full text-left px-4 py-2 text-sm text-saim-600 font-semibold bg-saim-50 rounded-lg">
                 {t('nav_training')}
               </button>
               <button onClick={() => { onGoLanding(); setMenuOpen(false) }}
@@ -366,245 +357,52 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
               Retour à l'accueil
             </button>
             <span className="inline-block bg-white/15 backdrop-blur text-white text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-5">
-              À propos de nous
+              Nos formations
             </span>
             <h1 className="text-4xl lg:text-6xl font-extrabold text-white leading-tight mb-6">
-              SAIM AI — L'IA au service<br className="hidden lg:block" /> de la prospérité africaine
+              Des formations IA<br className="hidden lg:block" /> pour tous les profils
             </h1>
             <p className="text-white/80 text-lg max-w-2xl leading-relaxed">
-              Nous accompagnons les entreprises et institutions africaines dans l'adoption et la maîtrise de l'Intelligence Artificielle comme levier de transformation stratégique.
+              Découvrez nos programmes phares, conçus pour vous équiper des compétences IA les plus recherchées dans votre domaine professionnel.
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* ─── VISION ───────────────────────────────────────────────────────── */}
-      <section className="py-24 bg-white">
-        <div className="max-w-4xl mx-auto px-6">
-          <motion.div className="text-center mb-10"
-            variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            <span className="section-chip">Notre vision</span>
-            <h2 className="text-3xl lg:text-4xl font-extrabold text-saim-800 mt-3">L'IA comme outil stratégique africain</h2>
-          </motion.div>
-          <motion.div className="space-y-5 text-slate-600 text-lg leading-relaxed"
-            variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            <p>
-              Chez SAIM, nous sommes animés par une conviction profonde : l'Intelligence Artificielle est un levier de transformation incontournable pour les entreprises et institutions africaines. Notre vision est de les accompagner dans l'adoption et la maîtrise de l'IA, non pas comme une simple technologie importée, mais comme un{' '}
-              <strong className="text-saim-700">outil stratégique, adapté à nos réalités et contrôlé par l'humain</strong>.
-            </p>
-            <p>
-              Nous croyons fermement que pour exploiter pleinement le potentiel de l'IA, il est impératif de comprendre ses mécanismes, de l'utiliser de manière responsable et de l'intégrer intelligemment dans nos écosystèmes locaux. Notre mission est de faire de l'IA un moteur de{' '}
-              <strong className="text-saim-700">productivité, d'innovation et de croissance durable</strong> pour le continent africain.
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ─── SERVICES ─────────────────────────────────────────────────────── */}
-      <section className="py-24 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div className="text-center mb-14"
-            variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            <span className="section-chip">Nos services</span>
-            <h2 className="text-3xl lg:text-4xl font-extrabold text-saim-800 mt-3">Expertise et Solutions sur Mesure</h2>
-          </motion.div>
-          <motion.div className="grid md:grid-cols-2 gap-8"
-            variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            <motion.div variants={cardItem}
-              className="card p-8 hover:shadow-xl transition-all group border-2 border-transparent hover:border-saim-100">
-              <div className="w-14 h-14 rounded-2xl bg-saim-100 flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform">
-                🎓
-              </div>
-              <h3 className="text-xl font-extrabold text-saim-800 mb-4">
-                Formation Spécialisée pour Entreprises et Institutions
-              </h3>
-              <p className="text-slate-600 leading-relaxed">
-                Nous concevons et dispensons des programmes de formation sur mesure, adaptés aux besoins spécifiques de chaque structure. Que ce soit pour initier vos équipes aux fondamentaux de l'IA, les former aux outils génératifs ou les accompagner dans des projets complexes, nos formations sont conçues pour{' '}
-                <strong className="text-saim-700">transformer la théorie en compétences opérationnelles</strong>.
-              </p>
-            </motion.div>
-            <motion.div variants={cardItem}
-              className="card p-8 hover:shadow-xl transition-all group border-2 border-transparent hover:border-violet-100">
-              <div className="w-14 h-14 rounded-2xl bg-violet-100 flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform">
-                🤖
-              </div>
-              <h3 className="text-xl font-extrabold text-saim-800 mb-4">
-                Déploiement de Solutions d'Intelligence Artificielle sur Mesure
-              </h3>
-              <p className="text-slate-600 leading-relaxed">
-                Au-delà de la formation, nous accompagnons les entreprises dans l'intégration concrète de l'IA. Nous développons et déployons des{' '}
-                <strong className="text-violet-700">solutions d'IA personnalisées</strong>, basées sur vos données et vos objectifs métier, pour optimiser vos processus, améliorer votre prise de décision et créer de la valeur ajoutée.
-              </p>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ─── EXPÉRIENCE ───────────────────────────────────────────────────── */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div className="text-center mb-14"
-            variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            <span className="section-chip">Notre expérience</span>
-            <h2 className="text-3xl lg:text-4xl font-extrabold text-saim-800 mt-3 mb-4">Des Partenariats Stratégiques et des Résultats Concrets</h2>
-            <p className="text-slate-500 max-w-2xl mx-auto">
-              Nous avons eu le privilège de collaborer avec des acteurs majeurs et de contribuer à la montée en compétence de centaines de professionnels.
-            </p>
-          </motion.div>
-
-          {/* Stats */}
-          <motion.div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-16"
-            variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            {[
-              { num: '300+', label: 'Professionnels formés' },
-              { num: '4',    label: 'Institutions partenaires' },
-              { num: '7+',   label: "Ans d'expérience" },
-              { num: '5+',   label: 'Pays couverts' },
-            ].map((s, i) => (
-              <motion.div key={i} variants={cardItem} className="card p-6 text-center">
-                <div className="text-3xl font-extrabold text-saim-600 mb-1">{s.num}</div>
-                <div className="text-sm text-slate-500 font-medium">{s.label}</div>
-              </motion.div>
-            ))}
-          </motion.div>
-
-          {/* EDC Gallery */}
-          <motion.div className="mb-14"
-            variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="h-1 w-10 bg-saim-500 rounded-full flex-shrink-0" />
-              <h3 className="font-extrabold text-saim-800 text-lg">EDC — Electricity Development Corporation</h3>
-            </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-              {galleryEdc.map((src, i) => (
-                <motion.div key={i}
-                  className="aspect-video rounded-xl overflow-hidden shadow-md bg-slate-100"
-                  whileHover={{ scale: 1.03 }} transition={{ duration: 0.3 }}>
-                  <img src={src} alt={`Formation EDC ${i + 1}`} className="w-full h-full object-cover" />
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* MINTP Gallery */}
-          <motion.div className="mb-10"
-            variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="h-1 w-10 bg-amber-500 rounded-full flex-shrink-0" />
-              <h3 className="font-extrabold text-saim-800 text-lg">MINTP — Ministère des Travaux Publics</h3>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {galleryMintp.map((src, i) => (
-                <motion.div key={i}
-                  className="aspect-video rounded-xl overflow-hidden shadow-md bg-slate-100"
-                  whileHover={{ scale: 1.03 }} transition={{ duration: 0.3 }}>
-                  <img src={src} alt={`Formation MINTP ${i + 1}`} className="w-full h-full object-cover" />
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Autres partenaires */}
-          <motion.div className="p-6 bg-saim-50 rounded-2xl border border-saim-100"
-            variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            <p className="text-xs font-bold text-saim-600 uppercase tracking-widest mb-4">Autres partenaires institutionnels</p>
-            <div className="flex flex-wrap gap-3">
-              {[
-                'Port Autonome de Kribi',
-                'Ministère de la Jeunesse & Éducation Civique',
-                'Établissements scolaires secondaires',
-                'Universités camerounaises',
-              ].map(p => (
-                <span key={p} className="text-sm bg-white text-slate-700 border border-slate-200 px-4 py-2 rounded-full font-medium shadow-sm">
-                  {p}
-                </span>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ─── ÉQUIPE ───────────────────────────────────────────────────────── */}
-      <section className="py-20 bg-saim-800">
+      {/* ─── APERÇU 4 CARTES ──────────────────────────────────────────────── */}
+      <section className="py-20 bg-slate-50">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div className="text-center mb-12"
             variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            <span className="inline-block bg-white/15 text-white text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-5">
-              Notre équipe
-            </span>
-            <h2 className="text-3xl lg:text-4xl font-extrabold text-white mt-2 mb-3">
-              Des Experts Passionnés à Votre Service
-            </h2>
-            <p className="text-white/65 max-w-xl mx-auto">
-              Notre force réside dans notre équipe : une synergie de professionnels certifiés et passionnés par l'Intelligence Artificielle.
-            </p>
+            <span className="section-chip">Nos programmes</span>
+            <h2 className="text-3xl lg:text-4xl font-extrabold text-saim-800 mt-3">Choisissez votre formation</h2>
           </motion.div>
-          <motion.div className="grid sm:grid-cols-3 gap-6"
+          <motion.div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5"
             variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            {[
-              { icon: '🏆', num: '7+',   title: "Ans d'expérience",        desc: "Dans la formation et le consulting en solutions d'IA" },
-              { icon: '🎓', num: '100%', title: 'Ingénieurs certifiés',     desc: 'Formation et consulting en Intelligence Artificielle' },
-              { icon: '🌍', num: '300+', title: 'Professionnels formés',    desc: 'Accompagnés dans leur transformation digitale' },
-            ].map((item, i) => (
-              <motion.div key={i} variants={cardItem}
-                className="text-center p-8 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                <div className="text-4xl mb-4">{item.icon}</div>
-                <div className="text-4xl font-extrabold text-white mb-1">{item.num}</div>
-                <div className="text-saim-300 font-bold text-sm mb-2">{item.title}</div>
-                <div className="text-white/55 text-sm leading-relaxed">{item.desc}</div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ─── VALEURS ──────────────────────────────────────────────────────── */}
-      <section className="py-24 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div className="text-center mb-14"
-            variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            <span className="section-chip">Nos valeurs</span>
-            <h2 className="text-3xl lg:text-4xl font-extrabold text-saim-800 mt-3">Les Piliers de Notre Engagement</h2>
-          </motion.div>
-          <motion.div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
-            variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            {[
-              {
-                icon: '🔒', color: 'saim',
-                title: 'Souveraineté des Données',
-                desc: "Nous prônons une gestion des données qui respecte la confidentialité et la propriété, essentielles pour la confiance numérique en Afrique.",
-              },
-              {
-                icon: '🌍', color: 'amber',
-                title: 'Personnalisation aux Besoins Locaux',
-                desc: "L'IA doit être un outil flexible, capable de s'adapter aux spécificités culturelles, économiques et sociales de nos régions.",
-              },
-              {
-                icon: '🧑‍💼', color: 'emerald',
-                title: 'Contrôle Humain sur les IA',
-                desc: "L'IA doit toujours rester un outil au service de l'humain, sous son contrôle, pour augmenter ses capacités et non le remplacer.",
-              },
-              {
-                icon: '📈', color: 'violet',
-                title: 'Viabilité et Impact Réel',
-                desc: "Nos solutions et formations visent des résultats concrets et durables, garantissant une valeur ajoutée mesurable pour nos partenaires.",
-              },
-            ].map((v, i) => {
-              const vcm = {
-                saim:    { bg: 'bg-saim-50',    icon: 'bg-saim-100 text-saim-600',       title: 'text-saim-700' },
-                amber:   { bg: 'bg-amber-50',   icon: 'bg-amber-100 text-amber-600',     title: 'text-amber-700' },
-                emerald: { bg: 'bg-emerald-50', icon: 'bg-emerald-100 text-emerald-600', title: 'text-emerald-700' },
-                violet:  { bg: 'bg-violet-50',  icon: 'bg-violet-100 text-violet-600',   title: 'text-violet-700' },
-              }[v.color]
+            {programs.map((p, i) => {
+              const c = colorMap[p.color]
               return (
                 <motion.div key={i} variants={cardItem}
-                  className={`card p-7 ${vcm.bg} hover:shadow-lg transition-all`}
-                  whileHover={{ y: -4, transition: { duration: 0.2 } }}>
-                  <div className={`w-12 h-12 rounded-xl ${vcm.icon} flex items-center justify-center text-2xl mb-5`}>
-                    {v.icon}
+                  className={`card p-6 cursor-pointer transition-all hover:shadow-lg border-2 ${
+                    activeProgram === i ? `border-current ${c.tab}` : 'border-transparent hover:border-slate-200'
+                  }`}
+                  onClick={() => {
+                    setActiveProgram(i)
+                    setOpenModules({})
+                    document.getElementById('programme-detail')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  }}
+                  whileHover={{ y: -5, transition: { duration: 0.2 } }}>
+                  <div className={`w-12 h-12 rounded-xl ${c.badge} flex items-center justify-center text-2xl mb-4`}>
+                    {p.icon}
                   </div>
-                  <h3 className={`font-extrabold mb-3 text-sm leading-snug ${vcm.title}`}>{v.title}</h3>
-                  <p className="text-slate-600 text-sm leading-relaxed">{v.desc}</p>
+                  <h3 className="font-extrabold text-slate-800 text-sm leading-snug mb-3">{p.title}</h3>
+                  <div className="flex flex-wrap gap-1 mb-4">
+                    {p.tags.slice(0, 2).map(tag => (
+                      <span key={tag} className={`text-xs px-2 py-0.5 rounded-full font-medium ${c.badge}`}>{tag}</span>
+                    ))}
+                  </div>
+                  <div className={`text-lg font-extrabold ${c.tab.split(' ')[1]}`}>{p.price}</div>
+                  {p.price !== 'Sur devis' && <div className="text-xs text-slate-400">/ personne</div>}
                 </motion.div>
               )
             })}
@@ -612,53 +410,22 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
         </div>
       </section>
 
-      {/* ─── PROGRAMMES ───────────────────────────────────────────────────── */}
-      <section className="py-24 bg-white">
+      {/* ─── DÉTAIL PROGRAMME ─────────────────────────────────────────────── */}
+      <section id="programme-detail" className="py-20 bg-white">
         <div className="max-w-4xl mx-auto px-6">
-          <motion.div className="text-center mb-14"
-            variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            <span className="section-chip">Nos programmes</span>
-            <h2 className="text-3xl lg:text-4xl font-extrabold text-saim-800 mt-3 mb-4">Formations et Programmes Détaillés</h2>
-            <p className="text-slate-500 max-w-xl mx-auto">
-              Découvrez nos programmes phares, conçus pour vous équiper des compétences IA les plus recherchées.
-            </p>
-          </motion.div>
-
-          {/* Onglets programmes */}
-          <div className="flex flex-wrap gap-2 mb-10 justify-center">
-            {programs.map((p, i) => {
-              const tcm = colorMap[p.color]
-              const isActive = activeProgram === i
-              return (
-                <button key={i}
-                  onClick={() => { setActiveProgram(i); setOpenModules({}) }}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all border-2 ${
-                    isActive
-                      ? `${tcm.tab} bg-white shadow-md border-current`
-                      : 'border-transparent bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}>
-                  <span>{p.icon}</span>
-                  <span className="hidden sm:inline">{p.title.split(' ').slice(0, 4).join(' ')}&hellip;</span>
-                  <span className="sm:hidden">{p.icon}</span>
-                </button>
-              )
-            })}
-          </div>
-
-          {/* Contenu programme actif */}
           <AnimatePresence mode="wait">
             <motion.div key={activeProgram}
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.35 }}>
 
               {/* En-tête programme */}
-              <div className={`rounded-2xl p-8 mb-6 ${cm.bg}`}>
+              <div className={`rounded-2xl p-8 mb-8 ${cm.bg}`}>
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className={`inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wide px-3 py-1.5 rounded-full mb-4 ${cm.badge}`}>
                       <span>{prog.icon}</span> Formation SAIM
                     </div>
-                    <h3 className="text-xl lg:text-2xl font-extrabold text-saim-800 mb-4">{prog.title}</h3>
+                    <h2 className="text-2xl lg:text-3xl font-extrabold text-saim-800 mb-4">{prog.title}</h2>
                     <div className="flex flex-wrap gap-2">
                       {prog.tags.map(tag => (
                         <span key={tag} className={`text-xs px-3 py-1 rounded-full font-medium ${cm.badge}`}>{tag}</span>
@@ -667,7 +434,7 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
                   </div>
                   <div className="text-right flex-shrink-0">
                     <div className="text-xs text-slate-500 font-medium mb-0.5">Prix</div>
-                    <div className="text-2xl font-extrabold text-saim-700">{prog.price}</div>
+                    <div className="text-3xl font-extrabold text-saim-700">{prog.price}</div>
                     {prog.price !== 'Sur devis' && (
                       <div className="text-xs text-slate-400">/ personne</div>
                     )}
@@ -676,7 +443,8 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
               </div>
 
               {/* Accordéon modules */}
-              <div className="space-y-3 mb-8">
+              <h3 className="text-lg font-extrabold text-saim-800 mb-4">Programme de la formation</h3>
+              <div className="space-y-3 mb-10">
                 {prog.modules.map((mod, mi) => {
                   const key = `${activeProgram}-${mi}`
                   const isOpen = !!openModules[key]
@@ -722,11 +490,15 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
               </div>
 
               {/* CTA programme */}
-              <div className="text-center">
+              <div className="flex flex-wrap justify-center gap-4">
                 <button onClick={onLoginClick}
                   className={`inline-flex items-center gap-2 text-white font-bold px-8 py-3.5 rounded-full ${cm.btn} transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95`}>
                   S'essayer gratuitement →
                 </button>
+                <a href="https://wa.me/237677518862" target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 border-2 border-slate-200 hover:border-saim-300 text-slate-700 hover:text-saim-700 font-bold px-8 py-3.5 rounded-full transition-all">
+                  Demander un devis
+                </a>
               </div>
             </motion.div>
           </AnimatePresence>
@@ -742,7 +514,7 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
           <motion.h2 className="text-3xl lg:text-4xl font-extrabold text-white mb-4"
             variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            Prêt à Transformer Votre Organisation ?
+            Prêt à commencer votre formation ?
           </motion.h2>
           <motion.p className="text-white/75 text-lg mb-10 max-w-2xl mx-auto"
             variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
