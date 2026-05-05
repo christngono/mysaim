@@ -4,7 +4,7 @@ import { useLang } from '../context/LangContext'
 import { useT } from '../i18n/translations'
 import LangToggle from './LangToggle'
 
-export default function Navbar({ onLoginClick, scrollTo }) {
+export default function Navbar({ onLoginClick, scrollTo, onAboutPage }) {
   const { user, logout } = useAuth()
   const { lang } = useLang()
   const t = useT(lang)
@@ -12,9 +12,9 @@ export default function Navbar({ onLoginClick, scrollTo }) {
   const [dropOpen, setDropOpen] = useState(false)
 
   const navLinks = [
-    { key: 'about',    label: t('nav_about'),    id: 'about' },
-    { key: 'training', label: t('nav_training'), id: 'training' },
-    { key: 'contact',  label: t('nav_contact'),  id: 'contact' },
+    { key: 'about',    label: t('nav_about'),    action: () => onAboutPage ? onAboutPage() : scrollTo('about') },
+    { key: 'training', label: t('nav_training'), action: () => scrollTo('training') },
+    { key: 'contact',  label: t('nav_contact'),  action: () => scrollTo('contact') },
   ]
 
   return (
@@ -31,7 +31,7 @@ export default function Navbar({ onLoginClick, scrollTo }) {
             {navLinks.map(link => (
               <button
                 key={link.key}
-                onClick={() => scrollTo(link.id)}
+                onClick={link.action}
                 className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-saim-600 hover:bg-saim-50 rounded-lg transition-colors"
               >
                 {link.label}

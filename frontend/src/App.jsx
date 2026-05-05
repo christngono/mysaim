@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from './context/AuthContext'
 import { useLang } from './context/LangContext'
 import LandingPage from './pages/LandingPage'
+import AboutPage from './pages/AboutPage'
 import UserDashboard from './pages/UserDashboard'
 import AdminDashboard from './pages/AdminDashboard'
 import AuthModal from './components/AuthModal'
@@ -9,7 +10,7 @@ import AuthModal from './components/AuthModal'
 export default function App() {
   const { user, loading } = useAuth()
   const { lang } = useLang()
-  const [view, setView]       = useState('landing')   // 'landing' | 'dashboard'
+  const [view, setView]       = useState('landing')   // 'landing' | 'about' | 'dashboard'
   const [authMode, setAuthMode] = useState(null)      // null | 'login' | 'register'
 
   // Add section-chip utility class dynamically
@@ -45,10 +46,18 @@ export default function App() {
         <LandingPage
           onLoginClick={() => setAuthMode('login')}
           onRegisterClick={() => setAuthMode('register')}
+          onAboutPage={() => setView('about')}
           onEnterDashboard={() => {
             if (user) setView('dashboard')
             else setAuthMode('login')
           }}
+        />
+      )}
+
+      {view === 'about' && (
+        <AboutPage
+          onGoLanding={() => setView('landing')}
+          onLoginClick={() => setAuthMode('login')}
         />
       )}
 
