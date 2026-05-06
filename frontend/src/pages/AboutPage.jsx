@@ -20,6 +20,18 @@ const cardItem = {
 }
 const viewOpts = { once: true, margin: '-60px' }
 
+// ─── SVG Icons ────────────────────────────────────────────────────────────────
+const icons = {
+  graduation: (cls) => <svg className={cls} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" /></svg>,
+  chip:       (cls) => <svg className={cls} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25zm.75-12h9v9h-9v-9z" /></svg>,
+  trophy:     (cls) => <svg className={cls} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" /></svg>,
+  globe:      (cls) => <svg className={cls} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253M3 12a8.959 8.959 0 011.284-4.418M12 10.5a9 9 0 01.716 9.253" /></svg>,
+  lock:       (cls) => <svg className={cls} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>,
+  mappin:     (cls) => <svg className={cls} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>,
+  user:       (cls) => <svg className={cls} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>,
+  chart:      (cls) => <svg className={cls} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" /></svg>,
+}
+
 // ─── Données programmes ───────────────────────────────────────────────────────
 const galleryEdc = [
   '/uploads/apropos/image_edc1.jpeg',
@@ -228,8 +240,8 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
             variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
             <motion.div variants={cardItem}
               className="card p-8 hover:shadow-xl transition-all group border-2 border-transparent hover:border-saim-100">
-              <div className="w-14 h-14 rounded-2xl bg-saim-100 flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform">
-                🎓
+              <div className="w-14 h-14 rounded-2xl bg-saim-100 text-saim-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                {icons.graduation('w-7 h-7')}
               </div>
               <h3 className="text-xl font-extrabold text-saim-800 mb-4">
                 Formation Spécialisée pour Entreprises et Institutions
@@ -241,8 +253,8 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
             </motion.div>
             <motion.div variants={cardItem}
               className="card p-8 hover:shadow-xl transition-all group border-2 border-transparent hover:border-violet-100">
-              <div className="w-14 h-14 rounded-2xl bg-violet-100 flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform">
-                🤖
+              <div className="w-14 h-14 rounded-2xl bg-violet-100 text-violet-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                {icons.chip('w-7 h-7')}
               </div>
               <h3 className="text-xl font-extrabold text-saim-800 mb-4">
                 Déploiement de Solutions d'Intelligence Artificielle sur Mesure
@@ -358,13 +370,15 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
           <motion.div className="grid sm:grid-cols-3 gap-6"
             variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
             {[
-              { icon: '🏆', num: '7+',   title: "Ans d'expérience",        desc: "Dans la formation et le consulting en solutions d'IA" },
-              { icon: '🎓', num: '100%', title: 'Ingénieurs certifiés',     desc: 'Formation et consulting en Intelligence Artificielle' },
-              { icon: '🌍', num: '300+', title: 'Professionnels formés',    desc: 'Accompagnés dans leur transformation digitale' },
+              { iconKey: 'trophy',     num: '7+',   title: "Ans d'expérience",     desc: "Dans la formation et le consulting en solutions d'IA" },
+              { iconKey: 'graduation', num: '100%', title: 'Ingénieurs certifiés',  desc: 'Formation et consulting en Intelligence Artificielle' },
+              { iconKey: 'globe',      num: '300+', title: 'Professionnels formés', desc: 'Accompagnés dans leur transformation digitale' },
             ].map((item, i) => (
               <motion.div key={i} variants={cardItem}
                 className="text-center p-8 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                <div className="text-4xl mb-4">{item.icon}</div>
+                <div className="w-14 h-14 rounded-2xl bg-white/10 text-white flex items-center justify-center mx-auto mb-4">
+                  {icons[item.iconKey]('w-7 h-7')}
+                </div>
                 <div className="text-4xl font-extrabold text-white mb-1">{item.num}</div>
                 <div className="text-saim-300 font-bold text-sm mb-2">{item.title}</div>
                 <div className="text-white/55 text-sm leading-relaxed">{item.desc}</div>
@@ -386,22 +400,22 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
             variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
             {[
               {
-                icon: '🔒', color: 'saim',
+                iconKey: 'lock', color: 'saim',
                 title: 'Souveraineté des Données',
                 desc: "Nous prônons une gestion des données qui respecte la confidentialité et la propriété, essentielles pour la confiance numérique en Afrique.",
               },
               {
-                icon: '🌍', color: 'amber',
+                iconKey: 'mappin', color: 'amber',
                 title: 'Personnalisation aux Besoins Locaux',
                 desc: "L'IA doit être un outil flexible, capable de s'adapter aux spécificités culturelles, économiques et sociales de nos régions.",
               },
               {
-                icon: '🧑‍💼', color: 'emerald',
+                iconKey: 'user', color: 'emerald',
                 title: 'Contrôle Humain sur les IA',
                 desc: "L'IA doit toujours rester un outil au service de l'humain, sous son contrôle, pour augmenter ses capacités et non le remplacer.",
               },
               {
-                icon: '📈', color: 'violet',
+                iconKey: 'chart', color: 'violet',
                 title: 'Viabilité et Impact Réel',
                 desc: "Nos solutions et formations visent des résultats concrets et durables, garantissant une valeur ajoutée mesurable pour nos partenaires.",
               },
@@ -416,8 +430,8 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
                 <motion.div key={i} variants={cardItem}
                   className={`card p-7 ${vcm.bg} hover:shadow-lg transition-all`}
                   whileHover={{ y: -4, transition: { duration: 0.2 } }}>
-                  <div className={`w-12 h-12 rounded-xl ${vcm.icon} flex items-center justify-center text-2xl mb-5`}>
-                    {v.icon}
+                  <div className={`w-12 h-12 rounded-xl ${vcm.icon} flex items-center justify-center mb-5`}>
+                    {icons[v.iconKey]('w-6 h-6')}
                   </div>
                   <h3 className={`font-extrabold mb-3 text-sm leading-snug ${vcm.title}`}>{v.title}</h3>
                   <p className="text-slate-600 text-sm leading-relaxed">{v.desc}</p>

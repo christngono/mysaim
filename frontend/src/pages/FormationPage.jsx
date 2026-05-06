@@ -8,10 +8,27 @@ import Footer from '../components/Footer'
 import api from '../api/axios'
 import { clean } from '../utils/sanitize'
 
+// ─── SVG Icons ────────────────────────────────────────────────────────────────
+const icons = {
+  lightning:   (cls) => <svg className={cls} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>,
+  megaphone:   (cls) => <svg className={cls} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 110-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 01-1.44-4.282m3.102.069a18.03 18.03 0 01-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 018.835 2.535M10.34 6.66a23.847 23.847 0 008.835-2.535m0 0A23.74 23.74 0 0018.795 3m.38 1.125a23.91 23.91 0 011.014 5.395m-1.014 8.855c-.118.38-.245.754-.38 1.125m.38-1.125a23.91 23.91 0 001.014-5.395m0-3.46c.495.413.811 1.035.811 1.73 0 .695-.316 1.317-.811 1.73m0-3.46a24.347 24.347 0 010 3.46" /></svg>,
+  film:        (cls) => <svg className={cls} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h1.5C5.496 19.5 6 18.996 6 18.375m-3.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m17.25 2.625h-1.5c-.621 0-1.125-.504-1.125-1.125m2.625 1.125V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125M3.375 5.625c0-.621.504-1.125 1.125-1.125m0 0h13.5m-13.5 0c.621 0 1.125.504 1.125 1.125M20.625 5.625c0-.621-.504-1.125-1.125-1.125m0 0h-1.5m1.5 0c.621 0 1.125.504 1.125 1.125" /></svg>,
+  chip:        (cls) => <svg className={cls} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25zm.75-12h9v9h-9v-9z" /></svg>,
+  monitor:     (cls) => <svg className={cls} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" /></svg>,
+  building:    (cls) => <svg className={cls} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" /></svg>,
+  mappin:      (cls) => <svg className={cls} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>,
+  user:        (cls) => <svg className={cls} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>,
+  library:     (cls) => <svg className={cls} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" /></svg>,
+  graduation:  (cls) => <svg className={cls} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" /></svg>,
+  sparkles:    (cls) => <svg className={cls} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" /></svg>,
+  checkCircle: (cls) => <svg className={cls} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+  check:       (cls) => <svg className={cls} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>,
+}
+
 // ─── Données programmes ───────────────────────────────────────────────────────
 const programs = [
   {
-    icon: '⚡',
+    iconKey: 'lightning',
     color: 'saim',
     title: "Maîtriser l'IA pour la Productivité Professionnelle",
     tags: ['Cadres', 'Managers', 'Dirigeants', 'Consultants', 'Professionnels'],
@@ -61,7 +78,7 @@ const programs = [
     ],
   },
   {
-    icon: '📣',
+    iconKey: 'megaphone',
     color: 'amber',
     title: "Utiliser l'IA dans le Marketing",
     tags: ['Marketeurs', 'Communicants', 'Entrepreneurs', 'Community managers', 'PME'],
@@ -101,7 +118,7 @@ const programs = [
     ],
   },
   {
-    icon: '🎬',
+    iconKey: 'film',
     color: 'violet',
     title: "Montage Vidéo avec les Outils IA",
     tags: ['Créateurs de contenu', 'Agences com', 'Entrepreneurs', 'Freelances', 'Médias'],
@@ -141,7 +158,7 @@ const programs = [
     ],
   },
   {
-    icon: '🧠',
+    iconKey: 'chip',
     color: 'emerald',
     title: "Spécialisation des Modèles IA pour les Professionnels",
     tags: ['Data scientists', 'Ingénieurs', 'Chercheurs', 'CTO', 'Développeurs'],
@@ -190,9 +207,9 @@ const colorMap = {
 }
 
 const formulas = [
-  { icon: '🖥️', label: 'En ligne',       desc: 'Formation à distance, accessible depuis partout. Sessions live + replays disponibles.' },
-  { icon: '🏢', label: 'Au bureau',       desc: 'Formation dispensée directement dans vos locaux, par nos formateurs certifiés.' },
-  { icon: '🏕️', label: 'En extérieur',   desc: 'Formation dans un site externe choisi pour une immersion totale et un cadre propice.' },
+  { iconKey: 'monitor',  label: 'En ligne',     desc: 'Formation à distance, accessible depuis partout. Sessions live + replays disponibles.' },
+  { iconKey: 'building', label: 'Au bureau',     desc: 'Formation dispensée directement dans vos locaux, par nos formateurs certifiés.' },
+  { iconKey: 'mappin',   label: 'En extérieur', desc: 'Formation dans un site externe choisi pour une immersion totale et un cadre propice.' },
 ]
 
 // ─── Modal Demande de devis ───────────────────────────────────────────────────
@@ -232,14 +249,18 @@ function DevisModal({ onClose }) {
         </button>
 
         <div className="mb-6">
-          <span className="section-chip">Entreprises & Institutions</span>
+          <span className="section-chip">Entreprises &amp; Institutions</span>
           <h2 className="text-xl font-extrabold text-saim-800 mt-3">Demander un devis</h2>
           <p className="text-slate-500 text-sm mt-1">Notre équipe vous contactera sous 24h avec une proposition personnalisée.</p>
         </div>
 
         {status === 'success' ? (
           <div className="text-center py-8">
-            <div className="text-5xl mb-4">✅</div>
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center">
+                {icons.checkCircle('w-9 h-9 text-emerald-500')}
+              </div>
+            </div>
             <h3 className="font-extrabold text-saim-800 text-lg mb-2">Demande envoyée !</h3>
             <p className="text-slate-500 text-sm">Nous vous contacterons très prochainement.</p>
             <button onClick={onClose} className="mt-6 btn-primary px-6 py-2 text-sm">Fermer</button>
@@ -493,7 +514,9 @@ export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick }
                   ? 'border-saim-500 bg-saim-50'
                   : 'border-slate-200 bg-white hover:border-saim-300'
               }`}>
-              <div className="text-3xl mb-3">👤</div>
+              <div className="w-12 h-12 rounded-xl bg-saim-100 text-saim-600 flex items-center justify-center mb-3">
+                {icons.user('w-6 h-6')}
+              </div>
               <h3 className={`text-lg font-extrabold mb-1 ${profile === 'particulier' ? 'text-saim-700' : 'text-slate-800'}`}>
                 Particulier
               </h3>
@@ -514,7 +537,9 @@ export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick }
                   ? 'border-saim-500 bg-saim-50'
                   : 'border-slate-200 bg-white hover:border-saim-300'
               }`}>
-              <div className="text-3xl mb-3">🏛️</div>
+              <div className="w-12 h-12 rounded-xl bg-saim-100 text-saim-600 flex items-center justify-center mb-3">
+                {icons.library('w-6 h-6')}
+              </div>
               <h3 className={`text-lg font-extrabold mb-1 ${profile === 'entreprise' ? 'text-saim-700' : 'text-slate-800'}`}>
                 Entreprise &amp; Institution
               </h3>
@@ -541,13 +566,13 @@ export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick }
                 <div className="flex flex-wrap items-center justify-between gap-6">
                   <div className="flex flex-wrap gap-3">
                     <span className="inline-flex items-center gap-2 bg-saim-100 text-saim-700 text-sm font-bold px-4 py-2 rounded-full">
-                      💻 Formation 100&nbsp;% en ligne
+                      {icons.monitor('w-4 h-4')} Formation 100&nbsp;% en ligne
                     </span>
                     <span className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 text-sm font-bold px-4 py-2 rounded-full">
-                      ✅ Accès immédiat après inscription
+                      {icons.check('w-4 h-4')} Accès immédiat après inscription
                     </span>
                     <span className="inline-flex items-center gap-2 bg-amber-100 text-amber-700 text-sm font-bold px-4 py-2 rounded-full">
-                      🎓 Certificat de fin de formation
+                      {icons.graduation('w-4 h-4')} Certificat de fin de formation
                     </span>
                   </div>
                   <div className="text-right">
@@ -576,8 +601,8 @@ export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick }
                           activeProgram === i ? `${c.border} ${c.bg}` : 'border-transparent hover:border-slate-200'
                         }`}
                         onClick={() => handleSelectProgram(i)}>
-                        <div className={`w-12 h-12 rounded-xl ${c.badge} flex items-center justify-center text-2xl mb-4`}>
-                          {p.icon}
+                        <div className={`w-12 h-12 rounded-xl ${c.badge} flex items-center justify-center mb-4`}>
+                          {icons[p.iconKey]('w-6 h-6')}
                         </div>
                         <h3 className="font-extrabold text-slate-800 text-sm leading-snug mb-3">{p.title}</h3>
                         <div className="flex flex-wrap gap-1 mb-4">
@@ -615,7 +640,9 @@ export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick }
                 <div className="grid md:grid-cols-3 gap-6 mb-10">
                   {formulas.map((f, i) => (
                     <div key={i} className="card p-7 text-center border border-slate-100 hover:shadow-lg hover:border-saim-200 transition-all">
-                      <div className="text-4xl mb-4">{f.icon}</div>
+                      <div className="w-14 h-14 rounded-2xl bg-saim-100 text-saim-600 flex items-center justify-center mx-auto mb-4">
+                        {icons[f.iconKey]('w-7 h-7')}
+                      </div>
                       <h3 className="font-extrabold text-saim-800 text-lg mb-2">{f.label}</h3>
                       <p className="text-slate-500 text-sm leading-relaxed">{f.desc}</p>
                     </div>
@@ -626,7 +653,9 @@ export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick }
                 <div className="rounded-2xl bg-gradient-to-r from-saim-600 to-saim-800 p-8 flex flex-wrap items-center justify-between gap-6">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-2xl">✨</span>
+                      <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                        {icons.sparkles('w-4 h-4 text-white')}
+                      </div>
                       <h3 className="text-white font-extrabold text-lg">Formation personnalisable</h3>
                     </div>
                     <p className="text-white/75 text-sm leading-relaxed max-w-lg">
@@ -670,8 +699,8 @@ export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick }
                           activeProgram === i ? `${c.border} ${c.bg}` : 'border-transparent hover:border-slate-200'
                         }`}
                         onClick={() => handleSelectProgram(i)}>
-                        <div className={`w-12 h-12 rounded-xl ${c.badge} flex items-center justify-center text-2xl mb-4`}>
-                          {p.icon}
+                        <div className={`w-12 h-12 rounded-xl ${c.badge} flex items-center justify-center mb-4`}>
+                          {icons[p.iconKey]('w-6 h-6')}
                         </div>
                         <h3 className="font-extrabold text-slate-800 text-sm leading-snug mb-3">{p.title}</h3>
                         <div className="flex flex-wrap gap-1 mb-4">
@@ -707,7 +736,8 @@ export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick }
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className={`inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wide px-3 py-1.5 rounded-full mb-4 ${cm.badge}`}>
-                      <span>{prog.icon}</span> Formation SAIM
+                      {icons[prog.iconKey]('w-4 h-4')}
+                      <span>Formation SAIM</span>
                     </div>
                     <h2 className="text-2xl lg:text-3xl font-extrabold text-saim-800 mb-4">{prog.title}</h2>
                     <div className="flex flex-wrap gap-2">
