@@ -5,20 +5,8 @@ import { useLang } from '../context/LangContext'
 import { useT } from '../i18n/translations'
 import LangToggle from '../components/LangToggle'
 import Footer from '../components/Footer'
-
-const fadeUp = {
-  hidden:  { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
-}
-const staggerGrid = {
-  hidden:  {},
-  visible: { transition: { staggerChildren: 0.1 } },
-}
-const cardItem = {
-  hidden:  { opacity: 0, y: 30, scale: 0.97 },
-  visible: { opacity: 1, y: 0,  scale: 1,   transition: { duration: 0.5 } },
-}
-const viewOpts = { once: true, margin: '-60px' }
+import api from '../api/axios'
+import clean from '../utils/sanitize'
 
 // ─── Données programmes ───────────────────────────────────────────────────────
 const programs = [
@@ -26,7 +14,6 @@ const programs = [
     icon: '⚡',
     color: 'saim',
     title: "Maîtriser l'IA pour la Productivité Professionnelle",
-    price: '20 000 FCFA',
     tags: ['Cadres', 'Managers', 'Dirigeants', 'Consultants', 'Professionnels'],
     modules: [
       {
@@ -77,7 +64,6 @@ const programs = [
     icon: '📣',
     color: 'amber',
     title: "Utiliser l'IA dans le Marketing",
-    price: '25 000 FCFA',
     tags: ['Marketeurs', 'Communicants', 'Entrepreneurs', 'Community managers', 'PME'],
     modules: [
       {
@@ -118,7 +104,6 @@ const programs = [
     icon: '🎬',
     color: 'violet',
     title: "Montage Vidéo avec les Outils IA",
-    price: '30 000 FCFA',
     tags: ['Créateurs de contenu', 'Agences com', 'Entrepreneurs', 'Freelances', 'Médias'],
     modules: [
       {
@@ -159,7 +144,6 @@ const programs = [
     icon: '🧠',
     color: 'emerald',
     title: "Spécialisation des Modèles IA pour les Professionnels",
-    price: 'Sur devis',
     tags: ['Data scientists', 'Ingénieurs', 'Chercheurs', 'CTO', 'Développeurs'],
     modules: [
       {
@@ -199,31 +183,154 @@ const programs = [
 ]
 
 const colorMap = {
-  saim:    { bg: 'bg-saim-50',    badge: 'bg-saim-100 text-saim-700',     tab: 'border-saim-500 text-saim-700',     btn: 'bg-saim-500 hover:bg-saim-600',     dot: 'bg-saim-500'    },
-  amber:   { bg: 'bg-amber-50',   badge: 'bg-amber-100 text-amber-700',    tab: 'border-amber-500 text-amber-700',    btn: 'bg-amber-500 hover:bg-amber-600',    dot: 'bg-amber-500'   },
-  violet:  { bg: 'bg-violet-50',  badge: 'bg-violet-100 text-violet-700',   tab: 'border-violet-500 text-violet-700',   btn: 'bg-violet-500 hover:bg-violet-600',   dot: 'bg-violet-500'  },
-  emerald: { bg: 'bg-emerald-50', badge: 'bg-emerald-100 text-emerald-700', tab: 'border-emerald-500 text-emerald-700', btn: 'bg-emerald-500 hover:bg-emerald-600', dot: 'bg-emerald-500' },
+  saim:    { bg: 'bg-saim-50',    badge: 'bg-saim-100 text-saim-700',      border: 'border-saim-500',    text: 'text-saim-700',    btn: 'bg-saim-500 hover:bg-saim-600',     dot: 'bg-saim-500'    },
+  amber:   { bg: 'bg-amber-50',   badge: 'bg-amber-100 text-amber-700',    border: 'border-amber-500',   text: 'text-amber-700',   btn: 'bg-amber-500 hover:bg-amber-600',   dot: 'bg-amber-500'   },
+  violet:  { bg: 'bg-violet-50',  badge: 'bg-violet-100 text-violet-700',  border: 'border-violet-500',  text: 'text-violet-700',  btn: 'bg-violet-500 hover:bg-violet-600', dot: 'bg-violet-500'  },
+  emerald: { bg: 'bg-emerald-50', badge: 'bg-emerald-100 text-emerald-700', border: 'border-emerald-500', text: 'text-emerald-700', btn: 'bg-emerald-500 hover:bg-emerald-600', dot: 'bg-emerald-500' },
+}
+
+const formulas = [
+  { icon: '🖥️', label: 'En ligne',       desc: 'Formation à distance, accessible depuis partout. Sessions live + replays disponibles.' },
+  { icon: '🏢', label: 'Au bureau',       desc: 'Formation dispensée directement dans vos locaux, par nos formateurs certifiés.' },
+  { icon: '🏕️', label: 'En extérieur',   desc: 'Formation dans un site externe choisi pour une immersion totale et un cadre propice.' },
+]
+
+// ─── Modal Demande de devis ───────────────────────────────────────────────────
+function DevisModal({ onClose }) {
+  const [form, setForm]     = useState({ name: '', email: '', org: '', message: '' })
+  const [status, setStatus] = useState(null)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!form.name || !form.email || !form.message) return
+    setStatus('sending')
+    try {
+      await api.post('/contact', {
+        name: form.name,
+        email: form.email,
+        message: `[DEMANDE DE DEVIS]\nOrganisation / Structure : ${form.org || 'Non précisé'}\n\n${form.message}`,
+      })
+      setStatus('success')
+    } catch {
+      setStatus('error')
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+      onClick={onClose}>
+      <div
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 relative"
+        onClick={e => e.stopPropagation()}>
+
+        <button onClick={onClose}
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        <div className="mb-6">
+          <span className="section-chip">Entreprises & Institutions</span>
+          <h2 className="text-xl font-extrabold text-saim-800 mt-3">Demander un devis</h2>
+          <p className="text-slate-500 text-sm mt-1">Notre équipe vous contactera sous 24h avec une proposition personnalisée.</p>
+        </div>
+
+        {status === 'success' ? (
+          <div className="text-center py-8">
+            <div className="text-5xl mb-4">✅</div>
+            <h3 className="font-extrabold text-saim-800 text-lg mb-2">Demande envoyée !</h3>
+            <p className="text-slate-500 text-sm">Nous vous contacterons très prochainement.</p>
+            <button onClick={onClose} className="mt-6 btn-primary px-6 py-2 text-sm">Fermer</button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="label">Nom complet *</label>
+              <input type="text" className="input-field" placeholder="Jean Dupont"
+                value={form.name}
+                onChange={e => setForm(f => ({ ...f, name: clean(e.target.value) }))} required />
+            </div>
+            <div>
+              <label className="label">Email professionnel *</label>
+              <input type="email" className="input-field" placeholder="jean@organisation.cm"
+                value={form.email}
+                onChange={e => setForm(f => ({ ...f, email: clean(e.target.value) }))} required />
+            </div>
+            <div>
+              <label className="label">Organisation / Structure</label>
+              <input type="text" className="input-field" placeholder="Nom de votre organisation"
+                value={form.org}
+                onChange={e => setForm(f => ({ ...f, org: clean(e.target.value) }))} />
+            </div>
+            <div>
+              <label className="label">Décrivez votre besoin *</label>
+              <textarea rows={4} className="input-field resize-none"
+                placeholder="Formation souhaitée, nombre de participants, modalité préférée..."
+                value={form.message}
+                onChange={e => setForm(f => ({ ...f, message: clean(e.target.value) }))} required />
+            </div>
+            {status === 'error' && (
+              <p className="text-sm text-red-600 font-medium">Une erreur s'est produite. Réessayez.</p>
+            )}
+            <button type="submit" className="btn-primary w-full justify-center"
+              disabled={status === 'sending'}>
+              {status === 'sending' ? 'Envoi en cours...' : 'Envoyer la demande'}
+            </button>
+          </form>
+        )}
+      </div>
+    </div>
+  )
 }
 
 // ─── Composant principal ──────────────────────────────────────────────────────
 export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick }) {
   const { user, logout } = useAuth()
-  const { lang } = useLang()
-  const t = useT(lang)
+  const { lang }         = useLang()
+  const t                = useT(lang)
 
   const [menuOpen, setMenuOpen]           = useState(false)
   const [dropOpen, setDropOpen]           = useState(false)
-  const [activeProgram, setActiveProgram] = useState(0)
+  const [profile, setProfile]             = useState('particulier')
+  const [activeProgram, setActiveProgram] = useState(null)
   const [openModules, setOpenModules]     = useState({})
+  const [devisOpen, setDevisOpen]         = useState(false)
 
-  const toggleModule = (key) =>
+  const toggleModule = key =>
     setOpenModules(prev => ({ ...prev, [key]: !prev[key] }))
 
-  const prog = programs[activeProgram]
-  const cm   = colorMap[prog.color]
+  const handleSelectProgram = (i) => {
+    setActiveProgram(i)
+    setOpenModules({})
+    setTimeout(() => {
+      document.getElementById('programme-detail')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 50)
+  }
+
+  const handleProfileSwitch = (p) => {
+    setProfile(p)
+    setActiveProgram(null)
+    setOpenModules({})
+  }
+
+  const prog = activeProgram !== null ? programs[activeProgram] : null
+  const cm   = prog ? colorMap[prog.color] : null
 
   return (
     <div className="min-h-screen bg-white">
+
+      {/* ─── MODAL DEVIS ─────────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {devisOpen && (
+          <motion.div key="devis-modal"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}>
+            <DevisModal onClose={() => setDevisOpen(false)} />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ─── NAVBAR ──────────────────────────────────────────────────────── */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur border-b border-slate-100 shadow-sm">
@@ -363,62 +470,245 @@ export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick }
               Des formations IA<br className="hidden lg:block" /> pour tous les profils
             </h1>
             <p className="text-white/80 text-lg max-w-2xl leading-relaxed">
-              Découvrez nos programmes phares, conçus pour vous équiper des compétences IA les plus recherchées dans votre domaine professionnel.
+              Que vous soyez un particulier ou une organisation, SAIM propose une offre adaptée à vos besoins et à votre contexte.
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* ─── APERÇU 4 CARTES ──────────────────────────────────────────────── */}
-      <section className="py-20 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div className="text-center mb-12"
-            variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            <span className="section-chip">Nos programmes</span>
-            <h2 className="text-3xl lg:text-4xl font-extrabold text-saim-800 mt-3">Choisissez votre formation</h2>
-          </motion.div>
-          <motion.div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5"
-            variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            {programs.map((p, i) => {
-              const c = colorMap[p.color]
-              return (
-                <motion.div key={i} variants={cardItem}
-                  className={`card p-6 cursor-pointer transition-all hover:shadow-lg border-2 ${
-                    activeProgram === i ? `border-current ${c.tab}` : 'border-transparent hover:border-slate-200'
-                  }`}
-                  onClick={() => {
-                    setActiveProgram(i)
-                    setOpenModules({})
-                    document.getElementById('programme-detail')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                  }}
-                  whileHover={{ y: -5, transition: { duration: 0.2 } }}>
-                  <div className={`w-12 h-12 rounded-xl ${c.badge} flex items-center justify-center text-2xl mb-4`}>
-                    {p.icon}
-                  </div>
-                  <h3 className="font-extrabold text-slate-800 text-sm leading-snug mb-3">{p.title}</h3>
-                  <div className="flex flex-wrap gap-1 mb-4">
-                    {p.tags.slice(0, 2).map(tag => (
-                      <span key={tag} className={`text-xs px-2 py-0.5 rounded-full font-medium ${c.badge}`}>{tag}</span>
-                    ))}
-                  </div>
-                  <div className={`text-lg font-extrabold ${c.tab.split(' ')[1]}`}>{p.price}</div>
-                  {p.price !== 'Sur devis' && <div className="text-xs text-slate-400">/ personne</div>}
-                </motion.div>
-              )
-            })}
-          </motion.div>
+      {/* ─── SÉLECTEUR DE PROFIL ──────────────────────────────────────────── */}
+      <section className="py-14 bg-slate-50">
+        <div className="max-w-3xl mx-auto px-6">
+          <div className="text-center mb-8">
+            <span className="section-chip">Votre profil</span>
+            <h2 className="text-2xl lg:text-3xl font-extrabold text-saim-800 mt-3">Qui êtes-vous ?</h2>
+            <p className="text-slate-500 mt-2 text-sm">Sélectionnez votre profil pour voir l'offre qui vous correspond.</p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            <button
+              onClick={() => handleProfileSwitch('particulier')}
+              className={`text-left p-6 rounded-2xl border-2 transition-all shadow-sm hover:shadow-md ${
+                profile === 'particulier'
+                  ? 'border-saim-500 bg-saim-50'
+                  : 'border-slate-200 bg-white hover:border-saim-300'
+              }`}>
+              <div className="text-3xl mb-3">👤</div>
+              <h3 className={`text-lg font-extrabold mb-1 ${profile === 'particulier' ? 'text-saim-700' : 'text-slate-800'}`}>
+                Particulier
+              </h3>
+              <p className="text-sm text-slate-500 leading-snug">
+                Formation individuelle 100&nbsp;% en ligne. Accédez aux programmes SAIM à votre rythme.
+              </p>
+              {profile === 'particulier' && (
+                <span className="inline-block mt-3 text-xs font-bold text-saim-600 bg-saim-100 px-3 py-1 rounded-full">
+                  Sélectionné
+                </span>
+              )}
+            </button>
+
+            <button
+              onClick={() => handleProfileSwitch('entreprise')}
+              className={`text-left p-6 rounded-2xl border-2 transition-all shadow-sm hover:shadow-md ${
+                profile === 'entreprise'
+                  ? 'border-saim-500 bg-saim-50'
+                  : 'border-slate-200 bg-white hover:border-saim-300'
+              }`}>
+              <div className="text-3xl mb-3">🏛️</div>
+              <h3 className={`text-lg font-extrabold mb-1 ${profile === 'entreprise' ? 'text-saim-700' : 'text-slate-800'}`}>
+                Entreprise &amp; Institution
+              </h3>
+              <p className="text-sm text-slate-500 leading-snug">
+                Privée ou publique. Formation personnalisable, plusieurs modalités disponibles.
+              </p>
+              {profile === 'entreprise' && (
+                <span className="inline-block mt-3 text-xs font-bold text-saim-600 bg-saim-100 px-3 py-1 rounded-full">
+                  Sélectionné
+                </span>
+              )}
+            </button>
+          </div>
         </div>
       </section>
 
-      {/* ─── DÉTAIL PROGRAMME ─────────────────────────────────────────────── */}
-      <section id="programme-detail" className="py-20 bg-white">
-        <div className="max-w-4xl mx-auto px-6">
-          <AnimatePresence mode="wait">
-            <motion.div key={activeProgram}
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.35 }}>
+      {/* ─── CONTENU PAR PROFIL ───────────────────────────────────────────── */}
+      <AnimatePresence mode="wait">
+        {profile === 'particulier' ? (
+          <motion.div key="particulier"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}>
 
-              {/* En-tête programme */}
+            {/* Bandeau infos */}
+            <section className="bg-white border-b border-slate-100">
+              <div className="max-w-7xl mx-auto px-6 py-8">
+                <div className="flex flex-wrap items-center justify-between gap-6">
+                  <div className="flex flex-wrap gap-3">
+                    <span className="inline-flex items-center gap-2 bg-saim-100 text-saim-700 text-sm font-bold px-4 py-2 rounded-full">
+                      💻 Formation 100&nbsp;% en ligne
+                    </span>
+                    <span className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 text-sm font-bold px-4 py-2 rounded-full">
+                      ✅ Accès immédiat après inscription
+                    </span>
+                    <span className="inline-flex items-center gap-2 bg-amber-100 text-amber-700 text-sm font-bold px-4 py-2 rounded-full">
+                      🎓 Certificat de fin de formation
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs text-slate-400 uppercase tracking-wide font-semibold mb-0.5">Prix par formation</div>
+                    <div className="text-3xl font-extrabold text-saim-700">25&nbsp;500 FCFA</div>
+                    <div className="text-xs text-slate-400">/ personne</div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* 4 cartes formations */}
+            <section className="py-16 bg-slate-50">
+              <div className="max-w-7xl mx-auto px-6">
+                <div className="text-center mb-10">
+                  <span className="section-chip">Nos programmes</span>
+                  <h2 className="text-2xl lg:text-3xl font-extrabold text-saim-800 mt-3">Choisissez votre formation</h2>
+                  <p className="text-slate-500 mt-2 text-sm">Cliquez sur une formation pour voir le programme détaillé.</p>
+                </div>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                  {programs.map((p, i) => {
+                    const c = colorMap[p.color]
+                    return (
+                      <div key={i}
+                        className={`card p-6 cursor-pointer transition-all hover:shadow-lg border-2 ${
+                          activeProgram === i ? `${c.border} ${c.bg}` : 'border-transparent hover:border-slate-200'
+                        }`}
+                        onClick={() => handleSelectProgram(i)}>
+                        <div className={`w-12 h-12 rounded-xl ${c.badge} flex items-center justify-center text-2xl mb-4`}>
+                          {p.icon}
+                        </div>
+                        <h3 className="font-extrabold text-slate-800 text-sm leading-snug mb-3">{p.title}</h3>
+                        <div className="flex flex-wrap gap-1 mb-4">
+                          {p.tags.slice(0, 2).map(tag => (
+                            <span key={tag} className={`text-xs px-2 py-0.5 rounded-full font-medium ${c.badge}`}>{tag}</span>
+                          ))}
+                        </div>
+                        <button
+                          onClick={e => { e.stopPropagation(); onLoginClick() }}
+                          className={`w-full text-white text-xs font-bold py-2 rounded-lg mt-2 transition-all ${c.btn}`}>
+                          S'essayer gratuitement
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </section>
+          </motion.div>
+
+        ) : (
+          <motion.div key="entreprise"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}>
+
+            {/* 3 formules */}
+            <section className="py-16 bg-white">
+              <div className="max-w-7xl mx-auto px-6">
+                <div className="text-center mb-10">
+                  <span className="section-chip">Modalités</span>
+                  <h2 className="text-2xl lg:text-3xl font-extrabold text-saim-800 mt-3">Trois formules disponibles</h2>
+                  <p className="text-slate-500 mt-2 text-sm max-w-xl mx-auto">
+                    Chaque formation peut être dispensée selon la modalité la plus adaptée à votre organisation.
+                  </p>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-6 mb-10">
+                  {formulas.map((f, i) => (
+                    <div key={i} className="card p-7 text-center border border-slate-100 hover:shadow-lg hover:border-saim-200 transition-all">
+                      <div className="text-4xl mb-4">{f.icon}</div>
+                      <h3 className="font-extrabold text-saim-800 text-lg mb-2">{f.label}</h3>
+                      <p className="text-slate-500 text-sm leading-relaxed">{f.desc}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Bandeau personnalisation */}
+                <div className="rounded-2xl bg-gradient-to-r from-saim-600 to-saim-800 p-8 flex flex-wrap items-center justify-between gap-6">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-2xl">✨</span>
+                      <h3 className="text-white font-extrabold text-lg">Formation personnalisable</h3>
+                    </div>
+                    <p className="text-white/75 text-sm leading-relaxed max-w-lg">
+                      Chaque programme peut être adapté aux besoins spécifiques de votre organisation : contenu, durée, modalité et cas d'usage métier sur mesure.
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <span className="bg-white/15 text-white text-xs font-bold px-3 py-1 rounded-full">Entreprises privées</span>
+                      <span className="bg-white/15 text-white text-xs font-bold px-3 py-1 rounded-full">Institutions publiques</span>
+                      <span className="bg-white/15 text-white text-xs font-bold px-3 py-1 rounded-full">ONG &amp; Associations</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-center gap-3 flex-shrink-0">
+                    <div className="text-center">
+                      <div className="text-xs text-white/60 uppercase tracking-wide font-semibold mb-1">Tarification</div>
+                      <div className="text-3xl font-extrabold text-white">Sur devis</div>
+                    </div>
+                    <button
+                      onClick={() => setDevisOpen(true)}
+                      className="inline-flex items-center gap-2 bg-white hover:bg-saim-50 text-saim-700 font-bold px-6 py-3 rounded-full transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95">
+                      Demander un devis
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* 4 cartes formations entreprise */}
+            <section className="py-16 bg-slate-50">
+              <div className="max-w-7xl mx-auto px-6">
+                <div className="text-center mb-10">
+                  <span className="section-chip">Nos programmes</span>
+                  <h2 className="text-2xl lg:text-3xl font-extrabold text-saim-800 mt-3">Programmes disponibles</h2>
+                  <p className="text-slate-500 mt-2 text-sm">Cliquez sur une formation pour voir le programme détaillé.</p>
+                </div>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                  {programs.map((p, i) => {
+                    const c = colorMap[p.color]
+                    return (
+                      <div key={i}
+                        className={`card p-6 cursor-pointer transition-all hover:shadow-lg border-2 ${
+                          activeProgram === i ? `${c.border} ${c.bg}` : 'border-transparent hover:border-slate-200'
+                        }`}
+                        onClick={() => handleSelectProgram(i)}>
+                        <div className={`w-12 h-12 rounded-xl ${c.badge} flex items-center justify-center text-2xl mb-4`}>
+                          {p.icon}
+                        </div>
+                        <h3 className="font-extrabold text-slate-800 text-sm leading-snug mb-3">{p.title}</h3>
+                        <div className="flex flex-wrap gap-1 mb-4">
+                          {p.tags.slice(0, 2).map(tag => (
+                            <span key={tag} className={`text-xs px-2 py-0.5 rounded-full font-medium ${c.badge}`}>{tag}</span>
+                          ))}
+                        </div>
+                        <div className={`text-sm font-extrabold ${c.text}`}>Sur devis</div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </section>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ─── DÉTAIL PROGRAMME ─────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {activeProgram !== null && prog && cm && (
+          <motion.section
+            key={`detail-${activeProgram}`}
+            id="programme-detail"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.35 }}
+            className="py-20 bg-white border-t border-slate-100">
+            <div className="max-w-4xl mx-auto px-6">
+
+              {/* En-tête */}
               <div className={`rounded-2xl p-8 mb-8 ${cm.bg}`}>
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
@@ -434,9 +724,13 @@ export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick }
                   </div>
                   <div className="text-right flex-shrink-0">
                     <div className="text-xs text-slate-500 font-medium mb-0.5">Prix</div>
-                    <div className="text-3xl font-extrabold text-saim-700">{prog.price}</div>
-                    {prog.price !== 'Sur devis' && (
-                      <div className="text-xs text-slate-400">/ personne</div>
+                    {profile === 'particulier' ? (
+                      <>
+                        <div className="text-3xl font-extrabold text-saim-700">25&nbsp;500 FCFA</div>
+                        <div className="text-xs text-slate-400">/ personne</div>
+                      </>
+                    ) : (
+                      <div className="text-3xl font-extrabold text-saim-700">Sur devis</div>
                     )}
                   </div>
                 </div>
@@ -489,21 +783,24 @@ export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick }
                 })}
               </div>
 
-              {/* CTA programme */}
+              {/* CTA */}
               <div className="flex flex-wrap justify-center gap-4">
-                <button onClick={onLoginClick}
-                  className={`inline-flex items-center gap-2 text-white font-bold px-8 py-3.5 rounded-full ${cm.btn} transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95`}>
-                  S'essayer gratuitement →
-                </button>
-                <a href="https://wa.me/237677518862" target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 border-2 border-slate-200 hover:border-saim-300 text-slate-700 hover:text-saim-700 font-bold px-8 py-3.5 rounded-full transition-all">
-                  Demander un devis
-                </a>
+                {profile === 'particulier' ? (
+                  <button onClick={onLoginClick}
+                    className={`inline-flex items-center gap-2 text-white font-bold px-8 py-3.5 rounded-full ${cm.btn} transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95`}>
+                    S'essayer gratuitement →
+                  </button>
+                ) : (
+                  <button onClick={() => setDevisOpen(true)}
+                    className="inline-flex items-center gap-2 bg-saim-600 hover:bg-saim-700 text-white font-bold px-8 py-3.5 rounded-full transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95">
+                    Demander un devis →
+                  </button>
+                )}
               </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </section>
+            </div>
+          </motion.section>
+        )}
+      </AnimatePresence>
 
       {/* ─── CTA FINAL ────────────────────────────────────────────────────── */}
       <section className="py-20 bg-gradient-to-br from-saim-600 to-saim-900 relative overflow-hidden">
@@ -512,25 +809,22 @@ export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick }
           <div className="absolute -bottom-16 -left-16 w-96 h-96 bg-saim-400/10 rounded-full blur-3xl" />
         </div>
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
-          <motion.h2 className="text-3xl lg:text-4xl font-extrabold text-white mb-4"
-            variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
+          <h2 className="text-3xl lg:text-4xl font-extrabold text-white mb-4">
             Prêt à commencer votre formation ?
-          </motion.h2>
-          <motion.p className="text-white/75 text-lg mb-10 max-w-2xl mx-auto"
-            variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
+          </h2>
+          <p className="text-white/75 text-lg mb-10 max-w-2xl mx-auto">
             Rejoignez plus de 300 professionnels qui ont déjà amélioré leur productivité avec SAIM.
-          </motion.p>
-          <motion.div className="flex flex-wrap justify-center gap-4"
-            variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
             <button onClick={onLoginClick}
               className="inline-flex items-center gap-2 bg-white text-saim-700 hover:bg-saim-50 font-extrabold px-8 py-3.5 rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all">
               S'essayer gratuitement
             </button>
-            <button onClick={onGoLanding}
+            <button onClick={() => setDevisOpen(true)}
               className="inline-flex items-center gap-2 border-2 border-white/60 hover:border-white text-white hover:bg-white/10 font-bold px-8 py-3.5 rounded-full transition-all">
-              Retour à l'accueil
+              Demander un devis entreprise
             </button>
-          </motion.div>
+          </div>
         </div>
       </section>
 
