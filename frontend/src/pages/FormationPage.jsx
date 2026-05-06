@@ -475,25 +475,42 @@ export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick }
           <div className="absolute top-10 right-10 w-80 h-80 rounded-full bg-white/5 blur-3xl" />
           <div className="absolute -bottom-10 -left-10 w-96 h-96 rounded-full bg-saim-400/10 blur-3xl" />
         </div>
-        <div className="relative z-10 max-w-7xl mx-auto px-6 py-24 lg:py-32">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-            <button onClick={onGoLanding}
-              className="inline-flex items-center gap-2 text-white/60 hover:text-white text-sm mb-8 transition-colors group">
-              <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Retour à l'accueil
-            </button>
-            <span className="inline-block bg-white/15 backdrop-blur text-white text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-5">
-              Nos formations
-            </span>
-            <h1 className="text-4xl lg:text-6xl font-extrabold text-white leading-tight mb-6">
-              Des formations IA<br className="hidden lg:block" /> pour tous les profils
-            </h1>
-            <p className="text-white/80 text-lg max-w-2xl leading-relaxed">
-              Que vous soyez un particulier ou une organisation, SAIM propose une offre adaptée à vos besoins et à votre contexte.
-            </p>
-          </motion.div>
+        <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 lg:py-24">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+
+            {/* Texte */}
+            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
+              <button onClick={onGoLanding}
+                className="inline-flex items-center gap-2 text-white/60 hover:text-white text-sm mb-8 transition-colors group">
+                <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Retour à l'accueil
+              </button>
+              <span className="inline-block bg-white/15 backdrop-blur text-white text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-5">
+                Nos formations
+              </span>
+              <h1 className="text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-6">
+                Des formations IA<br className="hidden lg:block" /> pour tous les profils
+              </h1>
+              <p className="text-white/80 text-lg leading-relaxed">
+                Que vous soyez un particulier ou une organisation, SAIM propose une offre adaptée à vos besoins et à votre contexte.
+              </p>
+            </motion.div>
+
+            {/* Image */}
+            <motion.div
+              initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              className="hidden lg:block">
+              <img
+                src="/uploads/apropos/formationsteam.webp"
+                alt="Équipe SAIM en formation"
+                className="w-full rounded-2xl shadow-2xl object-cover max-h-[420px]"
+              />
+            </motion.div>
+
+          </div>
         </div>
       </section>
 
