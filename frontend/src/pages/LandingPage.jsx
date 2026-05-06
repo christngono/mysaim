@@ -15,11 +15,11 @@ const fadeUp = {
 }
 const fadeLeft = {
   hidden:  { opacity: 0, x: -60 },
-  visible: { opacity: 1, x: 0,  transition: { duration: 0.7,  ease: 'easeOut' } },
+  visible: { opacity: 1, x: 0,  transition: { duration: 0.7, ease: 'easeOut' } },
 }
 const fadeRight = {
   hidden:  { opacity: 0, x: 60 },
-  visible: { opacity: 1, x: 0,  transition: { duration: 0.7,  ease: 'easeOut' } },
+  visible: { opacity: 1, x: 0,  transition: { duration: 0.7, ease: 'easeOut' } },
 }
 const staggerGrid = {
   hidden:  {},
@@ -27,9 +27,183 @@ const staggerGrid = {
 }
 const cardItem = {
   hidden:  { opacity: 0, y: 35, scale: 0.96 },
-  visible: { opacity: 1, y: 0,  scale: 1, transition: { duration: 0.5, ease: 'easeOut' } },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: 'easeOut' } },
 }
 const viewOpts = { once: true, margin: '-80px' }
+
+// ─── SVG Icons ─────────────────────────────────────────────────────────────────
+const icons = {
+  lightning: (cls = 'w-6 h-6') => (
+    <svg className={cls} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+    </svg>
+  ),
+  megaphone: (cls = 'w-6 h-6') => (
+    <svg className={cls} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+    </svg>
+  ),
+  video: (cls = 'w-6 h-6') => (
+    <svg className={cls} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+    </svg>
+  ),
+  chip: (cls = 'w-6 h-6') => (
+    <svg className={cls} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18" />
+    </svg>
+  ),
+  lightbulb: (cls = 'w-6 h-6') => (
+    <svg className={cls} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+    </svg>
+  ),
+  cog: (cls = 'w-6 h-6') => (
+    <svg className={cls} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  ),
+  shield: (cls = 'w-6 h-6') => (
+    <svg className={cls} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+    </svg>
+  ),
+  chart: (cls = 'w-6 h-6') => (
+    <svg className={cls} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+    </svg>
+  ),
+  target: (cls = 'w-6 h-6') => (
+    <svg className={cls} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <circle cx="12" cy="12" r="10" strokeWidth={2}/><circle cx="12" cy="12" r="6" strokeWidth={2}/><circle cx="12" cy="12" r="2" strokeWidth={2}/>
+    </svg>
+  ),
+  book: (cls = 'w-6 h-6') => (
+    <svg className={cls} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+    </svg>
+  ),
+  users: (cls = 'w-6 h-6') => (
+    <svg className={cls} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+    </svg>
+  ),
+  award: (cls = 'w-6 h-6') => (
+    <svg className={cls} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+    </svg>
+  ),
+  mail: (cls = 'w-5 h-5') => (
+    <svg className={cls} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+    </svg>
+  ),
+  phone: (cls = 'w-5 h-5') => (
+    <svg className={cls} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.948V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 7V5z" />
+    </svg>
+  ),
+  pin: (cls = 'w-5 h-5') => (
+    <svg className={cls} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  ),
+  document: (cls = 'w-5 h-5') => (
+    <svg className={cls} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+  ),
+  building: (cls = 'w-8 h-8') => (
+    <svg className={cls} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+    </svg>
+  ),
+  check: (cls = 'w-4 h-4') => (
+    <svg className={cls} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+    </svg>
+  ),
+}
+
+// ─── Données formations ────────────────────────────────────────────────────────
+const formations = [
+  {
+    iconKey: 'lightning',
+    color: 'saim',
+    title: "Maîtriser l'IA pour la productivité professionnelle",
+    desc: "Intégrez l'intelligence artificielle dans votre quotidien professionnel pour travailler mieux, plus vite et plus intelligemment.",
+    tags: ['Cadres', 'Managers', 'Dirigeants', 'Consultants', 'Professionnels'],
+    tagBg: 'bg-saim-50 text-saim-700',
+    iconBg: 'bg-saim-100 text-saim-600',
+    accentDot: 'bg-saim-400',
+    bg: '/images/image_qui_apprend.jpg',
+    gradient: 'from-saim-700/90 via-saim-600/85 to-saim-800/90',
+  },
+  {
+    iconKey: 'megaphone',
+    color: 'amber',
+    title: "Utiliser l'IA dans le marketing",
+    desc: "Créez du contenu percutant, automatisez vos campagnes et amplifiez votre impact commercial grâce aux outils IA.",
+    tags: ['Marketeurs', 'Communicants', 'Entrepreneurs', 'Community managers', 'PME'],
+    tagBg: 'bg-amber-50 text-amber-700',
+    iconBg: 'bg-amber-100 text-amber-600',
+    accentDot: 'bg-amber-400',
+    bg: '/images/image_chatgpt.jpg',
+    gradient: 'from-amber-900/90 via-amber-700/80 to-saim-900/90',
+  },
+  {
+    iconKey: 'video',
+    color: 'violet',
+    title: "Montage vidéo avec les outils IA",
+    desc: "Produisez des vidéos publicitaires, films et animations de qualité professionnelle rapidement grâce à l'IA.",
+    tags: ['Créateurs de contenu', 'Agences com', 'Entrepreneurs', 'Freelances', 'Médias'],
+    tagBg: 'bg-violet-50 text-violet-700',
+    iconBg: 'bg-violet-100 text-violet-600',
+    accentDot: 'bg-violet-400',
+    bg: '/images/capture_generation_Image.jpeg',
+    gradient: 'from-violet-900/90 via-violet-700/80 to-saim-900/90',
+  },
+  {
+    iconKey: 'chip',
+    color: 'emerald',
+    title: "Spécialisation des modèles IA pour les professionnels",
+    desc: "Maîtrisez le fine-tuning, le RAG et le déploiement de modèles d'IA sur mesure pour des cas d'usage avancés.",
+    tags: ['Data scientists', 'Ingénieurs', 'Chercheurs', 'CTO', 'Développeurs'],
+    tagBg: 'bg-emerald-50 text-emerald-700',
+    iconBg: 'bg-emerald-100 text-emerald-600',
+    accentDot: 'bg-emerald-400',
+    bg: '/images/image_qui_apprend.jpg',
+    gradient: 'from-emerald-900/90 via-emerald-700/80 to-saim-900/90',
+  },
+]
+
+// ─── Objectifs ─────────────────────────────────────────────────────────────────
+const objectives = [
+  {
+    iconKey: 'lightbulb',
+    iconBg: 'bg-saim-100 text-saim-600',
+    title: "Démystifier l'IA",
+    desc: "Rendre l'Intelligence Artificielle accessible et compréhensible pour tous, en brisant les mythes et en expliquant les concepts clés de manière simple et concrète.",
+  },
+  {
+    iconKey: 'cog',
+    iconBg: 'bg-amber-100 text-amber-600',
+    title: "Développer l'Autonomie",
+    desc: "Fournir les compétences pratiques nécessaires pour utiliser les outils d'IA de manière autonome et efficace dans le cadre professionnel.",
+  },
+  {
+    iconKey: 'shield',
+    iconBg: 'bg-violet-100 text-violet-600',
+    title: "Cultiver l'Esprit Critique",
+    desc: "Sensibiliser aux enjeux éthiques, aux limites et aux biais de l'IA, afin de garantir une utilisation responsable et éclairée de ces technologies.",
+  },
+  {
+    iconKey: 'chart',
+    iconBg: 'bg-emerald-100 text-emerald-600',
+    title: "Booster la Productivité et l'Innovation",
+    desc: "Montrer comment l'IA peut transformer les méthodes de travail, automatiser les tâches répétitives et stimuler la créativité pour une meilleure performance individuelle et collective.",
+  },
+]
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPage, onFormationPage }) {
@@ -65,70 +239,15 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
     refs[id]?.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
-  // ── Hero parallax ────────────────────────────────────────────────────────────
   const heroRef = useRef(null)
   const { scrollYProgress: heroScroll } = useScroll({ target: heroRef, offset: ['start start', 'end start'] })
-  const heroBgY   = useTransform(heroScroll, [0, 1], ['0%', '35%'])
-  const heroTextY = useTransform(heroScroll, [0, 1], ['0%', '15%'])
+  const heroBgY    = useTransform(heroScroll, [0, 1], ['0%', '35%'])
+  const heroTextY  = useTransform(heroScroll, [0, 1], ['0%', '15%'])
   const heroOpacity = useTransform(heroScroll, [0, 0.6], [1, 0])
 
-  // ── CTA banner parallax ──────────────────────────────────────────────────────
   const ctaRef = useRef(null)
   const { scrollYProgress: ctaScroll } = useScroll({ target: ctaRef, offset: ['start end', 'end start'] })
   const ctaBgY = useTransform(ctaScroll, [0, 1], ['-10%', '10%'])
-
-  const objectives = [
-    { icon: '🧠', key: 'obj_1' },
-    { icon: '🛠️', key: 'obj_2' },
-    { icon: '✍️', key: 'obj_3' },
-    { icon: '⚡', key: 'obj_4' },
-    { icon: '🚀', key: 'obj_5' },
-  ]
-
-  const formations = [
-    {
-      icon: '⚡',
-      color: 'saim',
-      title: 'Maîtriser l\'IA pour la productivité professionnelle',
-      desc: 'Intégrez l\'intelligence artificielle dans votre quotidien professionnel pour travailler mieux, plus vite et plus intelligemment.',
-      tags: ['Cadres', 'Managers', 'Dirigeants', 'Consultants', 'Professionnels'],
-      price: '20 000',
-      tagBg: 'bg-saim-50 text-saim-700',
-      iconBg: 'bg-saim-100',
-      priceCls: 'text-saim-700',
-      bg: '/images/image_qui_apprend.jpg',
-      gradient: 'from-saim-700/90 via-saim-600/85 to-saim-800/90',
-      accentDot: 'bg-saim-400',
-    },
-    {
-      icon: '📣',
-      color: 'amber',
-      title: 'Utiliser l\'IA dans le marketing',
-      desc: 'Créez du contenu percutant, automatisez vos campagnes et amplifiez votre impact commercial grâce aux outils IA.',
-      tags: ['Marketeurs', 'Communicants', 'Entrepreneurs', 'Community managers', 'PME'],
-      price: '25 000',
-      tagBg: 'bg-amber-50 text-amber-700',
-      iconBg: 'bg-amber-100',
-      priceCls: 'text-amber-700',
-      bg: '/images/image_chatgpt.jpg',
-      gradient: 'from-amber-900/90 via-amber-700/80 to-saim-900/90',
-      accentDot: 'bg-amber-400',
-    },
-    {
-      icon: '🎬',
-      color: 'violet',
-      title: 'Montage vidéo avec les outils IA',
-      desc: 'Produisez des vidéos publicitaires, films et animations de qualité professionnelle rapidement grâce à l\'IA.',
-      tags: ['Créateurs de contenu', 'Agences com', 'Entrepreneurs', 'Freelances', 'Médias'],
-      price: '30 000',
-      tagBg: 'bg-violet-50 text-violet-700',
-      iconBg: 'bg-violet-100',
-      priceCls: 'text-violet-700',
-      bg: '/images/capture_generation_Image.jpeg',
-      gradient: 'from-violet-900/90 via-violet-700/80 to-saim-900/90',
-      accentDot: 'bg-violet-400',
-    },
-  ]
 
   const [slideIdx, setSlideIdx] = useState(0)
   const slide = formations[slideIdx]
@@ -142,23 +261,19 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
     <div className="min-h-screen">
       <Navbar onLoginClick={onLoginClick} scrollTo={scrollTo} onAboutPage={onAboutPage} onFormationPage={onFormationPage} />
 
-      {/* ─── HERO SLIDESHOW ────────────────────────────────────────────────── */}
+      {/* ─── HERO SLIDESHOW ─────────────────────────────────────────────────── */}
       <section ref={(el) => { refs.hero.current = el; heroRef.current = el }}
         id="hero" className="relative min-h-screen flex items-center overflow-hidden">
 
-        {/* Slideshow background — cross-fade */}
         <AnimatePresence mode="sync">
           <motion.div key={`bg-${slideIdx}`} className="absolute inset-0"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            transition={{ duration: 1 }}
-            style={{ y: heroBgY }}>
-            <img src={slide.bg} alt={slide.title}
-              className="w-full h-full object-cover scale-110" />
+            transition={{ duration: 1 }} style={{ y: heroBgY }}>
+            <img src={slide.bg} alt={slide.title} className="w-full h-full object-cover scale-110" />
             <div className={`absolute inset-0 bg-gradient-to-br ${slide.gradient}`} />
           </motion.div>
         </AnimatePresence>
 
-        {/* Decorative orbs */}
         <motion.div className="absolute top-20 right-20 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none"
           animate={{ scale: [1, 1.15, 1], opacity: [0.4, 0.7, 0.4] }}
           transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }} />
@@ -166,51 +281,38 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
           animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
           transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 2 }} />
 
-        {/* Slide counter top-right */}
         <div className="absolute top-24 right-8 z-20 text-white/50 text-sm font-bold tabular-nums select-none">
           {slideIdx + 1} / {formations.length}
         </div>
 
-        {/* Slide content */}
         <motion.div className="relative z-10 max-w-7xl mx-auto px-6 py-32 lg:py-40 w-full"
           style={{ y: heroTextY, opacity: heroOpacity }}>
           <AnimatePresence mode="wait">
             <motion.div key={`content-${slideIdx}`} className="max-w-3xl"
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.55, ease: 'easeOut' }}>
+              initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.55, ease: 'easeOut' }}>
 
-              {/* Badge */}
               <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur border border-white/20 text-white text-sm font-semibold px-4 py-2 rounded-full mb-6">
-                <span>{slide.icon}</span>
+                <span className="w-4 h-4 opacity-80">{icons[slide.iconKey]('w-4 h-4')}</span>
                 <span>Formation SAIM</span>
                 <span className="w-1 h-1 rounded-full bg-white/40" />
-                <span className="font-extrabold">{slide.price} FCFA</span>
+                <span className="font-extrabold">25 500 FCFA</span>
                 <span className="text-white/60 font-normal">/ personne</span>
               </div>
 
-              {/* Title */}
               <h1 className="text-4xl lg:text-6xl font-extrabold text-white leading-tight mb-5">
                 {slide.title}
               </h1>
+              <p className="text-lg text-white/85 mb-6 max-w-xl leading-relaxed">{slide.desc}</p>
 
-              {/* Description */}
-              <p className="text-lg text-white/85 mb-6 max-w-xl leading-relaxed">
-                {slide.desc}
-              </p>
-
-              {/* Audience tags */}
               <div className="flex flex-wrap gap-2 mb-10">
                 {slide.tags.map(tag => (
-                  <span key={tag}
-                    className="text-xs bg-white/15 backdrop-blur border border-white/20 text-white/90 px-3 py-1.5 rounded-full font-medium">
+                  <span key={tag} className="text-xs bg-white/15 backdrop-blur border border-white/20 text-white/90 px-3 py-1.5 rounded-full font-medium">
                     {tag}
                   </span>
                 ))}
               </div>
 
-              {/* CTA buttons */}
               <div className="flex flex-wrap gap-4">
                 {user ? (
                   <button onClick={onEnterDashboard} className="btn-accent text-base px-8 py-3">
@@ -218,11 +320,10 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
                   </button>
                 ) : (
                   <>
-                    <button onClick={onLoginClick}
-                      className="btn-accent text-base px-8 py-3">
+                    <button onClick={onLoginClick} className="btn-accent text-base px-8 py-3">
                       S'essayer gratuitement →
                     </button>
-                    <button onClick={() => scrollTo('about')}
+                    <button onClick={onFormationPage}
                       className="inline-flex items-center gap-2 text-white border-2 border-white/40 hover:border-white hover:bg-white/10 font-semibold px-8 py-3 rounded-full transition-all text-base">
                       En savoir plus
                     </button>
@@ -233,37 +334,28 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
           </AnimatePresence>
         </motion.div>
 
-        {/* Prev arrow */}
-        <button
-          onClick={() => setSlideIdx(i => (i - 1 + formations.length) % formations.length)}
+        <button onClick={() => setSlideIdx(i => (i - 1 + formations.length) % formations.length)}
           className="absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/10 backdrop-blur border border-white/25 text-white flex items-center justify-center hover:bg-white/25 transition-all">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-
-        {/* Next arrow */}
-        <button
-          onClick={() => setSlideIdx(i => (i + 1) % formations.length)}
+        <button onClick={() => setSlideIdx(i => (i + 1) % formations.length)}
           className="absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/10 backdrop-blur border border-white/25 text-white flex items-center justify-center hover:bg-white/25 transition-all">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>
 
-        {/* Navigation dots */}
         <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5">
           {formations.map((f, i) => (
             <button key={i} onClick={() => setSlideIdx(i)}
               className={`transition-all duration-400 rounded-full ${
-                i === slideIdx
-                  ? `w-8 h-2.5 ${f.accentDot}`
-                  : 'w-2.5 h-2.5 bg-white/35 hover:bg-white/60'
+                i === slideIdx ? `w-8 h-2.5 ${f.accentDot}` : 'w-2.5 h-2.5 bg-white/35 hover:bg-white/60'
               }`} />
           ))}
         </div>
 
-        {/* Scroll down */}
         <button onClick={() => scrollTo('about')}
           className="absolute bottom-7 left-1/2 -translate-x-1/2 z-20 text-white/50 hover:text-white transition-colors animate-bounce-slow">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -272,7 +364,7 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
         </button>
       </section>
 
-      {/* ─── ABOUT ─────────────────────────────────────────────────────────── */}
+      {/* ─── QUI SOMMES-NOUS ─────────────────────────────────────────────────── */}
       <section ref={refs.about} id="about" className="py-24 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -281,39 +373,46 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
               <h2 className="text-3xl lg:text-4xl font-extrabold text-saim-800 mt-3 mb-6">{t('about_title')}</h2>
               <p className="text-slate-600 text-lg leading-relaxed mb-4">{t('about_p1')}</p>
               <p className="text-slate-600 text-lg leading-relaxed mb-8">{t('about_p2')}</p>
-              <motion.div className="grid grid-cols-3 gap-4"
+
+              <motion.div className="grid grid-cols-3 gap-4 mb-8"
                 variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
                 {[
-                  { num: '300+', key: 'about_stat1' },
-                  { num: '3',    key: 'about_stat2' },
-                  { num: '5+',   key: 'about_stat3' },
-                ].map(s => (
-                  <motion.div key={s.key} variants={cardItem} className="text-center p-4 bg-saim-50 rounded-xl">
+                  { num: '300+', label: t('about_stat1') },
+                  { num: '4',    label: 'Formations disponibles' },
+                  { num: '5+',   label: t('about_stat3') },
+                ].map((s, i) => (
+                  <motion.div key={i} variants={cardItem} className="text-center p-4 bg-saim-50 rounded-xl">
                     <div className="text-2xl font-extrabold text-saim-600">{s.num}</div>
-                    <div className="text-xs text-slate-500 font-medium mt-1">{t(s.key)}</div>
+                    <div className="text-xs text-slate-500 font-medium mt-1">{s.label}</div>
                   </motion.div>
                 ))}
               </motion.div>
+
+              <button onClick={onAboutPage}
+                className="inline-flex items-center gap-2 bg-saim-500 hover:bg-saim-600 text-white font-bold px-6 py-3 rounded-full transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95">
+                En savoir plus
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
             </motion.div>
 
             <motion.div className="relative" variants={fadeRight} initial="hidden" whileInView="visible" viewport={viewOpts}>
-              <motion.img
-                src="/images/image_Annie.jpeg" alt="SAIM Formation"
+              <motion.img src="/images/image_Annie.jpeg" alt="SAIM Formation"
                 className="w-full rounded-2xl shadow-2xl object-cover max-h-96"
                 whileHover={{ scale: 1.02 }} transition={{ duration: 0.4 }} />
-              <motion.div
-                className="absolute -bottom-4 -left-4 bg-saim-500 text-white rounded-xl px-5 py-3 shadow-lg"
+              <motion.div className="absolute -bottom-4 -left-4 bg-saim-500 text-white rounded-xl px-5 py-3 shadow-lg"
                 initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }}
                 viewport={viewOpts} transition={{ delay: 0.4, duration: 0.5 }}>
                 <div className="text-2xl font-extrabold">100%</div>
-                <div className="text-xs opacity-90">Pratique & concret</div>
+                <div className="text-xs opacity-90">Pratique &amp; concret</div>
               </motion.div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* ─── PARTENAIRES ───────────────────────────────────────────────────── */}
+      {/* ─── PARTENAIRES ────────────────────────────────────────────────────── */}
       <section className="py-10 bg-white border-y border-slate-100 overflow-hidden">
         <motion.div className="text-center mb-6"
           variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
@@ -329,7 +428,7 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
               </div>
               <div className="flex-shrink-0 flex items-center justify-center h-16 w-56">
                 <div className="text-center opacity-60 hover:opacity-100 transition-all">
-                  <div className="text-2xl mb-0.5">🏛️</div>
+                  <div className="flex justify-center mb-0.5 text-slate-500">{icons.building('w-7 h-7')}</div>
                   <div className="text-xs font-bold text-slate-500 leading-tight max-w-[140px]">Ministère de la Jeunesse<br/>& Éducation Civique</div>
                 </div>
               </div>
@@ -352,81 +451,96 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
         </div>
       </section>
 
-      {/* ─── OBJECTIVES ────────────────────────────────────────────────────── */}
+      {/* ─── OBJECTIFS ──────────────────────────────────────────────────────── */}
       <section className="py-20 bg-slate-50">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div className="text-center mb-12"
             variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
             <span className="section-chip">{t('obj_label')}</span>
-            <h2 className="text-3xl font-extrabold text-saim-800 mt-3">{t('obj_title')}</h2>
+            <h2 className="text-3xl font-extrabold text-saim-800 mt-3 mb-3">{t('obj_title')}</h2>
+            <p className="text-slate-500 max-w-2xl mx-auto text-sm leading-relaxed">
+              Nos programmes de formation sont conçus pour atteindre des objectifs clairs et mesurables, permettant à chaque participant de devenir un acteur éclairé de l'ère de l'IA.
+            </p>
           </motion.div>
-          <motion.div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4"
+          <motion.div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
             variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
             {objectives.map((obj, i) => (
               <motion.div key={i} variants={cardItem}
-                className="card p-5 text-center hover:border-saim-300 group cursor-default"
+                className="card p-6 hover:border-saim-300 group cursor-default hover:shadow-lg transition-all"
                 whileHover={{ y: -6, transition: { duration: 0.25 } }}>
-                <div className="text-3xl mb-3">{obj.icon}</div>
-                <p className="text-sm font-medium text-slate-700 group-hover:text-saim-700 transition-colors">
-                  {t(obj.key)}
-                </p>
+                <div className={`w-12 h-12 rounded-xl ${obj.iconBg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                  {icons[obj.iconKey]('w-6 h-6')}
+                </div>
+                <h3 className="font-extrabold text-saim-800 text-sm mb-2">{obj.title}</h3>
+                <p className="text-xs text-slate-500 leading-relaxed">{obj.desc}</p>
               </motion.div>
             ))}
           </motion.div>
         </div>
       </section>
 
-      {/* ─── NOS FORMATIONS ────────────────────────────────────────────────── */}
+      {/* ─── NOS FORMATIONS ─────────────────────────────────────────────────── */}
       <section ref={refs.training} id="training" className="py-24 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div className="text-center mb-14"
             variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
             <span className="section-chip">Nos formations</span>
-            <h2 className="text-3xl lg:text-4xl font-extrabold text-saim-800 mt-3 mb-4">Nos Formations</h2>
-            <p className="text-slate-500 max-w-xl mx-auto">Choisissez la formation qui correspond à votre besoin professionnel</p>
+            <h2 className="text-3xl lg:text-4xl font-extrabold text-saim-800 mt-3 mb-3">Nos Formations</h2>
+            <p className="text-slate-500 max-w-xl mx-auto mb-4">Choisissez la formation qui correspond à votre besoin professionnel</p>
+            <div className="inline-flex items-center gap-2 bg-saim-50 border border-saim-200 text-saim-700 text-sm font-bold px-4 py-2 rounded-full">
+              {icons.award('w-4 h-4')}
+              25 500 FCFA pour toutes nos formations
+            </div>
           </motion.div>
 
-          <motion.div className="grid md:grid-cols-3 gap-8"
-            variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            {formations.map((f, i) => (
-              <motion.div key={i} variants={cardItem}
-                className="card p-8 flex flex-col hover:shadow-xl transition-all border-2 border-transparent hover:border-saim-100"
-                whileHover={{ y: -8, transition: { duration: 0.25 } }}>
-                <div className="mb-5">
-                  <div className={`w-14 h-14 rounded-2xl ${f.iconBg} flex items-center justify-center text-3xl mb-5`}>
-                    {f.icon}
+          <div className="grid lg:grid-cols-2 gap-12 items-start">
+            {/* Image gauche */}
+            <motion.div variants={fadeLeft} initial="hidden" whileInView="visible" viewport={viewOpts}
+              className="relative sticky top-24">
+              <img src="/uploads/apropos/image_apropos.png" alt="Formations SAIM"
+                className="w-full rounded-2xl shadow-xl object-cover max-h-[560px]" />
+              <div className="absolute -bottom-4 -right-4 bg-saim-500 text-white rounded-xl px-5 py-3 shadow-lg">
+                <div className="text-2xl font-extrabold">4</div>
+                <div className="text-xs opacity-90">Formations disponibles</div>
+              </div>
+            </motion.div>
+
+            {/* 4 cartes droite */}
+            <motion.div className="space-y-4"
+              variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
+              {formations.map((f, i) => (
+                <motion.div key={i} variants={cardItem}
+                  className="card p-5 flex items-start gap-4 hover:shadow-lg transition-all border-2 border-transparent hover:border-saim-100"
+                  whileHover={{ y: -3, transition: { duration: 0.2 } }}>
+                  <div className={`w-12 h-12 rounded-xl ${f.iconBg} flex items-center justify-center flex-shrink-0`}>
+                    {icons[f.iconKey]('w-6 h-6')}
                   </div>
-                  <h3 className="text-lg font-extrabold text-saim-800 mb-3 leading-snug">{f.title}</h3>
-                  <p className="text-slate-500 text-sm leading-relaxed">{f.desc}</p>
-                </div>
-                <div className="mb-6 flex-1">
-                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">Pour qui ?</div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {f.tags.map(tag => (
-                      <span key={tag} className={`text-xs px-2.5 py-1 rounded-full font-medium ${f.tagBg}`}>{tag}</span>
-                    ))}
-                  </div>
-                </div>
-                <div className="border-t border-slate-100 pt-5 mt-auto">
-                  <div className="mb-4">
-                    <div className="text-xs text-slate-400 font-medium mb-0.5">Prix</div>
-                    <div className={`text-2xl font-extrabold ${f.priceCls}`}>
-                      {f.price} <span className="text-base font-bold text-slate-500">FCFA</span>
-                      <span className="text-xs font-medium text-slate-400 ml-1">/ personne</span>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-extrabold text-saim-800 text-sm leading-snug mb-1">{f.title}</h3>
+                    <p className="text-slate-500 text-xs leading-relaxed mb-3">{f.desc}</p>
+                    <div className="flex flex-wrap gap-2">
+                      <button onClick={onLoginClick}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-saim-600 hover:text-saim-700 bg-saim-50 hover:bg-saim-100 px-3 py-1.5 rounded-full transition-colors">
+                        {icons.check('w-3 h-3')}
+                        S'essayer gratuitement
+                      </button>
+                      <button onClick={onFormationPage}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-saim-500 hover:bg-saim-600 px-3 py-1.5 rounded-full transition-colors">
+                        Voir les détails
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
                     </div>
                   </div>
-                  <button onClick={onLoginClick}
-                    className="btn-primary w-full justify-center text-sm">
-                    S'essayer gratuitement →
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* ─── POURQUOI SAIM ─────────────────────────────────────────────────── */}
+      {/* ─── POURQUOI SAIM ──────────────────────────────────────────────────── */}
       <section className="py-24 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div className="text-center mb-14"
@@ -438,25 +552,25 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
           <motion.div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5"
             variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
             {[
-              { icon: '🎯', titleKey: 'why_1_title', descKey: 'why_1_desc', color: 'saim' },
-              { icon: '⚡', titleKey: 'why_2_title', descKey: 'why_2_desc', color: 'amber' },
-              { icon: '📖', titleKey: 'why_3_title', descKey: 'why_3_desc', color: 'emerald' },
-              { icon: '👥', titleKey: 'why_4_title', descKey: 'why_4_desc', color: 'violet' },
-              { icon: '🏆', titleKey: 'why_5_title', descKey: 'why_5_desc', color: 'saim' },
+              { iconKey: 'target',    titleKey: 'why_1_title', descKey: 'why_1_desc', color: 'saim'    },
+              { iconKey: 'lightning', titleKey: 'why_2_title', descKey: 'why_2_desc', color: 'amber'   },
+              { iconKey: 'book',      titleKey: 'why_3_title', descKey: 'why_3_desc', color: 'emerald' },
+              { iconKey: 'users',     titleKey: 'why_4_title', descKey: 'why_4_desc', color: 'violet'  },
+              { iconKey: 'award',     titleKey: 'why_5_title', descKey: 'why_5_desc', color: 'saim'    },
             ].map((item, i) => {
               const cm = {
-                saim:    { bg: 'bg-saim-50',    icon: 'bg-saim-100 text-saim-700',       title: 'text-saim-700' },
-                amber:   { bg: 'bg-amber-50',   icon: 'bg-amber-100 text-amber-700',     title: 'text-amber-700' },
-                emerald: { bg: 'bg-emerald-50', icon: 'bg-emerald-100 text-emerald-700', title: 'text-emerald-700' },
-                violet:  { bg: 'bg-violet-50',  icon: 'bg-violet-100 text-violet-700',   title: 'text-violet-700' },
+                saim:    { bg: 'bg-saim-50',    icon: 'bg-saim-100 text-saim-600',     title: 'text-saim-700'    },
+                amber:   { bg: 'bg-amber-50',   icon: 'bg-amber-100 text-amber-600',   title: 'text-amber-700'   },
+                emerald: { bg: 'bg-emerald-50', icon: 'bg-emerald-100 text-emerald-600', title: 'text-emerald-700' },
+                violet:  { bg: 'bg-violet-50',  icon: 'bg-violet-100 text-violet-600', title: 'text-violet-700'  },
               }
               const c = cm[item.color]
               return (
                 <motion.div key={i} variants={cardItem}
                   className={`card p-6 text-center hover:shadow-lg transition-all group ${c.bg}`}
                   whileHover={{ y: -5, transition: { duration: 0.2 } }}>
-                  <div className={`w-14 h-14 rounded-2xl ${c.icon} flex items-center justify-center text-2xl mx-auto mb-4 group-hover:scale-110 transition-transform`}>
-                    {item.icon}
+                  <div className={`w-14 h-14 rounded-2xl ${c.icon} flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}>
+                    {icons[item.iconKey]('w-6 h-6')}
                   </div>
                   <h3 className={`font-extrabold text-sm mb-2 ${c.title}`}>{t(item.titleKey)}</h3>
                   <p className="text-xs text-slate-500 leading-relaxed">{t(item.descKey)}</p>
@@ -467,7 +581,7 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
         </div>
       </section>
 
-      {/* ─── QUI PEUT BÉNÉFICIER ───────────────────────────────────────────── */}
+      {/* ─── QUI PEUT BÉNÉFICIER ────────────────────────────────────────────── */}
       <section className="py-24 bg-saim-50 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -479,7 +593,9 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
                 variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
                 {[1,2,3,4,5,6,7,8].map(n => (
                   <motion.li key={n} variants={cardItem} className="flex items-start gap-3">
-                    <span className="w-7 h-7 rounded-full bg-saim-100 text-saim-600 flex items-center justify-center text-base flex-shrink-0 mt-0.5">💡</span>
+                    <span className="w-7 h-7 rounded-full bg-saim-100 text-saim-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      {icons.check('w-3.5 h-3.5')}
+                    </span>
                     <span className="text-slate-700 text-sm font-medium">{t(`who_${n}`)}</span>
                   </motion.li>
                 ))}
@@ -492,7 +608,7 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
                 variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
                 {[
                   { num: '300+', label: 'Professionnels formés' },
-                  { num: '3',    label: 'Formules disponibles' },
+                  { num: '4',    label: 'Formations disponibles' },
                   { num: '100%', label: 'Satisfaction garantie' },
                   { num: '5+',   label: 'Pays couverts' },
                 ].map((stat, i) => (
@@ -509,7 +625,7 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
         </div>
       </section>
 
-      {/* ─── PROCESSUS ─────────────────────────────────────────────────────── */}
+      {/* ─── PROCESSUS ──────────────────────────────────────────────────────── */}
       <section className="py-24 bg-white overflow-hidden">
         <div className="max-w-5xl mx-auto px-6">
           <motion.div className="text-center mb-14"
@@ -537,8 +653,7 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
                     <div className="relative z-10 flex-shrink-0">
                       <motion.div
                         className="w-12 h-12 rounded-full bg-saim-500 text-white font-extrabold text-lg flex items-center justify-center shadow-lg shadow-saim-200"
-                        whileInView={{ scale: [0.5, 1.2, 1] }}
-                        viewport={viewOpts}
+                        whileInView={{ scale: [0.5, 1.2, 1] }} viewport={viewOpts}
                         transition={{ duration: 0.5, delay: 0.2 }}>
                         {n}
                       </motion.div>
@@ -552,44 +667,41 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
         </div>
       </section>
 
-      {/* ─── CTA BANNER — parallax ─────────────────────────────────────────── */}
+      {/* ─── CTA BANNER ─────────────────────────────────────────────────────── */}
       <section ref={ctaRef} className="py-20 relative overflow-hidden">
-        {/* Parallax background */}
-        <motion.div className="absolute inset-0 bg-gradient-to-br from-saim-600 to-saim-900"
-          style={{ y: ctaBgY }} />
-        {/* Decorative blobs */}
+        <motion.div className="absolute inset-0 bg-gradient-to-br from-saim-600 to-saim-900" style={{ y: ctaBgY }} />
         <motion.div className="absolute -top-10 -right-10 w-72 h-72 bg-white/5 rounded-full blur-3xl pointer-events-none"
           animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 7, repeat: Infinity }} />
         <motion.div className="absolute -bottom-16 -left-16 w-96 h-96 bg-saim-400/10 rounded-full blur-3xl pointer-events-none"
           animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 9, repeat: Infinity, delay: 2 }} />
-
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
           <motion.h2 className="text-3xl lg:text-4xl font-extrabold text-white mb-4"
             variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
             {t('cta_title')}
           </motion.h2>
           <motion.p className="text-white/75 text-lg mb-10 max-w-2xl mx-auto"
-            variants={fadeUp} initial="hidden" whileInView="visible"
-            viewport={viewOpts} transition={{ delay: 0.15 }}>
+            variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}
+            transition={{ delay: 0.15 }}>
             {t('cta_desc')}
           </motion.p>
           <motion.div className="flex flex-wrap justify-center gap-4"
             variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            <motion.button variants={cardItem}
-              onClick={() => scrollTo('contact')}
+            <motion.button variants={cardItem} onClick={() => scrollTo('contact')}
               className="inline-flex items-center gap-2 bg-white text-saim-700 hover:bg-saim-50 font-extrabold px-8 py-3.5 rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95 transition-all text-base">
-              📞 {t('cta_btn1')}
+              {icons.phone('w-4 h-4')}
+              {t('cta_btn1')}
             </motion.button>
             <motion.a variants={cardItem}
               href="/programme-saim.pdf" download="Programme-SAIM-Course.pdf"
               className="inline-flex items-center gap-2 border-2 border-white/60 hover:border-white text-white hover:bg-white/10 font-bold px-8 py-3.5 rounded-full transition-all text-base">
-              📄 {t('cta_btn2')}
+              {icons.document('w-4 h-4')}
+              {t('cta_btn2')}
             </motion.a>
           </motion.div>
         </div>
       </section>
 
-      {/* ─── CONTACT ───────────────────────────────────────────────────────── */}
+      {/* ─── CONTACT ────────────────────────────────────────────────────────── */}
       <section ref={refs.contact} id="contact" className="py-24 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-16 items-start">
@@ -600,13 +712,15 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
               <motion.div className="space-y-4"
                 variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
                 {[
-                  { icon: '📧', label: t('contact_email'),    value: 'partners@mysaim.cm' },
-                  { icon: '📞', label: t('contact_phone'),    value: '(+237) 677 1 88 62' },
-                  { icon: '📍', label: t('contact_location'), value: t('contact_location_val') },
+                  { icon: 'mail',  label: t('contact_email'),    value: 'partners@mysaim.cm' },
+                  { icon: 'phone', label: t('contact_phone'),    value: '(+237) 677 1 88 62' },
+                  { icon: 'pin',   label: t('contact_location'), value: t('contact_location_val') },
                 ].map(item => (
                   <motion.div key={item.label} variants={cardItem}
                     className="flex items-center gap-4 p-4 bg-saim-50 rounded-xl">
-                    <span className="text-2xl">{item.icon}</span>
+                    <span className="w-10 h-10 bg-saim-100 text-saim-600 rounded-full flex items-center justify-center flex-shrink-0">
+                      {icons[item.icon]('w-5 h-5')}
+                    </span>
                     <div>
                       <div className="text-xs font-semibold text-slate-400 uppercase tracking-wide">{item.label}</div>
                       <div className="font-medium text-slate-700">{item.value}</div>
