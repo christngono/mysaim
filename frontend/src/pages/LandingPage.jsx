@@ -127,82 +127,10 @@ const icons = {
 
 // ─── Données formations ────────────────────────────────────────────────────────
 const formations = [
-  {
-    iconKey: 'lightning',
-    color: 'saim',
-    title: "Maîtriser l'IA pour la productivité professionnelle",
-    desc: "Intégrez l'intelligence artificielle dans votre quotidien professionnel pour travailler mieux, plus vite et plus intelligemment.",
-    tags: ['Cadres', 'Managers', 'Dirigeants', 'Consultants', 'Professionnels'],
-    tagBg: 'bg-saim-50 text-saim-700',
-    iconBg: 'bg-saim-100 text-saim-600',
-    accentDot: 'bg-saim-400',
-    bg: '/images/image_qui_apprend.jpg',
-    gradient: 'from-saim-700/90 via-saim-600/85 to-saim-800/90',
-  },
-  {
-    iconKey: 'megaphone',
-    color: 'amber',
-    title: "Utiliser l'IA dans le marketing",
-    desc: "Créez du contenu percutant, automatisez vos campagnes et amplifiez votre impact commercial grâce aux outils IA.",
-    tags: ['Marketeurs', 'Communicants', 'Entrepreneurs', 'Community managers', 'PME'],
-    tagBg: 'bg-amber-50 text-amber-700',
-    iconBg: 'bg-amber-100 text-amber-600',
-    accentDot: 'bg-amber-400',
-    bg: '/images/image_chatgpt.jpg',
-    gradient: 'from-amber-900/90 via-amber-700/80 to-saim-900/90',
-  },
-  {
-    iconKey: 'video',
-    color: 'violet',
-    title: "Montage vidéo avec les outils IA",
-    desc: "Produisez des vidéos publicitaires, films et animations de qualité professionnelle rapidement grâce à l'IA.",
-    tags: ['Créateurs de contenu', 'Agences com', 'Entrepreneurs', 'Freelances', 'Médias'],
-    tagBg: 'bg-violet-50 text-violet-700',
-    iconBg: 'bg-violet-100 text-violet-600',
-    accentDot: 'bg-violet-400',
-    bg: '/images/capture_generation_Image.jpeg',
-    gradient: 'from-violet-900/90 via-violet-700/80 to-saim-900/90',
-  },
-  {
-    iconKey: 'chip',
-    color: 'emerald',
-    title: "Spécialisation des modèles IA pour les professionnels",
-    desc: "Maîtrisez le fine-tuning, le RAG et le déploiement de modèles d'IA sur mesure pour des cas d'usage avancés.",
-    tags: ['Data scientists', 'Ingénieurs', 'Chercheurs', 'CTO', 'Développeurs'],
-    tagBg: 'bg-emerald-50 text-emerald-700',
-    iconBg: 'bg-emerald-100 text-emerald-600',
-    accentDot: 'bg-emerald-400',
-    bg: '/images/image_qui_apprend.jpg',
-    gradient: 'from-emerald-900/90 via-emerald-700/80 to-saim-900/90',
-  },
-]
-
-// ─── Objectifs ─────────────────────────────────────────────────────────────────
-const objectives = [
-  {
-    iconKey: 'lightbulb',
-    iconBg: 'bg-saim-100 text-saim-600',
-    title: "Démystifier l'IA",
-    desc: "Rendre l'Intelligence Artificielle accessible et compréhensible pour tous, en brisant les mythes et en expliquant les concepts clés de manière simple et concrète.",
-  },
-  {
-    iconKey: 'cog',
-    iconBg: 'bg-amber-100 text-amber-600',
-    title: "Développer l'Autonomie",
-    desc: "Fournir les compétences pratiques nécessaires pour utiliser les outils d'IA de manière autonome et efficace dans le cadre professionnel.",
-  },
-  {
-    iconKey: 'shield',
-    iconBg: 'bg-violet-100 text-violet-600',
-    title: "Cultiver l'Esprit Critique",
-    desc: "Sensibiliser aux enjeux éthiques, aux limites et aux biais de l'IA, afin de garantir une utilisation responsable et éclairée de ces technologies.",
-  },
-  {
-    iconKey: 'chart',
-    iconBg: 'bg-emerald-100 text-emerald-600',
-    title: "Booster la Productivité et l'Innovation",
-    desc: "Montrer comment l'IA peut transformer les méthodes de travail, automatiser les tâches répétitives et stimuler la créativité pour une meilleure performance individuelle et collective.",
-  },
+  { iconKey: 'lightning', color: 'saim',    titleKey: 'f1_title', descKey: 'f1_desc', tagsKey: 'f1_tags', tagBg: 'bg-saim-50 text-saim-700',     iconBg: 'bg-saim-100 text-saim-600',     accentDot: 'bg-saim-400',  bg: '/images/image_qui_apprend.jpg',          gradient: 'from-saim-700/90 via-saim-600/85 to-saim-800/90'    },
+  { iconKey: 'megaphone', color: 'amber',   titleKey: 'f2_title', descKey: 'f2_desc', tagsKey: 'f2_tags', tagBg: 'bg-amber-50 text-amber-700',    iconBg: 'bg-amber-100 text-amber-600',    accentDot: 'bg-amber-400', bg: '/images/image_chatgpt.jpg',              gradient: 'from-amber-900/90 via-amber-700/80 to-saim-900/90'  },
+  { iconKey: 'video',     color: 'violet',  titleKey: 'f3_title', descKey: 'f3_desc', tagsKey: 'f3_tags', tagBg: 'bg-violet-50 text-violet-700',  iconBg: 'bg-violet-100 text-violet-600',  accentDot: 'bg-violet-400', bg: '/images/capture_generation_Image.jpeg', gradient: 'from-violet-900/90 via-violet-700/80 to-saim-900/90' },
+  { iconKey: 'chip',      color: 'emerald', titleKey: 'f4_title', descKey: 'f4_desc', tagsKey: 'f4_tags', tagBg: 'bg-emerald-50 text-emerald-700', iconBg: 'bg-emerald-100 text-emerald-600', accentDot: 'bg-emerald-400', bg: '/images/image_qui_apprend.jpg',     gradient: 'from-emerald-900/90 via-emerald-700/80 to-saim-900/90' },
 ]
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
@@ -269,7 +197,7 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
           <motion.div key={`bg-${slideIdx}`} className="absolute inset-0"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 1 }} style={{ y: heroBgY }}>
-            <img src={slide.bg} alt={slide.title} className="w-full h-full object-cover scale-110" />
+            <img src={slide.bg} alt={t(slide.titleKey)} className="w-full h-full object-cover scale-110" />
             <div className={`absolute inset-0 bg-gradient-to-br ${slide.gradient}`} />
           </motion.div>
         </AnimatePresence>
@@ -294,19 +222,19 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
 
               <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur border border-white/20 text-white text-sm font-semibold px-4 py-2 rounded-full mb-6">
                 <span className="w-4 h-4 opacity-80">{icons[slide.iconKey]('w-4 h-4')}</span>
-                <span>Formation SAIM</span>
+                <span>{t('hero_badge')}</span>
                 <span className="w-1 h-1 rounded-full bg-white/40" />
                 <span className="font-extrabold">25 500 FCFA</span>
-                <span className="text-white/60 font-normal">/ personne</span>
+                <span className="text-white/60 font-normal">{t('hero_per_person')}</span>
               </div>
 
               <h1 className="text-4xl lg:text-6xl font-extrabold text-white leading-tight mb-5">
-                {slide.title}
+                {t(slide.titleKey)}
               </h1>
-              <p className="text-lg text-white/85 mb-6 max-w-xl leading-relaxed">{slide.desc}</p>
+              <p className="text-lg text-white/85 mb-6 max-w-xl leading-relaxed">{t(slide.descKey)}</p>
 
               <div className="flex flex-wrap gap-2 mb-10">
-                {slide.tags.map(tag => (
+                {t(slide.tagsKey).split(',').map(tag => (
                   <span key={tag} className="text-xs bg-white/15 backdrop-blur border border-white/20 text-white/90 px-3 py-1.5 rounded-full font-medium">
                     {tag}
                   </span>
@@ -321,11 +249,11 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
                 ) : (
                   <>
                     <button onClick={onLoginClick} className="btn-accent text-base px-8 py-3">
-                      S'essayer gratuitement →
+                      {t('hero_try')} →
                     </button>
                     <button onClick={onFormationPage}
                       className="inline-flex items-center gap-2 text-white border-2 border-white/40 hover:border-white hover:bg-white/10 font-semibold px-8 py-3 rounded-full transition-all text-base">
-                      En savoir plus
+                      {t('hero_learn')}
                     </button>
                   </>
                 )}
@@ -378,7 +306,7 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
                 variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
                 {[
                   { num: '300+', label: t('about_stat1') },
-                  { num: '4',    label: 'Formations disponibles' },
+                  { num: '4',    label: t('about_stat_formations') },
                   { num: '5+',   label: t('about_stat3') },
                 ].map((s, i) => (
                   <motion.div key={i} variants={cardItem} className="text-center p-4 bg-saim-50 rounded-xl">
@@ -390,7 +318,7 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
 
               <button onClick={onAboutPage}
                 className="inline-flex items-center gap-2 bg-saim-500 hover:bg-saim-600 text-white font-bold px-6 py-3 rounded-full transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95">
-                En savoir plus
+                {t('about_learn_more')}
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
@@ -405,7 +333,7 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
                 initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }}
                 viewport={viewOpts} transition={{ delay: 0.4, duration: 0.5 }}>
                 <div className="text-2xl font-extrabold">100%</div>
-                <div className="text-xs opacity-90">Pratique &amp; concret</div>
+                <div className="text-xs opacity-90">{t('about_practical')}</div>
               </motion.div>
             </motion.div>
           </div>
@@ -416,7 +344,7 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
       <section className="py-10 bg-white border-y border-slate-100 overflow-hidden">
         <motion.div className="text-center mb-6"
           variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Ils nous font confiance</p>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t('partners_trust')}</p>
         </motion.div>
         <div className="relative flex overflow-hidden select-none">
           <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-r from-white to-transparent" />
@@ -459,20 +387,25 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
             <span className="section-chip">{t('obj_label')}</span>
             <h2 className="text-3xl font-extrabold text-saim-800 mt-3 mb-3">{t('obj_title')}</h2>
             <p className="text-slate-500 max-w-2xl mx-auto text-sm leading-relaxed">
-              Nos programmes de formation sont conçus pour atteindre des objectifs clairs et mesurables, permettant à chaque participant de devenir un acteur éclairé de l'ère de l'IA.
+              {t('obj_sub')}
             </p>
           </motion.div>
           <motion.div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
             variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            {objectives.map((obj, i) => (
+            {[
+              { iconKey: 'lightbulb', iconBg: 'bg-saim-100 text-saim-600', titleKey: 'obj1_title', descKey: 'obj1_desc' },
+              { iconKey: 'cog', iconBg: 'bg-amber-100 text-amber-600', titleKey: 'obj2_title', descKey: 'obj2_desc' },
+              { iconKey: 'shield', iconBg: 'bg-violet-100 text-violet-600', titleKey: 'obj3_title', descKey: 'obj3_desc' },
+              { iconKey: 'chart', iconBg: 'bg-emerald-100 text-emerald-600', titleKey: 'obj4_title', descKey: 'obj4_desc' },
+            ].map((obj, i) => (
               <motion.div key={i} variants={cardItem}
                 className="card p-6 hover:border-saim-300 group cursor-default hover:shadow-lg transition-all"
                 whileHover={{ y: -6, transition: { duration: 0.25 } }}>
                 <div className={`w-12 h-12 rounded-xl ${obj.iconBg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                   {icons[obj.iconKey]('w-6 h-6')}
                 </div>
-                <h3 className="font-extrabold text-saim-800 text-sm mb-2">{obj.title}</h3>
-                <p className="text-xs text-slate-500 leading-relaxed">{obj.desc}</p>
+                <h3 className="font-extrabold text-saim-800 text-sm mb-2">{t(obj.titleKey)}</h3>
+                <p className="text-xs text-slate-500 leading-relaxed">{t(obj.descKey)}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -484,12 +417,12 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
         <div className="max-w-7xl mx-auto px-6">
           <motion.div className="text-center mb-14"
             variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            <span className="section-chip">Nos formations</span>
-            <h2 className="text-3xl lg:text-4xl font-extrabold text-saim-800 mt-3 mb-3">Nos Formations</h2>
-            <p className="text-slate-500 max-w-xl mx-auto mb-4">Choisissez la formation qui correspond à votre besoin professionnel</p>
+            <span className="section-chip">{t('fmts_chip')}</span>
+            <h2 className="text-3xl lg:text-4xl font-extrabold text-saim-800 mt-3 mb-3">{t('fmts_title')}</h2>
+            <p className="text-slate-500 max-w-xl mx-auto mb-4">{t('fmts_sub')}</p>
             <div className="inline-flex items-center gap-2 bg-saim-50 border border-saim-200 text-saim-700 text-sm font-bold px-4 py-2 rounded-full">
               {icons.award('w-4 h-4')}
-              25 500 FCFA pour toutes nos formations
+              {t('fmts_price')}
             </div>
           </motion.div>
 
@@ -501,7 +434,7 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
                 className="w-full rounded-2xl shadow-xl object-cover max-h-[560px]" />
               <div className="absolute -bottom-4 -right-4 bg-saim-500 text-white rounded-xl px-5 py-3 shadow-lg">
                 <div className="text-2xl font-extrabold">4</div>
-                <div className="text-xs opacity-90">Formations disponibles</div>
+                <div className="text-xs opacity-90">{t('fmts_count')}</div>
               </div>
             </motion.div>
 
@@ -516,17 +449,17 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
                     {icons[f.iconKey]('w-6 h-6')}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-extrabold text-saim-800 text-sm leading-snug mb-1">{f.title}</h3>
-                    <p className="text-slate-500 text-xs leading-relaxed mb-3">{f.desc}</p>
+                    <h3 className="font-extrabold text-saim-800 text-sm leading-snug mb-1">{t(f.titleKey)}</h3>
+                    <p className="text-slate-500 text-xs leading-relaxed mb-3">{t(f.descKey)}</p>
                     <div className="flex flex-wrap gap-2">
                       <button onClick={onLoginClick}
                         className="inline-flex items-center gap-1.5 text-xs font-bold text-saim-600 hover:text-saim-700 bg-saim-50 hover:bg-saim-100 px-3 py-1.5 rounded-full transition-colors">
                         {icons.check('w-3 h-3')}
-                        S'essayer gratuitement
+                        {t('fmts_try')}
                       </button>
                       <button onClick={onFormationPage}
                         className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-saim-500 hover:bg-saim-600 px-3 py-1.5 rounded-full transition-colors">
-                        Voir les détails
+                        {t('fmts_details')}
                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                         </svg>
@@ -607,10 +540,10 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
               <motion.div className="grid grid-cols-2 gap-4"
                 variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
                 {[
-                  { num: '300+', label: 'Professionnels formés' },
-                  { num: '4',    label: 'Formations disponibles' },
-                  { num: '100%', label: 'Satisfaction garantie' },
-                  { num: '5+',   label: 'Pays couverts' },
+                  { num: '300+', label: t('who_s1') },
+                  { num: '4',    label: t('who_s2') },
+                  { num: '100%', label: t('who_s3') },
+                  { num: '5+',   label: t('who_s4') },
                 ].map((stat, i) => (
                   <motion.div key={i} variants={cardItem}
                     className="card p-6 text-center shadow-md"

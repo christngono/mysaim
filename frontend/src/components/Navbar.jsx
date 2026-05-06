@@ -24,7 +24,7 @@ export default function Navbar({ onLoginClick, scrollTo, onAboutPage, onFormatio
         <div className="flex items-center h-16 gap-4">
           {/* Logo */}
           <button onClick={() => scrollTo('hero')} className="flex-shrink-0">
-            <img src="/images/saimlogo.png" alt="SAIM" className="h-10" />
+            <img src="/uploads/apropos/saim_ai_logo_fond.png" alt="SAIM" className="h-10" />
           </button>
 
           {/* Desktop links */}

@@ -32,7 +32,7 @@ const icons = {
   chart:      (cls) => <svg className={cls} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" /></svg>,
 }
 
-// ─── Données programmes ───────────────────────────────────────────────────────
+// ─── Données galeries ─────────────────────────────────────────────────────────
 const galleryEdc = [
   '/uploads/apropos/image_edc1.jpeg',
   '/uploads/apropos/image_edc2.jpeg',
@@ -64,17 +64,17 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
 
             {/* Logo */}
             <button onClick={onGoLanding} className="flex-shrink-0">
-              <img src="/images/saimlogo.png" alt="SAIM" className="h-10" />
+              <img src="/uploads/apropos/saim_ai_logo_fond.png" alt="SAIM" className="h-10" />
             </button>
 
             {/* Desktop links */}
             <div className="hidden md:flex items-center gap-1 flex-1 ml-6">
               <button onClick={onGoLanding}
                 className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-saim-600 hover:bg-saim-50 rounded-lg transition-colors">
-                Accueil
+                {lang === 'en' ? 'Home' : 'Accueil'}
               </button>
               <button className="px-3 py-2 text-sm font-semibold text-saim-600 bg-saim-50 rounded-lg cursor-default">
-                À propos
+                {t('ab_hero_chip')}
               </button>
               <button onClick={() => onFormationPage?.()}
                 className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-saim-600 hover:bg-saim-50 rounded-lg transition-colors">
@@ -145,10 +145,10 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
             <div className="md:hidden border-t border-slate-100 py-3 space-y-1">
               <button onClick={() => { onGoLanding(); setMenuOpen(false) }}
                 className="block w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg">
-                Accueil
+                {lang === 'en' ? 'Home' : 'Accueil'}
               </button>
               <button className="block w-full text-left px-4 py-2 text-sm text-saim-600 font-semibold bg-saim-50 rounded-lg">
-                À propos
+                {t('ab_hero_chip')}
               </button>
               <button onClick={() => { onFormationPage?.(); setMenuOpen(false) }}
                 className="block w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg">
@@ -179,7 +179,11 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
       </nav>
 
       {/* ─── HERO BANNER ──────────────────────────────────────────────────── */}
-      <section className="relative pt-16 overflow-hidden bg-gradient-to-br from-saim-700 via-saim-600 to-saim-800">
+      <section className="relative pt-16 overflow-hidden">
+        <div className="absolute inset-0">
+          <img src="/uploads/apropos/image_apropos.png" alt="" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-br from-saim-800/85 via-saim-700/75 to-saim-900/85" />
+        </div>
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-10 right-10 w-80 h-80 rounded-full bg-white/5 blur-3xl" />
           <div className="absolute -bottom-10 -left-10 w-96 h-96 rounded-full bg-saim-400/10 blur-3xl" />
@@ -191,16 +195,16 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
               <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              Retour à l'accueil
+              {t('ab_back')}
             </button>
             <span className="inline-block bg-white/15 backdrop-blur text-white text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-5">
-              À propos de nous
+              {t('ab_hero_chip')}
             </span>
             <h1 className="text-4xl lg:text-6xl font-extrabold text-white leading-tight mb-6">
-              SAIM AI — L'IA au service<br className="hidden lg:block" /> de la prospérité africaine
+              {t('ab_hero_title')}
             </h1>
             <p className="text-white/80 text-lg max-w-2xl leading-relaxed">
-              Nous accompagnons les entreprises et institutions africaines dans l'adoption et la maîtrise de l'Intelligence Artificielle comme levier de transformation stratégique.
+              {t('ab_hero_sub')}
             </p>
           </motion.div>
         </div>
@@ -211,19 +215,13 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
         <div className="max-w-4xl mx-auto px-6">
           <motion.div className="text-center mb-10"
             variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            <span className="section-chip">Notre vision</span>
-            <h2 className="text-3xl lg:text-4xl font-extrabold text-saim-800 mt-3">L'IA comme outil stratégique africain</h2>
+            <span className="section-chip">{t('ab_vision_chip')}</span>
+            <h2 className="text-3xl lg:text-4xl font-extrabold text-saim-800 mt-3">{t('ab_vision_title')}</h2>
           </motion.div>
           <motion.div className="space-y-5 text-slate-600 text-lg leading-relaxed"
             variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            <p>
-              Chez SAIM, nous sommes animés par une conviction profonde : l'Intelligence Artificielle est un levier de transformation incontournable pour les entreprises et institutions africaines. Notre vision est de les accompagner dans l'adoption et la maîtrise de l'IA, non pas comme une simple technologie importée, mais comme un{' '}
-              <strong className="text-saim-700">outil stratégique, adapté à nos réalités et contrôlé par l'humain</strong>.
-            </p>
-            <p>
-              Nous croyons fermement que pour exploiter pleinement le potentiel de l'IA, il est impératif de comprendre ses mécanismes, de l'utiliser de manière responsable et de l'intégrer intelligemment dans nos écosystèmes locaux. Notre mission est de faire de l'IA un moteur de{' '}
-              <strong className="text-saim-700">productivité, d'innovation et de croissance durable</strong> pour le continent africain.
-            </p>
+            <p>{t('ab_vision_p1')}</p>
+            <p>{t('ab_vision_p2')}</p>
           </motion.div>
         </div>
       </section>
@@ -233,8 +231,8 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
         <div className="max-w-7xl mx-auto px-6">
           <motion.div className="text-center mb-14"
             variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            <span className="section-chip">Nos services</span>
-            <h2 className="text-3xl lg:text-4xl font-extrabold text-saim-800 mt-3">Expertise et Solutions sur Mesure</h2>
+            <span className="section-chip">{t('ab_svc_chip')}</span>
+            <h2 className="text-3xl lg:text-4xl font-extrabold text-saim-800 mt-3">{t('ab_svc_title')}</h2>
           </motion.div>
           <motion.div className="grid md:grid-cols-2 gap-8"
             variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
@@ -243,26 +241,16 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
               <div className="w-14 h-14 rounded-2xl bg-saim-100 text-saim-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 {icons.graduation('w-7 h-7')}
               </div>
-              <h3 className="text-xl font-extrabold text-saim-800 mb-4">
-                Formation Spécialisée pour Entreprises et Institutions
-              </h3>
-              <p className="text-slate-600 leading-relaxed">
-                Nous concevons et dispensons des programmes de formation sur mesure, adaptés aux besoins spécifiques de chaque structure. Que ce soit pour initier vos équipes aux fondamentaux de l'IA, les former aux outils génératifs ou les accompagner dans des projets complexes, nos formations sont conçues pour{' '}
-                <strong className="text-saim-700">transformer la théorie en compétences opérationnelles</strong>.
-              </p>
+              <h3 className="text-xl font-extrabold text-saim-800 mb-4">{t('ab_svc1_title')}</h3>
+              <p className="text-slate-600 leading-relaxed">{t('ab_svc1_desc')}</p>
             </motion.div>
             <motion.div variants={cardItem}
               className="card p-8 hover:shadow-xl transition-all group border-2 border-transparent hover:border-violet-100">
               <div className="w-14 h-14 rounded-2xl bg-violet-100 text-violet-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 {icons.chip('w-7 h-7')}
               </div>
-              <h3 className="text-xl font-extrabold text-saim-800 mb-4">
-                Déploiement de Solutions d'Intelligence Artificielle sur Mesure
-              </h3>
-              <p className="text-slate-600 leading-relaxed">
-                Au-delà de la formation, nous accompagnons les entreprises dans l'intégration concrète de l'IA. Nous développons et déployons des{' '}
-                <strong className="text-violet-700">solutions d'IA personnalisées</strong>, basées sur vos données et vos objectifs métier, pour optimiser vos processus, améliorer votre prise de décision et créer de la valeur ajoutée.
-              </p>
+              <h3 className="text-xl font-extrabold text-saim-800 mb-4">{t('ab_svc2_title')}</h3>
+              <p className="text-slate-600 leading-relaxed">{t('ab_svc2_desc')}</p>
             </motion.div>
           </motion.div>
         </div>
@@ -273,25 +261,23 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
         <div className="max-w-7xl mx-auto px-6">
           <motion.div className="text-center mb-14"
             variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            <span className="section-chip">Notre expérience</span>
-            <h2 className="text-3xl lg:text-4xl font-extrabold text-saim-800 mt-3 mb-4">Des Partenariats Stratégiques et des Résultats Concrets</h2>
-            <p className="text-slate-500 max-w-2xl mx-auto">
-              Nous avons eu le privilège de collaborer avec des acteurs majeurs et de contribuer à la montée en compétence de centaines de professionnels.
-            </p>
+            <span className="section-chip">{t('ab_exp_chip')}</span>
+            <h2 className="text-3xl lg:text-4xl font-extrabold text-saim-800 mt-3 mb-4">{t('ab_exp_title')}</h2>
+            <p className="text-slate-500 max-w-2xl mx-auto">{t('ab_exp_sub')}</p>
           </motion.div>
 
           {/* Stats */}
           <motion.div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-16"
             variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
             {[
-              { num: '300+', label: 'Professionnels formés' },
-              { num: '4',    label: 'Institutions partenaires' },
-              { num: '7+',   label: "Ans d'expérience" },
-              { num: '5+',   label: 'Pays couverts' },
+              { num: '300+', labelKey: 'ab_ts3_title' },
+              { num: '4',    labelKey: 'ab_exp_inst'  },
+              { num: '7+',   labelKey: 'ab_exp_years' },
+              { num: '5+',   labelKey: 'about_stat3'  },
             ].map((s, i) => (
               <motion.div key={i} variants={cardItem} className="card p-6 text-center">
                 <div className="text-3xl font-extrabold text-saim-600 mb-1">{s.num}</div>
-                <div className="text-sm text-slate-500 font-medium">{s.label}</div>
+                <div className="text-sm text-slate-500 font-medium">{t(s.labelKey)}</div>
               </motion.div>
             ))}
           </motion.div>
@@ -301,7 +287,7 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
             variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
             <div className="flex items-center gap-3 mb-6">
               <div className="h-1 w-10 bg-saim-500 rounded-full flex-shrink-0" />
-              <h3 className="font-extrabold text-saim-800 text-lg">EDC — Electricity Development Corporation</h3>
+              <h3 className="font-extrabold text-saim-800 text-lg">{t('ab_edc_label')}</h3>
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               {galleryEdc.map((src, i) => (
@@ -319,7 +305,7 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
             variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
             <div className="flex items-center gap-3 mb-6">
               <div className="h-1 w-10 bg-amber-500 rounded-full flex-shrink-0" />
-              <h3 className="font-extrabold text-saim-800 text-lg">MINTP — Ministère des Travaux Publics</h3>
+              <h3 className="font-extrabold text-saim-800 text-lg">{t('ab_mintp_label')}</h3>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {galleryMintp.map((src, i) => (
@@ -335,16 +321,11 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
           {/* Autres partenaires */}
           <motion.div className="p-6 bg-saim-50 rounded-2xl border border-saim-100"
             variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            <p className="text-xs font-bold text-saim-600 uppercase tracking-widest mb-4">Autres partenaires institutionnels</p>
+            <p className="text-xs font-bold text-saim-600 uppercase tracking-widest mb-4">{t('ab_partners_lbl')}</p>
             <div className="flex flex-wrap gap-3">
-              {[
-                'Port Autonome de Kribi',
-                'Ministère de la Jeunesse & Éducation Civique',
-                'Établissements scolaires secondaires',
-                'Universités camerounaises',
-              ].map(p => (
-                <span key={p} className="text-sm bg-white text-slate-700 border border-slate-200 px-4 py-2 rounded-full font-medium shadow-sm">
-                  {p}
+              {['ab_partner1', 'ab_partner2', 'ab_partner3', 'ab_partner4'].map(key => (
+                <span key={key} className="text-sm bg-white text-slate-700 border border-slate-200 px-4 py-2 rounded-full font-medium shadow-sm">
+                  {t(key)}
                 </span>
               ))}
             </div>
@@ -358,21 +339,21 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
           <motion.div className="text-center mb-12"
             variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
             <span className="inline-block bg-white/15 text-white text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-5">
-              Notre équipe
+              {t('ab_team_chip')}
             </span>
             <h2 className="text-3xl lg:text-4xl font-extrabold text-white mt-2 mb-3">
-              Des Experts Passionnés à Votre Service
+              {t('ab_team_title')}
             </h2>
             <p className="text-white/65 max-w-xl mx-auto">
-              Notre force réside dans notre équipe : une synergie de professionnels certifiés et passionnés par l'Intelligence Artificielle.
+              {t('ab_team_sub')}
             </p>
           </motion.div>
           <motion.div className="grid sm:grid-cols-3 gap-6"
             variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
             {[
-              { iconKey: 'trophy',     num: '7+',   title: "Ans d'expérience",     desc: "Dans la formation et le consulting en solutions d'IA" },
-              { iconKey: 'graduation', num: '100%', title: 'Ingénieurs certifiés',  desc: 'Formation et consulting en Intelligence Artificielle' },
-              { iconKey: 'globe',      num: '300+', title: 'Professionnels formés', desc: 'Accompagnés dans leur transformation digitale' },
+              { iconKey: 'trophy',     num: '7+',   titleKey: 'ab_ts1_title', descKey: 'ab_ts1_desc' },
+              { iconKey: 'graduation', num: '100%', titleKey: 'ab_ts2_title', descKey: 'ab_ts2_desc' },
+              { iconKey: 'globe',      num: '300+', titleKey: 'ab_ts3_title', descKey: 'ab_ts3_desc' },
             ].map((item, i) => (
               <motion.div key={i} variants={cardItem}
                 className="text-center p-8 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
@@ -380,8 +361,8 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
                   {icons[item.iconKey]('w-7 h-7')}
                 </div>
                 <div className="text-4xl font-extrabold text-white mb-1">{item.num}</div>
-                <div className="text-saim-300 font-bold text-sm mb-2">{item.title}</div>
-                <div className="text-white/55 text-sm leading-relaxed">{item.desc}</div>
+                <div className="text-saim-300 font-bold text-sm mb-2">{t(item.titleKey)}</div>
+                <div className="text-white/55 text-sm leading-relaxed">{t(item.descKey)}</div>
               </motion.div>
             ))}
           </motion.div>
@@ -393,32 +374,16 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
         <div className="max-w-7xl mx-auto px-6">
           <motion.div className="text-center mb-14"
             variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            <span className="section-chip">Nos valeurs</span>
-            <h2 className="text-3xl lg:text-4xl font-extrabold text-saim-800 mt-3">Les Piliers de Notre Engagement</h2>
+            <span className="section-chip">{t('ab_val_chip')}</span>
+            <h2 className="text-3xl lg:text-4xl font-extrabold text-saim-800 mt-3">{t('ab_val_title')}</h2>
           </motion.div>
           <motion.div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
             variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
             {[
-              {
-                iconKey: 'lock', color: 'saim',
-                title: 'Souveraineté des Données',
-                desc: "Nous prônons une gestion des données qui respecte la confidentialité et la propriété, essentielles pour la confiance numérique en Afrique.",
-              },
-              {
-                iconKey: 'mappin', color: 'amber',
-                title: 'Personnalisation aux Besoins Locaux',
-                desc: "L'IA doit être un outil flexible, capable de s'adapter aux spécificités culturelles, économiques et sociales de nos régions.",
-              },
-              {
-                iconKey: 'user', color: 'emerald',
-                title: 'Contrôle Humain sur les IA',
-                desc: "L'IA doit toujours rester un outil au service de l'humain, sous son contrôle, pour augmenter ses capacités et non le remplacer.",
-              },
-              {
-                iconKey: 'chart', color: 'violet',
-                title: 'Viabilité et Impact Réel',
-                desc: "Nos solutions et formations visent des résultats concrets et durables, garantissant une valeur ajoutée mesurable pour nos partenaires.",
-              },
+              { iconKey: 'lock',   color: 'saim',    titleKey: 'ab_v1_title', descKey: 'ab_v1_desc' },
+              { iconKey: 'mappin', color: 'amber',   titleKey: 'ab_v2_title', descKey: 'ab_v2_desc' },
+              { iconKey: 'user',   color: 'emerald', titleKey: 'ab_v3_title', descKey: 'ab_v3_desc' },
+              { iconKey: 'chart',  color: 'violet',  titleKey: 'ab_v4_title', descKey: 'ab_v4_desc' },
             ].map((v, i) => {
               const vcm = {
                 saim:    { bg: 'bg-saim-50',    icon: 'bg-saim-100 text-saim-600',       title: 'text-saim-700' },
@@ -433,8 +398,8 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
                   <div className={`w-12 h-12 rounded-xl ${vcm.icon} flex items-center justify-center mb-5`}>
                     {icons[v.iconKey]('w-6 h-6')}
                   </div>
-                  <h3 className={`font-extrabold mb-3 text-sm leading-snug ${vcm.title}`}>{v.title}</h3>
-                  <p className="text-slate-600 text-sm leading-relaxed">{v.desc}</p>
+                  <h3 className={`font-extrabold mb-3 text-sm leading-snug ${vcm.title}`}>{t(v.titleKey)}</h3>
+                  <p className="text-slate-600 text-sm leading-relaxed">{t(v.descKey)}</p>
                 </motion.div>
               )
             })}
@@ -451,21 +416,21 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
           <motion.h2 className="text-3xl lg:text-4xl font-extrabold text-white mb-4"
             variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            Prêt à Transformer Votre Organisation ?
+            {t('ab_cta_title')}
           </motion.h2>
           <motion.p className="text-white/75 text-lg mb-10 max-w-2xl mx-auto"
             variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
-            Rejoignez plus de 300 professionnels qui ont déjà amélioré leur productivité avec SAIM.
+            {t('ab_cta_desc')}
           </motion.p>
           <motion.div className="flex flex-wrap justify-center gap-4"
             variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
             <button onClick={() => onFormationPage?.()}
               className="inline-flex items-center gap-2 bg-white text-saim-700 hover:bg-saim-50 font-extrabold px-8 py-3.5 rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all">
-              Voir nos formations →
+              {t('ab_cta_btn1')}
             </button>
             <button onClick={onGoLanding}
               className="inline-flex items-center gap-2 border-2 border-white/60 hover:border-white text-white hover:bg-white/10 font-bold px-8 py-3.5 rounded-full transition-all">
-              Retour à l'accueil
+              {t('ab_cta_btn2')}
             </button>
           </motion.div>
         </div>
