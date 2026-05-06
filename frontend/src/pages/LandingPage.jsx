@@ -426,9 +426,6 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
         </div>
       </section>
 
-      {/* ─── FORMULES ──────────────────────────────────────────────────────── */}
-      <FormuleSection t={t} scrollTo={scrollTo} />
-
       {/* ─── POURQUOI SAIM ─────────────────────────────────────────────────── */}
       <section className="py-24 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">

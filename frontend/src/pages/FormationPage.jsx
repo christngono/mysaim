@@ -6,7 +6,7 @@ import { useT } from '../i18n/translations'
 import LangToggle from '../components/LangToggle'
 import Footer from '../components/Footer'
 import api from '../api/axios'
-import clean from '../utils/sanitize'
+import { clean } from '../utils/sanitize'
 
 // ─── Données programmes ───────────────────────────────────────────────────────
 const programs = [
@@ -532,11 +532,8 @@ export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick }
       </section>
 
       {/* ─── CONTENU PAR PROFIL ───────────────────────────────────────────── */}
-      <AnimatePresence mode="wait">
-        {profile === 'particulier' ? (
-          <motion.div key="particulier"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}>
+      {profile === 'particulier' ? (
+          <>
 
             {/* Bandeau infos */}
             <section className="bg-white border-b border-slate-100">
@@ -599,12 +596,10 @@ export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick }
                 </div>
               </div>
             </section>
-          </motion.div>
+          </>
 
         ) : (
-          <motion.div key="entreprise"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}>
+          <>
 
             {/* 3 formules */}
             <section className="py-16 bg-white">
@@ -691,9 +686,8 @@ export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick }
                 </div>
               </div>
             </section>
-          </motion.div>
+          </>
         )}
-      </AnimatePresence>
 
       {/* ─── DÉTAIL PROGRAMME ─────────────────────────────────────────────── */}
       <AnimatePresence>
