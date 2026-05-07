@@ -474,12 +474,13 @@ export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick }
   const { lang }         = useLang()
   const t                = useT(lang)
 
-  const [menuOpen, setMenuOpen]           = useState(false)
-  const [dropOpen, setDropOpen]           = useState(false)
-  const [profile, setProfile]             = useState('particulier')
-  const [activeProgram, setActiveProgram] = useState(null)
-  const [openModules, setOpenModules]     = useState({})
-  const [devisOpen, setDevisOpen]         = useState(false)
+  const [menuOpen, setMenuOpen]             = useState(false)
+  const [dropOpen, setDropOpen]             = useState(false)
+  const [profile, setProfile]               = useState('particulier')
+  const [activeProgram, setActiveProgram]   = useState(null)
+  const [openModules, setOpenModules]       = useState({})
+  const [devisOpen, setDevisOpen]           = useState(false)
+  const [openProgramCards, setOpenProgramCards] = useState({})
 
   const programs = lang === 'en' ? programsEn : programsFr
   const formulas = [
@@ -490,6 +491,11 @@ export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick }
 
   const toggleModule = key =>
     setOpenModules(prev => ({ ...prev, [key]: !prev[key] }))
+
+  const toggleCardProgram = (e, i) => {
+    e.stopPropagation()
+    setOpenProgramCards(prev => ({ ...prev, [i]: !prev[i] }))
+  }
 
   const handleSelectProgram = (i) => {
     setActiveProgram(i)
@@ -503,6 +509,7 @@ export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick }
     setProfile(p)
     setActiveProgram(null)
     setOpenModules({})
+    setOpenProgramCards({})
   }
 
   const prog = activeProgram !== null ? programs[activeProgram] : null
@@ -774,6 +781,7 @@ export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick }
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {programs.map((p, i) => {
                   const c = colorMap[p.color]
+                  const cardProgramOpen = !!openProgramCards[i]
                   return (
                     <div key={i}
                       className={`card p-6 cursor-pointer transition-all hover:shadow-lg border-2 ${
@@ -789,6 +797,36 @@ export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick }
                           <span key={tag} className={`text-xs px-2 py-0.5 rounded-full font-medium ${c.badge}`}>{tag}</span>
                         ))}
                       </div>
+                      <button
+                        onClick={e => toggleCardProgram(e, i)}
+                        className={`w-full flex items-center justify-center gap-1.5 text-xs font-bold py-2 rounded-lg mt-2 transition-all border-2 ${c.text} border-current bg-transparent hover:bg-black/5`}>
+                        {t('fp_view_prog')}
+                        <svg className={`w-3.5 h-3.5 transition-transform duration-300 ${cardProgramOpen ? 'rotate-180' : ''}`}
+                          fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                      <AnimatePresence initial={false}>
+                        {cardProgramOpen && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.3, ease: 'easeInOut' }}
+                            className="overflow-hidden">
+                            <div className="mt-3 pt-3 border-t border-slate-200 space-y-2">
+                              {p.modules.map((mod, mi) => (
+                                <div key={mi} className="flex items-start gap-2">
+                                  <span className={`w-5 h-5 rounded-full ${c.badge} flex items-center justify-center text-xs font-extrabold flex-shrink-0 mt-0.5`}>
+                                    {mi + 1}
+                                  </span>
+                                  <span className={`text-xs font-semibold ${c.text} leading-snug`}>{mod.title}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                       <button
                         onClick={e => { e.stopPropagation(); onLoginClick() }}
                         className={`w-full text-white text-xs font-bold py-2 rounded-lg mt-2 transition-all ${c.btn}`}>
