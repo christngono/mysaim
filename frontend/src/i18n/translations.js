@@ -308,6 +308,13 @@ export const T = {
     contact_email_label: 'Votre email',
     contact_msg_label:   'Votre message',
     contact_send:        'Envoyer le message',
+    contact_sending:     'Envoi en cours...',
+    contact_success:     'Message envoyé avec succès !',
+    contact_error:       'Une erreur s\'est produite. Réessayez.',
+    contact_hero_chip:   'Contactez-nous',
+    contact_hero_title:  'Parlons de votre projet',
+    contact_hero_sub:    'Notre équipe est disponible pour répondre à toutes vos questions sur nos formations IA.',
+    contact_follow:      'Suivez-nous',
 
     // Auth
     login_title:    'Se connecter',
@@ -686,6 +693,13 @@ export const T = {
     contact_email_label: 'Your email',
     contact_msg_label:   'Your message',
     contact_send:        'Send message',
+    contact_sending:     'Sending...',
+    contact_success:     'Message sent successfully!',
+    contact_error:       'An error occurred. Please try again.',
+    contact_hero_chip:   'Contact us',
+    contact_hero_title:  'Let\'s talk about your project',
+    contact_hero_sub:    'Our team is available to answer all your questions about our AI training programs.',
+    contact_follow:      'Follow us',
 
     login_title:    'Sign in',
     login_email:    'Email address',
