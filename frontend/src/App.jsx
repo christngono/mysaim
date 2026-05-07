@@ -13,8 +13,9 @@ import AuthModal from './components/AuthModal'
 export default function App() {
   const { user, loading } = useAuth()
   const { lang } = useLang()
-  const [view, setView]       = useState('landing')   // 'landing' | 'about' | 'formation' | 'contact' | 'dashboard'
-  const [authMode, setAuthMode] = useState(null)      // null | 'login' | 'register'
+  const [view, setView]             = useState('landing')
+  const [authMode, setAuthMode]     = useState(null)
+  const [splashDone, setSplashDone] = useState(false)
 
   useEffect(() => {
     document.documentElement.lang = lang
@@ -24,7 +25,13 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'instant' })
   }, [view])
 
-  if (loading) return (
+  // Durée minimale du splash : 1.4 secondes
+  useEffect(() => {
+    const t = setTimeout(() => setSplashDone(true), 1400)
+    return () => clearTimeout(t)
+  }, [])
+
+  if (loading || !splashDone) return (
     <div className="fixed inset-0 flex items-center justify-center overflow-hidden"
       style={{ background: 'linear-gradient(135deg, #0c1a2e 0%, #0f3460 50%, #1a1a4e 100%)' }}>
 
@@ -50,8 +57,8 @@ export default function App() {
             scale:   [1, 1.3, 1],
           }}
           transition={{
-            duration: 3 + (i % 4),
-            delay:    i * 0.18,
+            duration: 4.2 + (i % 4) * 2,
+            delay:    i * 0.3,
             repeat:   Infinity,
             ease:     'easeInOut',
           }}
@@ -71,14 +78,14 @@ export default function App() {
               left:   -size / 2,
             }}
             animate={{ rotate: i % 2 === 0 ? 360 : -360 }}
-            transition={{ duration: 8 + i * 4, repeat: Infinity, ease: 'linear' }}
+            transition={{ duration: 16.2 + i * 8, repeat: Infinity, ease: 'linear' }}
           >
             {/* Point lumineux sur l'anneau */}
             <motion.div
               className="absolute w-2 h-2 rounded-full bg-sky-400"
               style={{ top: -4, left: '50%', marginLeft: -4 }}
               animate={{ opacity: [0.4, 1, 0.4] }}
-              transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
+              transition={{ duration: 2.2, repeat: Infinity, delay: i * 0.6 }}
             />
           </motion.div>
         ))}
@@ -89,7 +96,7 @@ export default function App() {
         className="absolute rounded-full"
         style={{ width: 160, height: 160, background: 'radial-gradient(circle, rgba(56,189,248,0.18) 0%, transparent 70%)' }}
         animate={{ scale: [1, 1.6, 1], opacity: [0.6, 0.15, 0.6] }}
-        transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+        transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
       />
 
       {/* ── Contenu central ── */}
@@ -100,22 +107,22 @@ export default function App() {
           className="relative"
           initial={{ opacity: 0, scale: 0.5, y: 20 }}
           animate={{ opacity: 1, scale: 1,   y: 0   }}
-          transition={{ duration: 0.9, ease: [0.34, 1.56, 0.64, 1] }}>
+          transition={{ duration: 0.8, ease: [0.34, 1.56, 0.64, 1] }}>
 
           {/* Éclat derrière le logo */}
           <motion.div
             className="absolute inset-0 rounded-full blur-xl"
             style={{ background: 'rgba(56,189,248,0.3)' }}
             animate={{ opacity: [0.3, 0.8, 0.3], scale: [0.8, 1.1, 0.8] }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
           />
 
           <motion.img
             src="/uploads/apropos/saim_ai_logo_fond.png"
             alt="SAIM"
             className="h-28 relative z-10 drop-shadow-2xl"
-            animate={{ y: [0, -6, 0] }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+            animate={{ y: [0, -8, 0] }}
+            transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
           />
         </motion.div>
 
@@ -124,14 +131,14 @@ export default function App() {
           <motion.p
             initial={{ opacity: 0, letterSpacing: '0.4em' }}
             animate={{ opacity: 1, letterSpacing: '0.15em' }}
-            transition={{ duration: 0.9, delay: 0.4 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
             className="text-white font-extrabold text-xl tracking-widest uppercase">
             SAIM
           </motion.p>
           <motion.p
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.65 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
             className="text-sky-300/80 text-sm font-medium tracking-wide">
             Plateforme de Formation IA
           </motion.p>
@@ -141,12 +148,12 @@ export default function App() {
         <motion.div
           initial={{ opacity: 0, scaleX: 0 }}
           animate={{ opacity: 1, scaleX: 1 }}
-          transition={{ duration: 0.5, delay: 0.8 }}
+          transition={{ duration: 0.4, delay: 0.7 }}
           className="w-48 h-0.5 bg-white/10 rounded-full overflow-hidden">
           <motion.div
             initial={{ width: '0%' }}
             animate={{ width: '100%' }}
-            transition={{ duration: 1.8, delay: 0.9, ease: 'easeInOut' }}
+            transition={{ duration: 1, delay: 0.8, ease: 'easeInOut' }}
             className="h-full rounded-full"
             style={{ background: 'linear-gradient(90deg, #38bdf8, #818cf8, #38bdf8)', backgroundSize: '200%' }}
           />
@@ -158,8 +165,8 @@ export default function App() {
             <motion.div
               key={i}
               className="w-1.5 h-1.5 rounded-full bg-sky-400"
-              animate={{ opacity: [0.2, 1, 0.2], y: [0, -4, 0] }}
-              transition={{ duration: 1, repeat: Infinity, delay: i * 0.2, ease: 'easeInOut' }}
+              animate={{ opacity: [0.2, 1, 0.2], y: [0, -5, 0] }}
+              transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.2, ease: 'easeInOut' }}
             />
           ))}
         </div>
