@@ -646,45 +646,52 @@ export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick, 
       </nav>
 
       {/* ─── HERO BANNER ──────────────────────────────────────────────────── */}
-      <section className="relative pt-16 overflow-hidden bg-gradient-to-br from-saim-700 via-saim-600 to-saim-800">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-10 right-10 w-80 h-80 rounded-full bg-white/5 blur-3xl" />
-          <div className="absolute -bottom-10 -left-10 w-96 h-96 rounded-full bg-saim-400/10 blur-3xl" />
+      <section className="relative pt-16 overflow-hidden min-h-[520px] lg:min-h-[600px] flex items-center">
+        {/* Image de fond */}
+        <div className="absolute inset-0">
+          <img
+            src="/uploads/apropos/formationsteam.webp"
+            alt=""
+            className="w-full h-full object-cover object-center"
+          />
+          {/* Overlay dégradé */}
+          <div className="absolute inset-0 bg-gradient-to-r from-saim-900/90 via-saim-800/75 to-saim-700/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-saim-900/60 via-transparent to-transparent" />
         </div>
-        <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 lg:py-24">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
 
-            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-              <button onClick={onGoLanding}
-                className="inline-flex items-center gap-2 text-white/60 hover:text-white text-sm mb-8 transition-colors group">
-                <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                {t('fp_back')}
-              </button>
-              <span className="inline-block bg-white/15 backdrop-blur text-white text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-5">
-                {t('fp_hero_chip')}
-              </span>
-              <h1 className="text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-6">
-                {t('fp_hero_title')}
-              </h1>
-              <p className="text-white/80 text-lg leading-relaxed">
-                {t('fp_hero_sub')}
-              </p>
-            </motion.div>
+        {/* Motifs lumineux */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-10 right-1/4 w-72 h-72 rounded-full bg-saim-400/10 blur-3xl" />
+          <div className="absolute bottom-0 left-1/3 w-96 h-48 rounded-full bg-saim-500/10 blur-3xl" />
+        </div>
 
-            <motion.div
-              initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.7, delay: 0.2 }}
-              className="hidden lg:block">
-              <img
-                src="/uploads/apropos/formationsteam.webp"
-                alt="Équipe SAIM en formation"
-                className="w-full rounded-2xl shadow-2xl object-cover max-h-[420px]"
-              />
-            </motion.div>
-
-          </div>
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 py-20 lg:py-28">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}
+            className="max-w-2xl">
+            <button onClick={onGoLanding}
+              className="inline-flex items-center gap-2 text-white/60 hover:text-white text-sm mb-8 transition-colors group">
+              <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              {t('fp_back')}
+            </button>
+            <motion.span
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.15 }}
+              className="inline-block bg-white/15 backdrop-blur text-white text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-5">
+              {t('fp_hero_chip')}
+            </motion.span>
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.25 }}
+              className="text-4xl lg:text-5xl xl:text-6xl font-extrabold text-white leading-tight mb-6 drop-shadow-lg">
+              {t('fp_hero_title')}
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.4 }}
+              className="text-white/85 text-lg leading-relaxed max-w-xl">
+              {t('fp_hero_sub')}
+            </motion.p>
+          </motion.div>
         </div>
       </section>
 

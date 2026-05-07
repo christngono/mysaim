@@ -25,60 +25,143 @@ export default function App() {
   }, [view])
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-saim-50 via-white to-saim-100">
-      <div className="flex flex-col items-center gap-8">
-        {/* Professional Logo Animation */}
+    <div className="fixed inset-0 flex items-center justify-center overflow-hidden"
+      style={{ background: 'linear-gradient(135deg, #0c1a2e 0%, #0f3460 50%, #1a1a4e 100%)' }}>
+
+      {/* ── Particules flottantes ── */}
+      {[...Array(14)].map((_, i) => (
         <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="relative"
-        >
+          key={i}
+          className="absolute rounded-full"
+          style={{
+            width:  `${6 + (i % 4) * 5}px`,
+            height: `${6 + (i % 4) * 5}px`,
+            left:   `${(i * 37 + 7) % 95}%`,
+            top:    `${(i * 53 + 11) % 85}%`,
+            background: i % 3 === 0
+              ? 'rgba(56,189,248,0.25)'
+              : i % 3 === 1
+              ? 'rgba(99,102,241,0.2)'
+              : 'rgba(255,255,255,0.08)',
+          }}
+          animate={{
+            y:       [0, -22, 0],
+            opacity: [0.4, 0.9, 0.4],
+            scale:   [1, 1.3, 1],
+          }}
+          transition={{
+            duration: 3 + (i % 4),
+            delay:    i * 0.18,
+            repeat:   Infinity,
+            ease:     'easeInOut',
+          }}
+        />
+      ))}
+
+      {/* ── Anneaux tournants ── */}
+      <div className="absolute">
+        {[120, 170, 220].map((size, i) => (
           <motion.div
-            animate={{
-              boxShadow: [
-                "0 0 0 0 rgba(2, 132, 199, 0.7)",
-                "0 0 0 20px rgba(2, 132, 199, 0)",
-              ],
+            key={size}
+            className="absolute rounded-full border border-sky-400/20"
+            style={{
+              width:  size,
+              height: size,
+              top:    -size / 2,
+              left:   -size / 2,
             }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            className="absolute inset-0 rounded-full"
+            animate={{ rotate: i % 2 === 0 ? 360 : -360 }}
+            transition={{ duration: 8 + i * 4, repeat: Infinity, ease: 'linear' }}
+          >
+            {/* Point lumineux sur l'anneau */}
+            <motion.div
+              className="absolute w-2 h-2 rounded-full bg-sky-400"
+              style={{ top: -4, left: '50%', marginLeft: -4 }}
+              animate={{ opacity: [0.4, 1, 0.4] }}
+              transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
+            />
+          </motion.div>
+        ))}
+      </div>
+
+      {/* ── Halo pulsant derrière le logo ── */}
+      <motion.div
+        className="absolute rounded-full"
+        style={{ width: 160, height: 160, background: 'radial-gradient(circle, rgba(56,189,248,0.18) 0%, transparent 70%)' }}
+        animate={{ scale: [1, 1.6, 1], opacity: [0.6, 0.15, 0.6] }}
+        transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+      />
+
+      {/* ── Contenu central ── */}
+      <div className="relative z-10 flex flex-col items-center gap-8">
+
+        {/* Logo */}
+        <motion.div
+          className="relative"
+          initial={{ opacity: 0, scale: 0.5, y: 20 }}
+          animate={{ opacity: 1, scale: 1,   y: 0   }}
+          transition={{ duration: 0.9, ease: [0.34, 1.56, 0.64, 1] }}>
+
+          {/* Éclat derrière le logo */}
+          <motion.div
+            className="absolute inset-0 rounded-full blur-xl"
+            style={{ background: 'rgba(56,189,248,0.3)' }}
+            animate={{ opacity: [0.3, 0.8, 0.3], scale: [0.8, 1.1, 0.8] }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
           />
-          <img 
-            src="/uploads/apropos/saim_ai_logo_fond.png" 
-            alt="SAIM" 
-            className="h-24 relative z-10"
+
+          <motion.img
+            src="/uploads/apropos/saim_ai_logo_fond.png"
+            alt="SAIM"
+            className="h-28 relative z-10 drop-shadow-2xl"
+            animate={{ y: [0, -6, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
           />
         </motion.div>
 
-        {/* Loading Text */}
-        <div className="flex flex-col items-center gap-2">
+        {/* Textes */}
+        <div className="flex flex-col items-center gap-1.5">
           <motion.p
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-saim-600 font-semibold text-lg"
-          >
+            initial={{ opacity: 0, letterSpacing: '0.4em' }}
+            animate={{ opacity: 1, letterSpacing: '0.15em' }}
+            transition={{ duration: 0.9, delay: 0.4 }}
+            className="text-white font-extrabold text-xl tracking-widest uppercase">
             SAIM
           </motion.p>
           <motion.p
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            className="text-slate-500 text-sm"
-          >
+            transition={{ duration: 0.7, delay: 0.65 }}
+            className="text-sky-300/80 text-sm font-medium tracking-wide">
             Plateforme de Formation IA
           </motion.p>
         </div>
 
-        {/* Progress Bar */}
-        <div className="w-40 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+        {/* Barre de progression */}
+        <motion.div
+          initial={{ opacity: 0, scaleX: 0 }}
+          animate={{ opacity: 1, scaleX: 1 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
+          className="w-48 h-0.5 bg-white/10 rounded-full overflow-hidden">
           <motion.div
-            initial={{ width: "0%" }}
-            animate={{ width: "100%" }}
-            transition={{ duration: 2, ease: "easeInOut" }}
-            className="h-full bg-gradient-to-r from-saim-500 via-saim-600 to-saim-700 rounded-full"
+            initial={{ width: '0%' }}
+            animate={{ width: '100%' }}
+            transition={{ duration: 1.8, delay: 0.9, ease: 'easeInOut' }}
+            className="h-full rounded-full"
+            style={{ background: 'linear-gradient(90deg, #38bdf8, #818cf8, #38bdf8)', backgroundSize: '200%' }}
           />
+        </motion.div>
+
+        {/* Points de chargement */}
+        <div className="flex gap-1.5">
+          {[0, 1, 2].map(i => (
+            <motion.div
+              key={i}
+              className="w-1.5 h-1.5 rounded-full bg-sky-400"
+              animate={{ opacity: [0.2, 1, 0.2], y: [0, -4, 0] }}
+              transition={{ duration: 1, repeat: Infinity, delay: i * 0.2, ease: 'easeInOut' }}
+            />
+          ))}
         </div>
       </div>
     </div>
