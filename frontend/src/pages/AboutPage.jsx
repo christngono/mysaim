@@ -71,7 +71,7 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage, 
             <div className="hidden md:flex items-center gap-1 flex-1 ml-6">
               <button onClick={onGoLanding}
                 className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-saim-600 hover:bg-saim-50 rounded-lg transition-colors">
-                {lang === 'en' ? 'Home' : 'Accueil'}
+                {t('nav_home')}
               </button>
               <button className="px-3 py-2 text-sm font-semibold text-saim-600 bg-saim-50 rounded-lg cursor-default">
                 {t('ab_hero_chip')}
@@ -145,7 +145,7 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage, 
             <div className="md:hidden border-t border-slate-100 py-3 space-y-1">
               <button onClick={() => { onGoLanding(); setMenuOpen(false) }}
                 className="block w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg">
-                {lang === 'en' ? 'Home' : 'Accueil'}
+                {t('nav_home')}
               </button>
               <button className="block w-full text-left px-4 py-2 text-sm text-saim-600 font-semibold bg-saim-50 rounded-lg">
                 {t('ab_hero_chip')}

@@ -16,10 +16,13 @@ export default function App() {
   const [view, setView]       = useState('landing')   // 'landing' | 'about' | 'formation' | 'contact' | 'dashboard'
   const [authMode, setAuthMode] = useState(null)      // null | 'login' | 'register'
 
-  // Add section-chip utility class dynamically
   useEffect(() => {
     document.documentElement.lang = lang
   }, [lang])
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' })
+  }, [view])
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-saim-50 via-white to-saim-100">
