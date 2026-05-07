@@ -134,7 +134,7 @@ const formations = [
 ]
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
-export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPage, onFormationPage }) {
+export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPage, onFormationPage, onContactPage }) {
   const { user } = useAuth()
   const { lang } = useLang()
   const t = useT(lang)
@@ -187,7 +187,7 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
 
   return (
     <div className="min-h-screen">
-      <Navbar onLoginClick={onLoginClick} scrollTo={scrollTo} onAboutPage={onAboutPage} onFormationPage={onFormationPage} />
+      <Navbar onLoginClick={onLoginClick} scrollTo={scrollTo} onAboutPage={onAboutPage} onFormationPage={onFormationPage} onContactPage={onContactPage} />
 
       {/* ─── HERO SLIDESHOW ─────────────────────────────────────────────────── */}
       <section ref={(el) => { refs.hero.current = el; heroRef.current = el }}
@@ -698,7 +698,12 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
         </div>
       </section>
 
-      <Footer scrollTo={scrollTo} />
+      <Footer
+        scrollTo={scrollTo}
+        onAboutPage={onAboutPage}
+        onFormationPage={onFormationPage}
+        onContactPage={onContactPage}
+      />
     </div>
   )
 }

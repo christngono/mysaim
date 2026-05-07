@@ -469,7 +469,7 @@ function DevisModal({ onClose }) {
 }
 
 // ─── Composant principal ──────────────────────────────────────────────────────
-export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick }) {
+export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick, onContactPage }) {
   const { user, logout } = useAuth()
   const { lang }         = useLang()
   const t                = useT(lang)
@@ -1095,7 +1095,12 @@ export default function FormationPage({ onGoLanding, onAboutPage, onLoginClick }
         </div>
       </section>
 
-      <Footer scrollTo={onGoLanding} />
+      <Footer
+        onGoLanding={onGoLanding}
+        onAboutPage={onAboutPage}
+        onFormationPage={() => {}}
+        onContactPage={onContactPage}
+      />
     </div>
   )
 }

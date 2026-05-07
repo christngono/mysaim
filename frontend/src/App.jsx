@@ -5,6 +5,7 @@ import { useLang } from './context/LangContext'
 import LandingPage from './pages/LandingPage'
 import AboutPage from './pages/AboutPage'
 import FormationPage from './pages/FormationPage'
+import ContactPage from './pages/ContactPage'
 import UserDashboard from './pages/UserDashboard'
 import AdminDashboard from './pages/AdminDashboard'
 import AuthModal from './components/AuthModal'
@@ -12,7 +13,7 @@ import AuthModal from './components/AuthModal'
 export default function App() {
   const { user, loading } = useAuth()
   const { lang } = useLang()
-  const [view, setView]       = useState('landing')   // 'landing' | 'about' | 'dashboard'
+  const [view, setView]       = useState('landing')   // 'landing' | 'about' | 'formation' | 'contact' | 'dashboard'
   const [authMode, setAuthMode] = useState(null)      // null | 'login' | 'register'
 
   // Add section-chip utility class dynamically
@@ -99,6 +100,7 @@ export default function App() {
           onRegisterClick={() => setAuthMode('register')}
           onAboutPage={() => setView('about')}
           onFormationPage={() => setView('formation')}
+          onContactPage={() => setView('contact')}
           onEnterDashboard={() => {
             if (user) setView('dashboard')
             else setAuthMode('login')
@@ -111,6 +113,7 @@ export default function App() {
           onGoLanding={() => setView('landing')}
           onLoginClick={() => setAuthMode('login')}
           onFormationPage={() => setView('formation')}
+          onContactPage={() => setView('contact')}
         />
       )}
 
@@ -118,6 +121,17 @@ export default function App() {
         <FormationPage
           onGoLanding={() => setView('landing')}
           onAboutPage={() => setView('about')}
+          onLoginClick={() => setAuthMode('login')}
+          onContactPage={() => setView('contact')}
+        />
+      )}
+
+      {view === 'contact' && (
+        <ContactPage
+          onGoLanding={() => setView('landing')}
+          onAboutPage={() => setView('about')}
+          onFormationPage={() => setView('formation')}
+          onContactPage={() => setView('contact')}
           onLoginClick={() => setAuthMode('login')}
         />
       )}

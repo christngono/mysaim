@@ -46,7 +46,7 @@ const galleryMintp = [
 ]
 
 // ─── Composant principal ──────────────────────────────────────────────────────
-export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }) {
+export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage, onContactPage }) {
   const { user, logout } = useAuth()
   const { lang } = useLang()
   const t = useT(lang)
@@ -436,7 +436,12 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage }
         </div>
       </section>
 
-      <Footer scrollTo={onGoLanding} />
+      <Footer
+        onGoLanding={onGoLanding}
+        onAboutPage={() => {}}
+        onFormationPage={onFormationPage}
+        onContactPage={onContactPage}
+      />
     </div>
   )
 }
