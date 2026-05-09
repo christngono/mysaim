@@ -4,7 +4,7 @@ import { useLang } from '../context/LangContext'
 import { useT } from '../i18n/translations'
 import LangToggle from './LangToggle'
 
-export default function Navbar({ onLoginClick, scrollTo, onAboutPage, onFormationPage, onContactPage }) {
+export default function Navbar({ onLoginClick, scrollTo, onAboutPage, onFormationPage, onCatalogPage, onContactPage }) {
   const { user, logout } = useAuth()
   const { lang } = useLang()
   const t = useT(lang)
@@ -12,10 +12,10 @@ export default function Navbar({ onLoginClick, scrollTo, onAboutPage, onFormatio
   const [dropOpen, setDropOpen] = useState(false)
 
   const navLinks = [
-    { key: 'home',     label: t('nav_home'),        action: () => scrollTo('hero') },
-    { key: 'about',    label: t('nav_about'),       action: () => onAboutPage ? onAboutPage() : scrollTo('about') },
-    { key: 'training', label: t('nav_training'),    action: () => onFormationPage ? onFormationPage() : scrollTo('training') },
-    { key: 'contact',  label: t('nav_contact'),     action: () => onContactPage ? onContactPage() : scrollTo('contact') },
+    { key: 'home',     label: t('nav_home'),        action: () => scrollTo ? scrollTo('hero') : null },
+    { key: 'about',    label: t('nav_about'),       action: () => onAboutPage ? onAboutPage() : (scrollTo ? scrollTo('about') : null) },
+    { key: 'catalog',  label: t('nav_catalog'),     action: () => onCatalogPage ? onCatalogPage() : null },
+    { key: 'contact',  label: t('nav_contact'),     action: () => onContactPage ? onContactPage() : (scrollTo ? scrollTo('contact') : null) },
   ]
 
   return (

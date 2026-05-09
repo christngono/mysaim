@@ -6,6 +6,7 @@ import LandingPage from './pages/LandingPage'
 import AboutPage from './pages/AboutPage'
 import FormationPage from './pages/FormationPage'
 import ContactPage from './pages/ContactPage'
+import CatalogPage from './pages/CatalogPage'
 import UserDashboard from './pages/UserDashboard'
 import AdminDashboard from './pages/AdminDashboard'
 import AuthModal from './components/AuthModal'
@@ -13,9 +14,15 @@ import AuthModal from './components/AuthModal'
 export default function App() {
   const { user, loading } = useAuth()
   const { lang } = useLang()
-  const [view, setView]             = useState('landing')
-  const [authMode, setAuthMode]     = useState(null)
-  const [splashDone, setSplashDone] = useState(false)
+  const [view, setView]                       = useState('landing')
+  const [authMode, setAuthMode]               = useState(null)
+  const [splashDone, setSplashDone]           = useState(false)
+  const [catalogFormation, setCatalogFormation] = useState(null)
+
+  const goToCatalog = (formation = null) => {
+    setCatalogFormation(formation)
+    setView('catalog')
+  }
 
   useEffect(() => {
     document.documentElement.lang = lang
@@ -193,6 +200,7 @@ export default function App() {
           onRegisterClick={() => setAuthMode('register')}
           onAboutPage={() => setView('about')}
           onFormationPage={() => setView('formation')}
+          onCatalogPage={goToCatalog}
           onContactPage={() => setView('contact')}
           onEnterDashboard={() => {
             if (user) setView('dashboard')
@@ -226,6 +234,18 @@ export default function App() {
           onFormationPage={() => setView('formation')}
           onContactPage={() => setView('contact')}
           onLoginClick={() => setAuthMode('login')}
+        />
+      )}
+
+      {view === 'catalog' && (
+        <CatalogPage
+          onGoLanding={() => setView('landing')}
+          onLoginClick={() => setAuthMode('login')}
+          onEnterDashboard={() => { if (user) setView('dashboard'); else setAuthMode('login') }}
+          onAboutPage={() => setView('about')}
+          onContactPage={() => setView('contact')}
+          onCatalogPage={goToCatalog}
+          initialFormation={catalogFormation}
         />
       )}
 
