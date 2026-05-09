@@ -4,9 +4,74 @@ const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
+function getEnrollment(userId, formationId) {
+  return db.prepare('SELECT status, enrolled_at, paid_at FROM enrollments WHERE user_id = ? AND formation_id = ?').get(userId, formationId);
+}
+
+// Module 0 (premier module, order_index = 0) est gratuit pour les inscrits (trial ou paid)
+// Modules suivants nécessitent status = 'paid'
+function canAccessModule(userId, module) {
+  const enrollment = getEnrollment(userId, module.formation_id);
+  if (!enrollment) return false;
+  if (enrollment.status === 'paid') return true;
+  return module.order_index === 0; // trial = module 1 seulement
+}
+
+// ─── GET /courses/formations ──────────────────────────────────────────────────
+router.get('/formations', requireAuth, (req, res) => {
+  const formations = db.prepare('SELECT * FROM formations ORDER BY order_index').all();
+
+  const result = formations.map(f => {
+    const enrollment = getEnrollment(req.user.id, f.id);
+    const moduleCount = db.prepare('SELECT COUNT(*) as cnt FROM modules WHERE formation_id = ? AND is_published = 1').get(f.id)?.cnt ?? 0;
+    const lessonCount = db.prepare(
+      'SELECT COUNT(*) as cnt FROM lessons l JOIN modules m ON l.module_id = m.id WHERE m.formation_id = ? AND l.is_published = 1'
+    ).get(f.id)?.cnt ?? 0;
+    const completedCount = enrollment ? (db.prepare(`
+      SELECT COUNT(*) as cnt FROM user_progress up
+      JOIN lessons l ON up.lesson_id = l.id
+      JOIN modules m ON l.module_id = m.id
+      WHERE up.user_id = ? AND up.completed = 1 AND m.formation_id = ?
+    `).get(req.user.id, f.id)?.cnt ?? 0) : 0;
+    return {
+      ...f,
+      enrollment_status: enrollment?.status ?? null,
+      enrolled_at: enrollment?.enrolled_at ?? null,
+      paid_at: enrollment?.paid_at ?? null,
+      module_count: moduleCount,
+      lesson_count: lessonCount,
+      completed_lessons: completedCount,
+      progress_percent: lessonCount > 0 ? Math.round((completedCount / lessonCount) * 100) : 0,
+    };
+  });
+
+  res.json(result);
+});
+
+// ─── POST /courses/enroll ─────────────────────────────────────────────────────
+// Inscription gratuite (trial) à une formation
+router.post('/enroll', requireAuth, (req, res) => {
+  const { formation_id } = req.body;
+  if (!formation_id) return res.status(400).json({ error: 'formation_id requis' });
+
+  const formation = db.prepare('SELECT id FROM formations WHERE id = ? AND is_published = 1').get(formation_id);
+  if (!formation) return res.status(404).json({ error: 'Formation introuvable' });
+
+  db.prepare(`
+    INSERT OR IGNORE INTO enrollments (user_id, formation_id, status)
+    VALUES (?, ?, 'trial')
+  `).run(req.user.id, formation_id);
+
+  res.json({ success: true });
+});
+
 // ─── GET /courses/modules  (all modules + lessons + quiz info) ────────────────
 router.get('/modules', requireAuth, (req, res) => {
-  const modules = db.prepare('SELECT * FROM modules ORDER BY order_index').all();
+  const formationId = req.query.formation_id ? parseInt(req.query.formation_id) : 1;
+
+  const modules = db.prepare(
+    'SELECT * FROM modules WHERE formation_id = ? ORDER BY order_index'
+  ).all(formationId);
 
   const lessons = db.prepare(
     'SELECT * FROM lessons WHERE is_published = 1 ORDER BY module_id, order_index'
@@ -20,7 +85,9 @@ router.get('/modules', requireAuth, (req, res) => {
   progress.forEach(p => { progressMap[p.lesson_id] = p.completed; });
 
   const result = modules.map(m => {
-    const locked = m.is_published === 0;
+    const accessible = canAccessModule(req.user.id, m);
+    const locked = !accessible || m.is_published === 0;
+    const needsPayment = !accessible && m.is_published === 1 && m.order_index > 0;
 
     const quiz = db.prepare('SELECT id, passing_score FROM quizzes WHERE module_id = ? AND is_published = 1').get(m.id);
     let quizInfo = null;
@@ -29,15 +96,14 @@ router.get('/modules', requireAuth, (req, res) => {
         'SELECT score, total, passed FROM quiz_attempts WHERE user_id = ? AND quiz_id = ? ORDER BY score DESC LIMIT 1'
       ).get(req.user.id, quiz.id);
       quizInfo = {
-        id:            quiz.id,
+        id: quiz.id,
         passing_score: quiz.passing_score,
-        passed:        best?.passed === 1,
-        best_score:    best?.score ?? null,
-        total:         best?.total ?? 10,
+        passed: best?.passed === 1,
+        best_score: best?.score ?? null,
+        total: best?.total ?? 10,
       };
     }
 
-    // Exercise info
     const exercise = db.prepare('SELECT id, title_fr, title_en FROM exercises WHERE module_id = ? AND is_published = 1 LIMIT 1').get(m.id);
     let exerciseInfo = null;
     if (exercise) {
@@ -53,6 +119,7 @@ router.get('/modules', requireAuth, (req, res) => {
     return {
       ...m,
       locked,
+      needs_payment: needsPayment,
       quiz: quizInfo,
       exercise: exerciseInfo,
       lessons: locked ? [] : lessons
@@ -76,11 +143,15 @@ router.get('/lessons/:id', requireAuth, (req, res) => {
   const lesson = db.prepare('SELECT * FROM lessons WHERE id = ? AND is_published = 1').get(req.params.id);
   if (!lesson) return res.status(404).json({ error: 'Lesson not found' });
 
+  const module = db.prepare('SELECT * FROM modules WHERE id = ?').get(lesson.module_id);
+  if (!module || !canAccessModule(req.user.id, module)) {
+    return res.status(403).json({ error: 'Accès refusé', needs_payment: true });
+  }
+
   const progress = db.prepare(
     'SELECT completed FROM user_progress WHERE user_id = ? AND lesson_id = ?'
   ).get(req.user.id, lesson.id);
 
-  // Track started_at
   db.prepare(`
     INSERT INTO user_progress (user_id, lesson_id, started_at)
     VALUES (?, ?, datetime('now'))
@@ -123,12 +194,42 @@ router.post('/track-time', requireAuth, (req, res) => {
   res.json({ ok: true });
 });
 
+// ─── POST /courses/track-visit ───────────────────────────────────────────────
+router.post('/track-visit', requireAuth, (req, res) => {
+  db.prepare('INSERT INTO site_visits (user_id) VALUES (?)').run(req.user.id);
+  res.json({ ok: true });
+});
+
+// ─── POST /courses/waitlist ───────────────────────────────────────────────────
+router.post('/waitlist', requireAuth, (req, res) => {
+  const { formation_id } = req.body;
+  if (!formation_id) return res.status(400).json({ error: 'formation_id requis' });
+  db.prepare('INSERT OR IGNORE INTO formation_waitlist (user_id, formation_id) VALUES (?, ?)').run(req.user.id, formation_id);
+  res.json({ success: true, message: "Vous êtes bien inscrit(e) sur la liste d'attente. Nous vous contacterons dès que la formation sera disponible." });
+});
+
+// ─── GET /courses/waitlist ────────────────────────────────────────────────────
+router.get('/waitlist', requireAuth, (req, res) => {
+  const rows = db.prepare('SELECT formation_id FROM formation_waitlist WHERE user_id = ?').all(req.user.id);
+  res.json(rows.map(r => r.formation_id));
+});
+
 // ─── GET /courses/progress  (overall user progress) ──────────────────────────
 router.get('/progress', requireAuth, (req, res) => {
-  const total = db.prepare('SELECT COUNT(*) as cnt FROM lessons WHERE is_published = 1').get().cnt;
-  const done  = db.prepare(
-    'SELECT COUNT(*) as cnt FROM user_progress WHERE user_id = ? AND completed = 1'
-  ).get(req.user.id).cnt;
+  const formationId = req.query.formation_id ? parseInt(req.query.formation_id) : 1;
+
+  const total = db.prepare(`
+    SELECT COUNT(*) as cnt FROM lessons l
+    JOIN modules m ON l.module_id = m.id
+    WHERE m.formation_id = ? AND l.is_published = 1
+  `).get(formationId).cnt;
+
+  const done = db.prepare(`
+    SELECT COUNT(*) as cnt FROM user_progress up
+    JOIN lessons l ON up.lesson_id = l.id
+    JOIN modules m ON l.module_id = m.id
+    WHERE up.user_id = ? AND up.completed = 1 AND m.formation_id = ?
+  `).get(req.user.id, formationId).cnt;
 
   res.json({ total, completed: done, percent: total > 0 ? Math.round((done / total) * 100) : 0 });
 });

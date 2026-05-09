@@ -71,7 +71,21 @@ router.get('/me', requireAuth, (req, res) => {
     'SELECT id, email, first_name, last_name, phone, role, post, ai_level, learning_objectives, activity_sector, learning_days, created_at FROM users WHERE id = ?'
   ).get(req.user.id);
   if (!user) return res.status(404).json({ error: 'User not found' });
-  res.json(user);
+
+  const enrollments = db.prepare(
+    'SELECT formation_id, status, enrolled_at, paid_at FROM enrollments WHERE user_id = ?'
+  ).all(req.user.id);
+
+  // Auto-enroll new users in formation 1 (trial) if not yet enrolled
+  if (!enrollments.find(e => e.formation_id === 1)) {
+    db.prepare(`INSERT OR IGNORE INTO enrollments (user_id, formation_id, status) VALUES (?, 1, 'trial')`).run(req.user.id);
+    enrollments.push({ formation_id: 1, status: 'trial', enrolled_at: new Date().toISOString(), paid_at: null });
+  }
+
+  res.json({ ...user, enrollments });
 });
+
+// ─── POST /auth/register  (override to auto-enroll on formation 1) ────────────
+// Already handled above via /auth/me hydration — new users get trial on first /me call
 
 module.exports = router;

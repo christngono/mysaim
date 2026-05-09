@@ -124,6 +124,68 @@ function initDB() {
   try { db.exec('ALTER TABLE quiz_questions ADD COLUMN explanation_en TEXT NOT NULL DEFAULT ""'); } catch {}
   try { db.exec('ALTER TABLE users ADD COLUMN last_seen TEXT'); } catch {}
   try { db.exec('ALTER TABLE user_progress ADD COLUMN started_at TEXT'); } catch {}
+  try { db.exec('ALTER TABLE modules ADD COLUMN formation_id INTEGER REFERENCES formations(id) ON DELETE SET NULL'); } catch {}
+  try { db.exec('ALTER TABLE formations ADD COLUMN learning_objectives TEXT'); } catch {}
+  try { db.exec('ALTER TABLE formations ADD COLUMN prerequisites TEXT'); } catch {}
+  try { db.exec('ALTER TABLE formations ADD COLUMN level TEXT'); } catch {}
+  try { db.exec('ALTER TABLE formations ADD COLUMN duration_hours INTEGER'); } catch {}
+  try { db.exec('ALTER TABLE formations ADD COLUMN teaser_url TEXT'); } catch {}
+  try { db.exec('ALTER TABLE formations ADD COLUMN target_audience TEXT'); } catch {}
+  try { db.exec('ALTER TABLE formations ADD COLUMN color TEXT'); } catch {}
+  try { db.exec('ALTER TABLE formations ADD COLUMN icon TEXT'); } catch {}
+  try { db.exec(`
+    CREATE TABLE IF NOT EXISTS site_visits (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+      visited_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_site_visits_user ON site_visits(user_id);
+    CREATE INDEX IF NOT EXISTS idx_site_visits_date ON site_visits(visited_at);
+  `); } catch {}
+  try { db.exec('ALTER TABLE formations ADD COLUMN programme TEXT'); } catch {}
+  try { db.exec('ALTER TABLE formations ADD COLUMN why_fr TEXT'); } catch {}
+  try { db.exec(`
+    CREATE TABLE IF NOT EXISTS formation_waitlist (
+      id           INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id      INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      formation_id INTEGER NOT NULL REFERENCES formations(id) ON DELETE CASCADE,
+      joined_at    TEXT NOT NULL DEFAULT (datetime('now')),
+      UNIQUE(user_id, formation_id)
+    );
+    CREATE INDEX IF NOT EXISTS idx_waitlist_formation ON formation_waitlist(formation_id);
+    CREATE INDEX IF NOT EXISTS idx_waitlist_user ON formation_waitlist(user_id);
+  `); } catch {}
+
+  // ─── Seed programme content (idempotent: only where programme IS NULL) ────────
+  const seedProgramme = db.prepare('UPDATE formations SET programme=? WHERE id=? AND programme IS NULL');
+  seedProgramme.run(JSON.stringify([
+    { module: "Introduction à l'IA et à l'IA Générative", items: ["Comprendre l'intelligence artificielle", "L'IA générative : ChatGPT, Claude, Gemini", "Comment l'IA transforme votre quotidien professionnel"] },
+    { module: "Optimiser sa productivité avec l'IA", items: ["Rédiger emails et rapports en minutes", "Automatiser les tâches répétitives", "Outils IA pour la gestion du temps"] },
+    { module: "L'art du Prompting", items: ["Techniques de prompting efficaces", "Prompts avancés par secteur d'activité", "Exercices pratiques de rédaction de prompts"] },
+    { module: "Découvrir les requêtes multimodales", items: ["Analyser images et documents avec l'IA", "Génération et édition d'images", "Traitement audio et génération de contenu"] },
+    { module: "Utilisation des Outils d'Intelligence Artificielle", items: ["Tour d'horizon des outils IA essentiels", "Intégration dans votre flux de travail", "Projet final : automatiser un processus métier"] },
+  ]), 1);
+  seedProgramme.run(JSON.stringify([
+    { module: "Fondamentaux de l'IA Marketing", items: ["Panorama des outils IA pour le marketing", "Analyse de données et segmentation automatique", "Personnalisation des campagnes par IA"] },
+    { module: "Création de Contenu avec l'IA", items: ["Rédiger des copies publicitaires percutantes", "Générer des visuels et images de marque", "Stratégies de contenu SEO assistées par IA"] },
+    { module: "Automatisation des Campagnes", items: ["Planifier et programmer avec l'IA", "Email marketing et automation", "Gestion des réseaux sociaux par IA"] },
+    { module: "Analyse & Optimisation", items: ["Tableaux de bord IA et indicateurs clés", "A/B testing intelligent", "Prédiction des performances de campagne"] },
+    { module: "Stratégies de Croissance", items: ["Growth hacking avec l'IA", "Publicité Facebook & Google optimisée par IA", "Projet final : Campagne marketing complète"] },
+  ]), 2);
+  seedProgramme.run(JSON.stringify([
+    { module: "Introduction aux Outils Vidéo IA", items: ["Panorama : Runway, Pika, Sora, HeyGen", "Choisir le bon outil selon son projet", "Bases du montage vidéo avec l'IA"] },
+    { module: "Génération de Vidéos", items: ["Créer des vidéos depuis un prompt texte", "Avatars IA et présentateurs virtuels", "Animation et motion graphics automatiques"] },
+    { module: "Post-production Intelligente", items: ["Sous-titres automatiques et traduction", "Color grading et effets spéciaux IA", "Amélioration audio et suppression du bruit"] },
+    { module: "Contenus Courts & Réseaux Sociaux", items: ["Optimiser pour Reels, TikTok et Shorts", "Repurposing de contenu automatique", "Templates et identité visuelle cohérente"] },
+    { module: "Publication & Stratégie", items: ["Optimisation SEO pour la vidéo", "Calendrier de publication IA", "Projet final : Série vidéo de A à Z"] },
+  ]), 3);
+  seedProgramme.run(JSON.stringify([
+    { module: "Fondamentaux des Modèles de Langage", items: ["Architecture Transformer et mécanisme d'attention", "Comprendre les paramètres et hyperparamètres", "Évaluation et benchmarks de modèles"] },
+    { module: "Fine-tuning & Adaptation", items: ["Préparer et nettoyer ses datasets", "Techniques LoRA et QLoRA", "Entraînement sur cas d'usage métier"] },
+    { module: "RAG & Bases de Connaissances", items: ["Retrieval-Augmented Generation (RAG)", "Embeddings et bases vectorielles", "Intégrer des documents d'entreprise"] },
+    { module: "Déploiement & Production", items: ["APIs et intégration dans les workflows", "Optimisation des coûts et performances", "Monitoring et maintenance des modèles"] },
+    { module: "Projets Avancés", items: ["Chatbot métier personnalisé", "Automatisation de processus complexes", "Projet final : Modèle IA spécialisé pour son secteur"] },
+  ]), 4);
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS quote_requests (
@@ -218,6 +280,150 @@ function initDB() {
     CREATE INDEX IF NOT EXISTS idx_time_user   ON section_time(user_id);
     CREATE INDEX IF NOT EXISTS idx_time_module ON section_time(module_id);
   `);
+
+  // ─── Formations ──────────────────────────────────────────────────────────────
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS formations (
+      id             INTEGER PRIMARY KEY AUTOINCREMENT,
+      key            TEXT    NOT NULL UNIQUE,
+      title_fr       TEXT    NOT NULL,
+      title_en       TEXT    NOT NULL,
+      description_fr TEXT,
+      description_en TEXT,
+      image_url      TEXT,
+      price          INTEGER NOT NULL DEFAULT 25500,
+      is_published   INTEGER NOT NULL DEFAULT 1,
+      order_index    INTEGER NOT NULL DEFAULT 0,
+      created_at     TEXT    NOT NULL DEFAULT (datetime('now')),
+      updated_at     TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS enrollments (
+      id            INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id       INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      formation_id  INTEGER NOT NULL REFERENCES formations(id) ON DELETE CASCADE,
+      status        TEXT    NOT NULL DEFAULT 'trial' CHECK(status IN ('trial','paid')),
+      enrolled_at   TEXT    NOT NULL DEFAULT (datetime('now')),
+      paid_at       TEXT,
+      UNIQUE(user_id, formation_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS payments (
+      id           INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id      INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      formation_id INTEGER NOT NULL REFERENCES formations(id) ON DELETE CASCADE,
+      reference    TEXT    NOT NULL UNIQUE,
+      operator     TEXT    NOT NULL CHECK(operator IN ('MTN','ORANGE')),
+      phone        TEXT    NOT NULL,
+      amount       INTEGER NOT NULL DEFAULT 25500,
+      status       TEXT    NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','confirmed','failed')),
+      campay_ref   TEXT,
+      created_at   TEXT    NOT NULL DEFAULT (datetime('now')),
+      confirmed_at TEXT
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_enrollments_user      ON enrollments(user_id);
+    CREATE INDEX IF NOT EXISTS idx_enrollments_formation ON enrollments(formation_id);
+    CREATE INDEX IF NOT EXISTS idx_payments_user         ON payments(user_id);
+    CREATE INDEX IF NOT EXISTS idx_payments_reference    ON payments(reference);
+  `);
+
+  // ─── Seed formations (idempotent) ────────────────────────────────────────────
+  db.exec(`
+    INSERT OR IGNORE INTO formations (id, key, title_fr, title_en, description_fr, description_en, price, is_published, order_index)
+    VALUES
+      (1, 'maitrise-ia',
+       'Maîtriser l''IA pour la Productivité Professionnelle',
+       'Mastering AI for Professional Productivity',
+       'Apprenez à utiliser l''intelligence artificielle dans votre vie professionnelle et personnelle.',
+       'Learn to use artificial intelligence in your professional and personal life.',
+       25500, 1, 0),
+      (2, 'ia-marketing',
+       'Utiliser l''IA dans le Marketing',
+       'Using AI in Marketing',
+       'Découvrez comment l''IA transforme le marketing digital et les stratégies de croissance.',
+       'Discover how AI is transforming digital marketing and growth strategies.',
+       25500, 0, 1),
+      (3, 'montage-video-ia',
+       'Montage Vidéo avec les Outils IA',
+       'Video Editing with AI Tools',
+       'Maîtrisez les outils IA pour créer des vidéos professionnelles rapidement.',
+       'Master AI tools to create professional videos quickly.',
+       25500, 0, 2),
+      (4, 'specialisation-ia-pros',
+       'Spécialisation des Modèles IA pour les Professionnels',
+       'AI Model Specialization for Professionals',
+       'Apprenez à fine-tuner et spécialiser les modèles IA pour vos besoins métier.',
+       'Learn to fine-tune and specialize AI models for your business needs.',
+       25500, 0, 3);
+  `);
+
+  // ─── Seed formation metadata (idempotent: only when color IS NULL = fresh install) ─
+  const seedMeta = db.prepare(`
+    UPDATE formations SET
+      title_fr=?, title_en=?, description_fr=?, description_en=?,
+      learning_objectives=?, prerequisites=?, level=?, duration_hours=?,
+      is_published=?, target_audience=?, color=?, icon=?
+    WHERE id=? AND color IS NULL
+  `);
+  const metaSeed = [
+    {
+      id: 1,
+      title_fr: "Maîtriser l'IA pour la Productivité Professionnelle",
+      title_en: "Mastering AI for Professional Productivity",
+      desc_fr: "Intégrez l'intelligence artificielle dans votre quotidien professionnel pour travailler mieux, plus vite et plus intelligemment.",
+      desc_en: "Integrate artificial intelligence into your professional daily life to work better, faster and smarter.",
+      objectives: JSON.stringify(["Utiliser ChatGPT et d'autres outils IA pour rédiger des emails professionnels en minutes","Automatiser la création de rapports, présentations et synthèses avec l'IA","Créer des prompts efficaces pour obtenir des résultats précis et pertinents","Gagner du temps sur vos tâches quotidiennes grâce à l'automatisation IA","Intégrer l'IA dans vos réunions, notes et plannings"]),
+      prerequisites: "Aucun prérequis technique. Un ordinateur et de la motivation suffisent.",
+      level: "débutant", hours: 2, published: 1, audience: JSON.stringify(["Cadres","Managers"]), color: "blue", icon: "⚡",
+    },
+    {
+      id: 2,
+      title_fr: "Utiliser l'IA dans le Marketing",
+      title_en: "Using AI in Marketing",
+      desc_fr: "Créez du contenu percutant, automatisez vos campagnes et amplifiez votre impact commercial grâce aux outils IA.",
+      desc_en: "Create impactful content, automate your campaigns and amplify your commercial impact with AI tools.",
+      objectives: JSON.stringify(["Créer des visuels, slogans et contenus publicitaires percutants avec l'IA","Automatiser la planification et la publication sur les réseaux sociaux","Générer des campagnes email personnalisées à grande échelle","Analyser les performances marketing et optimiser vos stratégies avec l'IA","Rédiger des scripts vidéo et des articles SEO optimisés grâce aux outils IA"]),
+      prerequisites: "Notions de marketing digital recommandées.",
+      level: "intermédiaire", hours: 2, published: 1, audience: JSON.stringify(["Marketeurs","Communicants"]), color: "orange", icon: "📢",
+    },
+    {
+      id: 3,
+      title_fr: "Montage Vidéo avec les Outils IA",
+      title_en: "Video Editing with AI Tools",
+      desc_fr: "Produisez des vidéos publicitaires, films et animations de qualité professionnelle rapidement grâce à l'IA.",
+      desc_en: "Produce advertising videos, films and animations of professional quality quickly thanks to AI.",
+      objectives: JSON.stringify(["Générer des vidéos courtes et des animations à partir d'un simple texte","Utiliser l'IA pour le sous-titrage automatique et la traduction vidéo","Supprimer les arrière-plans et retoucher les vidéos avec des outils IA","Créer des voix off réalistes et de la musique de fond avec l'IA","Automatiser le montage de vidéos publicitaires et de réels pour les réseaux sociaux"]),
+      prerequisites: "Bases en montage vidéo appréciées.",
+      level: "intermédiaire", hours: 2, published: 1, audience: JSON.stringify(["Créateurs de contenu","Agences com"]), color: "purple", icon: "🎬",
+    },
+    {
+      id: 4,
+      title_fr: "Spécialisation des Modèles IA pour les Professionnels",
+      title_en: "AI Model Specialization for Professionals",
+      desc_fr: "Maîtrisez le fine-tuning, le RAG et le déploiement de modèles d'IA sur mesure pour des cas d'usage avancés.",
+      desc_en: "Master fine-tuning, RAG and custom AI model deployment for advanced use cases.",
+      objectives: JSON.stringify(["Comprendre et appliquer les techniques de fine-tuning des modèles de langage (LLM)","Créer un système RAG (Retrieval Augmented Generation) sur vos propres données","Déployer vos modèles IA en production via API ou interface web","Optimiser les performances et réduire les coûts de vos modèles IA","Construire des agents IA autonomes pour des tâches métier avancées"]),
+      prerequisites: "Python et notions de Machine Learning requises.",
+      level: "avancé", hours: 2, published: 1, audience: JSON.stringify(["Data scientists","Ingénieurs"]), color: "green", icon: "🔧",
+    },
+  ];
+  for (const m of metaSeed) {
+    seedMeta.run(m.title_fr, m.title_en, m.desc_fr, m.desc_en, m.objectives, m.prerequisites, m.level, m.hours, m.published, m.audience, m.color, m.icon, m.id);
+  }
+
+  // ─── Rattacher les modules existants à la formation 1 ────────────────────────
+  db.prepare(`UPDATE modules SET formation_id = 1 WHERE formation_id IS NULL`).run();
+
+  // ─── Migrer les utilisateurs existants → enrolled paid sur formation 1 ───────
+  const existingUsers = db.prepare(`SELECT id FROM users WHERE role = 'user'`).all();
+  const insertEnrollment = db.prepare(`
+    INSERT OR IGNORE INTO enrollments (user_id, formation_id, status, paid_at)
+    VALUES (?, 1, 'paid', datetime('now'))
+  `);
+  for (const u of existingUsers) {
+    insertEnrollment.run(u.id);
+  }
 
   console.log('✅ Database initialized');
 }

@@ -11,6 +11,15 @@ function fmtDateTime(s) {
   if (!s) return '—'
   return new Date(s).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
+function fmtCFA(n) {
+  if (!n && n !== 0) return '—'
+  return new Intl.NumberFormat('fr-FR').format(n) + ' FCFA'
+}
+function fmtMonth(ym) {
+  if (!ym) return '—'
+  const [y, m] = ym.split('-')
+  return new Date(y, m - 1).toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })
+}
 
 // ─── Small UI primitives ──────────────────────────────────────────────────────
 function OnlineDot({ online }) {
@@ -539,8 +548,322 @@ function LessonPreviewModal({ lesson, onClose }) {
   )
 }
 
+// ─── Section: Formations ──────────────────────────────────────────────────────
+const EMPTY_FORM = {
+  title_fr: '', title_en: '', description_fr: '', description_en: '',
+  prerequisites: '', level: 'débutant', duration_hours: 2, price: 25500,
+  teaser_url: '', color: 'blue', icon: '🤖', order_index: 0,
+  is_published: false, target_audience: '', learning_objectives: '', image_url: '', programme: '', why_fr: '',
+}
+
+function textToProgramme(text) {
+  if (!text.trim()) return []
+  const lines = text.split('\n')
+  const modules = []
+  let current = null
+  for (const line of lines) {
+    const t = line.trim()
+    if (!t) continue
+    if (t.startsWith('##')) {
+      current = { module: t.replace(/^#+\s*/, ''), items: [] }
+      modules.push(current)
+    } else if (current) {
+      current.items.push(t)
+    }
+  }
+  return modules
+}
+
+function programmeToText(modules) {
+  if (!Array.isArray(modules) || !modules.length) return ''
+  return modules.map(m => `## ${m.module}\n${(m.items || []).join('\n')}`).join('\n\n')
+}
+
+function FormationForm({ form, setForm, saving, onSave, onCancel, title }) {
+  const [uploading, setUploading] = useState(false)
+  const fileRef = useRef(null)
+
+  const uploadImage = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      const r = await api.post('/upload', fd)
+      setForm(f => ({ ...f, image_url: r.data.url }))
+    } catch { alert('Erreur upload') }
+    finally { setUploading(false) }
+  }
+
+  return (
+    <Modal title={title} onClose={onCancel} wide>
+      <div className="space-y-4">
+        {/* Image de couverture */}
+        <div>
+          <label className="label">Image de couverture</label>
+          <div className="flex items-center gap-3">
+            {form.image_url
+              ? <img src={form.image_url} alt="" className="w-24 h-16 object-cover rounded-xl border border-slate-200" />
+              : <div className="w-24 h-16 bg-slate-100 rounded-xl border border-dashed border-slate-300 flex items-center justify-center text-slate-400 text-xs">Aucune</div>
+            }
+            <div className="flex flex-col gap-1">
+              <button type="button" onClick={() => fileRef.current?.click()}
+                className="btn-secondary text-xs py-1.5 px-3">
+                {uploading ? 'Upload...' : '📤 Uploader'}
+              </button>
+              {form.image_url && (
+                <button type="button" onClick={() => setForm(f => ({ ...f, image_url: '' }))}
+                  className="text-xs text-red-500 hover:text-red-700 underline text-left">
+                  Supprimer
+                </button>
+              )}
+            </div>
+            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={uploadImage} />
+          </div>
+          {form.image_url && (
+            <input className="input-field mt-2 text-xs" value={form.image_url}
+              onChange={e => setForm(f => ({ ...f, image_url: e.target.value }))}
+              placeholder="ou coller une URL" />
+          )}
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="label">Titre (FR) *</label><input className="input-field" value={form.title_fr} onChange={e => setForm(f => ({ ...f, title_fr: e.target.value }))} /></div>
+          <div><label className="label">Titre (EN)</label><input className="input-field" value={form.title_en} onChange={e => setForm(f => ({ ...f, title_en: e.target.value }))} /></div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="label">Description (FR)</label><textarea className="input-field resize-none" rows={3} value={form.description_fr} onChange={e => setForm(f => ({ ...f, description_fr: e.target.value }))} /></div>
+          <div><label className="label">Description (EN)</label><textarea className="input-field resize-none" rows={3} value={form.description_en} onChange={e => setForm(f => ({ ...f, description_en: e.target.value }))} /></div>
+        </div>
+        <div>
+          <label className="label">Objectifs (un par ligne)</label>
+          <textarea className="input-field resize-none" rows={4} value={form.learning_objectives}
+            onChange={e => setForm(f => ({ ...f, learning_objectives: e.target.value }))}
+            placeholder="Utiliser les outils IA au quotidien&#10;Automatiser des tâches..." />
+        </div>
+        <div>
+          <label className="label">Pourquoi cette formation ? (descriptif)</label>
+          <textarea className="input-field resize-y" rows={4} value={form.why_fr}
+            onChange={e => setForm(f => ({ ...f, why_fr: e.target.value }))}
+            placeholder="Dans un monde où l'IA transforme..." />
+        </div>
+        <div><label className="label">Prérequis</label><input className="input-field" value={form.prerequisites} onChange={e => setForm(f => ({ ...f, prerequisites: e.target.value }))} /></div>
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <label className="label">Niveau</label>
+            <select className="input-field" value={form.level} onChange={e => setForm(f => ({ ...f, level: e.target.value }))}>
+              <option value="débutant">Débutant</option>
+              <option value="intermédiaire">Intermédiaire</option>
+              <option value="avancé">Avancé</option>
+            </select>
+          </div>
+          <div><label className="label">Durée (h)</label><input type="number" className="input-field" value={form.duration_hours} onChange={e => setForm(f => ({ ...f, duration_hours: +e.target.value }))} /></div>
+          <div><label className="label">Prix (FCFA)</label><input type="number" className="input-field" value={form.price} onChange={e => setForm(f => ({ ...f, price: +e.target.value }))} /></div>
+        </div>
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <label className="label">Couleur</label>
+            <select className="input-field" value={form.color} onChange={e => setForm(f => ({ ...f, color: e.target.value }))}>
+              {[['blue','🔵 Bleu'],['orange','🟠 Orange'],['purple','🟣 Violet'],['green','🟢 Vert']].map(([v,l]) =>
+                <option key={v} value={v}>{l}</option>)}
+            </select>
+          </div>
+          <div><label className="label">Icône (emoji)</label><input className="input-field text-2xl text-center" value={form.icon} onChange={e => setForm(f => ({ ...f, icon: e.target.value }))} /></div>
+          <div><label className="label">Ordre</label><input type="number" className="input-field" value={form.order_index} onChange={e => setForm(f => ({ ...f, order_index: +e.target.value }))} /></div>
+        </div>
+        <div><label className="label">Public cible (virgule-séparé)</label><input className="input-field" value={form.target_audience} onChange={e => setForm(f => ({ ...f, target_audience: e.target.value }))} placeholder="Cadres, Managers..." /></div>
+        <div><label className="label">URL vidéo teaser</label><input className="input-field" value={form.teaser_url} onChange={e => setForm(f => ({ ...f, teaser_url: e.target.value }))} placeholder="https://youtube.com/..." /></div>
+        <div>
+          <label className="label">Programme du cours</label>
+          <p className="text-xs text-slate-400 mb-1.5">Format : <code className="bg-slate-100 px-1 rounded">## Titre du module</code> puis items ligne par ligne. Séparer les modules par une ligne vide.</p>
+          <textarea
+            className="input-field resize-y font-mono text-xs"
+            rows={10}
+            value={form.programme}
+            onChange={e => setForm(f => ({ ...f, programme: e.target.value }))}
+            placeholder={"## Introduction à l'IA\nComprendre l'IA générative\nChatGPT, Claude, Gemini\n\n## Optimiser sa productivité\nRédiger emails en minutes\nAutomatiser les tâches"}
+          />
+        </div>
+        <div className="flex items-center gap-3">
+          <label className="label mb-0">Publiée</label>
+          <ToggleSwitch checked={form.is_published} onChange={v => setForm(f => ({ ...f, is_published: v }))} />
+        </div>
+        <div className="flex gap-3 justify-end pt-2">
+          <button onClick={onCancel} className="btn-secondary text-sm">Annuler</button>
+          <button onClick={onSave} disabled={saving || !form.title_fr} className="btn-primary text-sm">
+            {saving ? 'Sauvegarde...' : 'Sauvegarder'}
+          </button>
+        </div>
+      </div>
+    </Modal>
+  )
+}
+
+function SectionFormations() {
+  const [formations, setFormations] = useState([])
+  const [editF, setEditF]           = useState(null) // formation being edited
+  const [creating, setCreating]     = useState(false)
+  const [form, setForm]             = useState(null)
+  const [saving, setSaving]         = useState(false)
+
+  const load = useCallback(() => {
+    api.get('/admin/formations').then(r => setFormations(r.data)).catch(() => {})
+  }, [])
+  useEffect(() => { load() }, [load])
+
+  const COLOR_THEME = {
+    blue: 'bg-blue-50 text-blue-600', orange: 'bg-orange-50 text-orange-600',
+    purple: 'bg-purple-50 text-purple-600', green: 'bg-green-50 text-green-600',
+  }
+
+  const openEdit = (f) => {
+    let audience = [], objectives = [], programme = []
+    try { audience   = JSON.parse(f.target_audience    || '[]') } catch {}
+    try { objectives = JSON.parse(f.learning_objectives || '[]') } catch {}
+    try { programme  = JSON.parse(f.programme           || '[]') } catch {}
+    setEditF(f)
+    setForm({
+      title_fr: f.title_fr || '', title_en: f.title_en || '',
+      description_fr: f.description_fr || '', description_en: f.description_en || '',
+      prerequisites: f.prerequisites || '', level: f.level || 'débutant',
+      duration_hours: f.duration_hours || 2, price: f.price || 25500,
+      teaser_url: f.teaser_url || '', color: f.color || 'blue', icon: f.icon || '🤖',
+      order_index: f.order_index || 0, is_published: f.is_published === 1,
+      image_url: f.image_url || '',
+      target_audience: audience.join(', '),
+      learning_objectives: objectives.join('\n'),
+      programme: programmeToText(programme),
+      why_fr: f.why_fr || '',
+    })
+  }
+
+  const openCreate = () => { setCreating(true); setForm({ ...EMPTY_FORM }) }
+
+  const buildPayload = (form) => ({
+    ...form,
+    target_audience: form.target_audience.split(',').map(s => s.trim()).filter(Boolean),
+    learning_objectives: form.learning_objectives.split('\n').map(s => s.trim()).filter(Boolean),
+    programme: textToProgramme(form.programme || ''),
+    image_url: form.image_url || null,
+  })
+
+  const save = async () => {
+    setSaving(true)
+    try {
+      if (creating) {
+        await api.post('/admin/formations', buildPayload(form))
+        setCreating(false)
+      } else {
+        await api.put(`/admin/formations/${editF.id}`, buildPayload(form))
+        setEditF(null)
+      }
+      setForm(null); load()
+    } finally { setSaving(false) }
+  }
+
+  const togglePublish = async (f) => {
+    let audience = [], objectives = [], programme = []
+    try { audience   = JSON.parse(f.target_audience    || '[]') } catch {}
+    try { objectives = JSON.parse(f.learning_objectives || '[]') } catch {}
+    try { programme  = JSON.parse(f.programme           || '[]') } catch {}
+    await api.put(`/admin/formations/${f.id}`, {
+      ...f, target_audience: audience, learning_objectives: objectives,
+      programme, image_url: f.image_url || null, is_published: f.is_published ? 0 : 1,
+    })
+    load()
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-extrabold text-slate-800">Formations</h1>
+        <button onClick={openCreate} className="btn-primary text-sm">+ Nouvelle formation</button>
+      </div>
+
+      <div className="grid sm:grid-cols-2 gap-5">
+        {formations.map(f => {
+          let audience = []
+          try { audience = JSON.parse(f.target_audience || '[]') } catch {}
+          const color = f.color || 'blue'
+          return (
+            <div key={f.id} className="card overflow-hidden">
+              {/* Cover image strip */}
+              {f.image_url && (
+                <img src={f.image_url} alt={f.title_fr} className="w-full h-28 object-cover" />
+              )}
+              <div className="p-5">
+                <div className="flex items-start gap-3 mb-4">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 ${COLOR_THEME[color] || 'bg-blue-50 text-blue-600'}`}>
+                    {f.icon || '🤖'}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-extrabold text-slate-800 leading-snug text-sm">{f.title_fr}</h3>
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${f.is_published ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+                        {f.is_published ? '✓ Publiée' : '○ Brouillon'}
+                      </span>
+                      {f.level && <span className="text-xs text-slate-400 capitalize">{f.level}</span>}
+                      {f.duration_hours ? <span className="text-xs text-slate-400">{f.duration_hours}h</span> : null}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 mb-4 text-center">
+                  {[
+                    { v: f.module_count || 0,   l: 'Modules' },
+                    { v: f.enrolled_count || 0, l: 'Inscrits' },
+                    { v: (f.price || 25500).toLocaleString('fr-FR'), l: 'FCFA' },
+                  ].map((s, i) => (
+                    <div key={i} className="bg-slate-50 rounded-xl py-2">
+                      <div className="font-bold text-slate-700 text-sm">{s.v}</div>
+                      <div className="text-xs text-slate-400">{s.l}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {audience.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-4">
+                    {audience.map((a, i) => <span key={i} className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{a}</span>)}
+                  </div>
+                )}
+
+                <div className="flex gap-2">
+                  <button onClick={() => openEdit(f)} className="flex-1 btn-secondary text-xs py-2">✏️ Modifier</button>
+                  <button
+                    onClick={() => togglePublish(f)}
+                    className={`flex-1 text-xs py-2 rounded-xl font-semibold transition-colors border ${f.is_published ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 border-amber-200' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-emerald-200'}`}
+                  >
+                    {f.is_published ? '⏸ Dépublier' : '▶ Publier'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Create modal */}
+      {creating && form && (
+        <FormationForm form={form} setForm={setForm} saving={saving}
+          onSave={save} onCancel={() => { setCreating(false); setForm(null) }}
+          title="Nouvelle formation" />
+      )}
+
+      {/* Edit modal */}
+      {editF && form && (
+        <FormationForm form={form} setForm={setForm} saving={saving}
+          onSave={save} onCancel={() => { setEditF(null); setForm(null) }}
+          title={`Modifier : ${editF.title_fr}`} />
+      )}
+    </div>
+  )
+}
+
 // ─── Section: Modules & Cours ─────────────────────────────────────────────────
 function SectionModules() {
+  const [formations, setFormations2]      = useState([])
+  const [selectedFormId, setSelectedFormId] = useState(null)
   const [modules, setModules]             = useState([])
   const [expanded, setExpanded]           = useState({})
   const [lessons, setLessons]             = useState({})
@@ -550,11 +873,19 @@ function SectionModules() {
   const [saving, setSaving]               = useState(false)
   const [previewLesson, setPreviewLesson] = useState(null)
 
-  const loadModules = useCallback(() => {
-    api.get('/admin/modules').then(r => setModules(r.data)).catch(() => {})
+  useEffect(() => {
+    api.get('/admin/formations').then(r => {
+      setFormations2(r.data)
+      if (r.data.length > 0) setSelectedFormId(r.data[0].id)
+    }).catch(() => {})
   }, [])
 
-  useEffect(() => { loadModules() }, [loadModules])
+  const loadModules = useCallback(() => {
+    const url = selectedFormId ? `/admin/modules?formation_id=${selectedFormId}` : '/admin/modules'
+    api.get(url).then(r => setModules(r.data)).catch(() => {})
+  }, [selectedFormId])
+
+  useEffect(() => { if (selectedFormId !== null) loadModules() }, [loadModules, selectedFormId])
 
   const toggleExpand = async (modId) => {
     setExpanded(e => ({ ...e, [modId]: !e[modId] }))
@@ -570,14 +901,15 @@ function SectionModules() {
   }
 
   // ── Module form state ──
-  const [mForm, setMForm] = useState({ title_fr: '', title_en: '', description_fr: '', description_en: '', order_index: 0, is_published: true })
+  const [mForm, setMForm] = useState({ title_fr: '', title_en: '', description_fr: '', description_en: '', order_index: 0, is_published: true, formation_id: null })
 
   const openModuleModal = (mode, data = null) => {
     setMForm(data ? {
       title_fr: data.title_fr, title_en: data.title_en,
       description_fr: data.description_fr || '', description_en: data.description_en || '',
       order_index: data.order_index, is_published: data.is_published === 1,
-    } : { title_fr: '', title_en: '', description_fr: '', description_en: '', order_index: 0, is_published: true })
+      formation_id: data.formation_id || selectedFormId,
+    } : { title_fr: '', title_en: '', description_fr: '', description_en: '', order_index: 0, is_published: true, formation_id: selectedFormId })
     setModuleModal({ mode, data })
   }
 
@@ -648,7 +980,7 @@ function SectionModules() {
     await api.put(`/admin/modules/${m.id}`, {
       title_fr: m.title_fr, title_en: m.title_en,
       description_fr: m.description_fr, description_en: m.description_en,
-      order_index: m.order_index, is_published: newVal,
+      order_index: m.order_index, is_published: newVal, formation_id: m.formation_id,
     })
     loadModules()
   }
@@ -665,10 +997,25 @@ function SectionModules() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-extrabold text-slate-800">Modules & Cours</h1>
         <button onClick={() => openModuleModal('create')} className="btn-primary text-sm">+ Nouveau module</button>
       </div>
+
+      {/* Formation selector */}
+      {formations.length > 0 && (
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
+          {formations.map(f => (
+            <button
+              key={f.id}
+              onClick={() => setSelectedFormId(f.id)}
+              className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${selectedFormId === f.id ? 'bg-saim-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:border-saim-300'}`}
+            >
+              {f.icon} {f.title_fr}
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="space-y-4">
         {modules.map(m => (
@@ -723,6 +1070,13 @@ function SectionModules() {
       {moduleModal && (
         <Modal title={moduleModal.mode === 'create' ? 'Nouveau module' : 'Modifier le module'} onClose={() => setModuleModal(null)} wide>
           <div className="space-y-4">
+            <div>
+              <label className="label">Formation</label>
+              <select className="input-field" value={mForm.formation_id || ''} onChange={e => setMForm(f => ({ ...f, formation_id: e.target.value ? +e.target.value : null }))}>
+                <option value="">— Aucune —</option>
+                {formations.map(f => <option key={f.id} value={f.id}>{f.title_fr}</option>)}
+              </select>
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div><label className="label">Titre (FR)</label><input className="input-field" value={mForm.title_fr} onChange={e => setMForm(f => ({ ...f, title_fr: e.target.value }))} /></div>
               <div><label className="label">Titre (EN)</label><input className="input-field" value={mForm.title_en} onChange={e => setMForm(f => ({ ...f, title_en: e.target.value }))} /></div>
@@ -1135,6 +1489,8 @@ function SectionUsers() {
                 <th className="px-4 py-3">Email</th>
                 <th className="px-4 py-3 hidden lg:table-cell">Poste</th>
                 <th className="px-4 py-3 hidden md:table-cell">Rôle</th>
+                <th className="px-4 py-3 hidden md:table-cell">Accès</th>
+                <th className="px-4 py-3 hidden xl:table-cell">Formations suivies</th>
                 <th className="px-4 py-3">Statut</th>
                 <th className="px-4 py-3">En ligne</th>
                 <th className="px-4 py-3 hidden lg:table-cell">Inscrit le</th>
@@ -1148,6 +1504,31 @@ function SectionUsers() {
                   <td className="px-4 py-3 text-slate-500">{u.email}</td>
                   <td className="px-4 py-3 text-slate-500 hidden lg:table-cell">{u.post || '—'}</td>
                   <td className="px-4 py-3 hidden md:table-cell"><Badge color={u.role === 'admin' ? 'saim' : 'slate'}>{u.role}</Badge></td>
+                  {/* Accès column — summary badge */}
+                  <td className="px-4 py-3 hidden md:table-cell">
+                    {u.enrollments && u.enrollments.some(e => e.status === 'paid') ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">✓ Accès complet</span>
+                    ) : u.enrollments && u.enrollments.length > 0 ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">⏳ Essai</span>
+                    ) : (
+                      <span className="text-slate-300 text-xs">—</span>
+                    )}
+                  </td>
+                  {/* Formations suivies — detailed pills */}
+                  <td className="px-4 py-3 hidden xl:table-cell">
+                    {u.enrollments && u.enrollments.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {u.enrollments.map(e => (
+                          <span key={e.formation_id} className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${e.status === 'paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                            <span>{e.icon || '🎓'}</span>
+                            <span className="max-w-[80px] truncate">{(e.title_fr || '').split(' ').slice(0, 2).join(' ')}</span>
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-slate-300 text-xs">—</span>
+                    )}
+                  </td>
                   <td className="px-4 py-3">
                     <button onClick={() => toggleActive(u)}>
                       <Badge color={u.is_active ? 'emerald' : 'red'}>{u.is_active ? 'Actif' : 'Inactif'}</Badge>
@@ -1164,7 +1545,7 @@ function SectionUsers() {
                 </tr>
               ))}
               {filtered.length === 0 && (
-                <tr><td colSpan={8} className="px-4 py-8 text-center text-slate-400 text-sm">Aucun utilisateur trouvé.</td></tr>
+                <tr><td colSpan={10} className="px-4 py-8 text-center text-slate-400 text-sm">Aucun utilisateur trouvé.</td></tr>
               )}
             </tbody>
           </table>
@@ -1297,6 +1678,197 @@ function SectionQuotes() {
   )
 }
 
+// ─── Section: Stats & Revenus ─────────────────────────────────────────────────
+function SectionStats() {
+  const [kpi, setKpi]       = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    api.get('/admin/kpi').then(r => setKpi(r.data)).catch(() => {}).finally(() => setLoading(false))
+  }, [])
+
+  if (loading) return (
+    <div className="space-y-4 animate-pulse">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[1,2,3,4].map(i => <div key={i} className="card p-5 h-28" />)}
+      </div>
+      <div className="card p-5 h-48" />
+    </div>
+  )
+
+  const { total_users, paid_users, trial_users, total_revenue,
+          monthly_revenue, daily_visits, monthly_visits,
+          paid_visit_freq, formation_stats } = kpi || {}
+
+  const today = daily_visits?.[0]
+  const thisMonth = monthly_visits?.[0]
+
+  return (
+    <div className="space-y-8">
+      <h1 className="text-2xl font-extrabold text-slate-800">Stats &amp; Revenus</h1>
+
+      {/* KPI row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { icon: '👥', label: 'Utilisateurs total',  value: total_users ?? '—',  color: 'text-slate-800' },
+          { icon: '💳', label: 'Abonnés payants',      value: paid_users ?? '—',   color: 'text-emerald-700' },
+          { icon: '⏳', label: 'En mode essai',         value: trial_users ?? '—',  color: 'text-amber-700' },
+          { icon: '💰', label: 'Revenu total',          value: fmtCFA(total_revenue), color: 'text-saim-700' },
+        ].map(c => (
+          <div key={c.label} className="card p-5">
+            <div className="text-2xl mb-2">{c.icon}</div>
+            <div className={`text-2xl font-extrabold ${c.color}`}>{c.value}</div>
+            <div className="text-xs text-slate-500 font-medium mt-1">{c.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Visits KPI row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { icon: '📅', label: "Visites aujourd'hui",   value: today?.visits ?? 0,          sub: `${today?.unique_users ?? 0} utilisateurs uniques` },
+          { icon: '📆', label: 'Visites ce mois',        value: thisMonth?.visits ?? 0,      sub: `${thisMonth?.unique_users ?? 0} utilisateurs uniques` },
+          { icon: '🌐', label: 'Visites totales (web)',  value: (daily_visits || []).reduce((s, d) => s + d.visits, 0), sub: '30 derniers jours' },
+          { icon: '🔁', label: 'Moy. visites / payant', value: paid_visit_freq?.length
+              ? Math.round(paid_visit_freq.reduce((s, u) => s + u.visit_count, 0) / paid_visit_freq.length)
+              : '—',
+            sub: 'par utilisateur payant' },
+        ].map(c => (
+          <div key={c.label} className="card p-5">
+            <div className="text-2xl mb-2">{c.icon}</div>
+            <div className="text-2xl font-extrabold text-slate-800">{c.value}</div>
+            <div className="text-xs text-slate-500 font-medium mt-0.5">{c.label}</div>
+            <div className="text-xs text-slate-400 mt-0.5">{c.sub}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* Revenue per month */}
+        <div className="card p-6">
+          <h2 className="text-base font-extrabold text-slate-700 mb-4">Revenu par mois</h2>
+          {!monthly_revenue?.length ? (
+            <p className="text-sm text-slate-400">Aucun paiement confirmé.</p>
+          ) : (
+            <div className="space-y-2">
+              {monthly_revenue.map(r => (
+                <div key={r.month} className="flex items-center gap-3">
+                  <span className="text-xs text-slate-500 w-20 flex-shrink-0">{fmtMonth(r.month)}</span>
+                  <div className="flex-1 h-5 bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-saim-500 rounded-full"
+                      style={{ width: `${Math.min(100, (r.total / (monthly_revenue[0]?.total || 1)) * 100)}%` }}
+                    />
+                  </div>
+                  <span className="text-xs font-bold text-slate-700 w-28 text-right flex-shrink-0">{fmtCFA(r.total)}</span>
+                  <span className="text-xs text-slate-400 flex-shrink-0">({r.count} pmt)</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Daily visits chart */}
+        <div className="card p-6">
+          <h2 className="text-base font-extrabold text-slate-700 mb-4">Visites journalières — 30 derniers jours</h2>
+          {!daily_visits?.length ? (
+            <p className="text-sm text-slate-400">Aucune donnée de visite (les visites seront comptées dès que des utilisateurs se connectent).</p>
+          ) : (
+            <div className="space-y-1.5">
+              {daily_visits.slice(0, 10).map(d => (
+                <div key={d.day} className="flex items-center gap-3">
+                  <span className="text-xs text-slate-500 w-20 flex-shrink-0">{fmtDate(d.day)}</span>
+                  <div className="flex-1 h-4 bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-blue-400 rounded-full"
+                      style={{ width: `${Math.min(100, (d.visits / (daily_visits[0]?.visits || 1)) * 100)}%` }}
+                    />
+                  </div>
+                  <span className="text-xs font-bold text-slate-700 w-10 text-right flex-shrink-0">{d.visits}</span>
+                  <span className="text-xs text-slate-400 flex-shrink-0">{d.unique_users} uniq.</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Formation enrollment breakdown */}
+      {formation_stats?.length > 0 && (
+        <div className="card p-6">
+          <h2 className="text-base font-extrabold text-slate-700 mb-4">Inscriptions par formation</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {formation_stats.map(f => {
+              const tc = FORMATION_COLORS[f.color] || FORMATION_COLORS.blue
+              return (
+                <div key={f.id} className={`rounded-xl p-4 border ${tc.bg} border-transparent`}>
+                  <div className="text-2xl mb-1">{f.icon || '🎓'}</div>
+                  <div className="text-sm font-bold text-slate-800 mb-2 leading-tight">{f.title_fr}</div>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-500">Payants</span>
+                      <span className={`font-bold ${tc.text}`}>{f.paid_count}</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-500">Essai</span>
+                      <span className="font-bold text-amber-600">{f.trial_count}</span>
+                    </div>
+                    <div className="flex justify-between text-xs border-t border-slate-200 pt-1 mt-1">
+                      <span className="text-slate-500">Total</span>
+                      <span className="font-bold text-slate-700">{f.total_enrolled}</span>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Paid user visit frequency */}
+      {paid_visit_freq?.length > 0 && (
+        <div className="card overflow-hidden">
+          <div className="p-6 border-b border-slate-100">
+            <h2 className="text-base font-extrabold text-slate-700">Fréquence de visite — utilisateurs payants</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50">
+                <tr className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                  <th className="px-4 py-3">Utilisateur</th>
+                  <th className="px-4 py-3">Visites</th>
+                  <th className="px-4 py-3 hidden md:table-cell">Première visite</th>
+                  <th className="px-4 py-3 hidden md:table-cell">Dernière visite</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paid_visit_freq.map(u => (
+                  <tr key={u.id} className="border-b border-slate-50 hover:bg-slate-50">
+                    <td className="px-4 py-3 font-medium">{u.first_name} {u.last_name}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-16 h-2 bg-slate-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-saim-500 rounded-full"
+                            style={{ width: `${Math.min(100, (u.visit_count / (paid_visit_freq[0]?.visit_count || 1)) * 100)}%` }}
+                          />
+                        </div>
+                        <span className="font-bold text-saim-700">{u.visit_count}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-slate-400 hidden md:table-cell">{fmtDate(u.first_visit)}</td>
+                    <td className="px-4 py-3 text-slate-400 hidden md:table-cell">{fmtDate(u.last_visit)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Section: Progression ─────────────────────────────────────────────────────
 function fmtMinutes(seconds) {
   if (!seconds) return '0 min'
@@ -1305,13 +1877,21 @@ function fmtMinutes(seconds) {
   return `${Math.floor(m / 60)}h ${m % 60}min`
 }
 
+const FORMATION_COLORS = {
+  blue:   { bg: 'bg-blue-100',   text: 'text-blue-700',   dot: 'bg-blue-500'   },
+  orange: { bg: 'bg-orange-100', text: 'text-orange-700', dot: 'bg-orange-500' },
+  purple: { bg: 'bg-purple-100', text: 'text-purple-700', dot: 'bg-purple-500' },
+  green:  { bg: 'bg-green-100',  text: 'text-green-700',  dot: 'bg-green-500'  },
+}
+
 function SectionProgress() {
-  const [data, setData]             = useState([])
-  const [timeStats, setTimeStats]   = useState([])
-  const [loading, setLoading]       = useState(true)
-  const [expanded, setExpanded]     = useState(null)
-  const [resetModal, setResetModal] = useState(null) // { user }
-  const [resetting, setResetting]   = useState(false)
+  const [data, setData]               = useState([])
+  const [timeStats, setTimeStats]     = useState([])
+  const [loading, setLoading]         = useState(true)
+  const [expanded, setExpanded]       = useState(null)
+  const [resetModal, setResetModal]   = useState(null)
+  const [resetting, setResetting]     = useState(false)
+  const [filterFormation, setFilterFormation] = useState('all')
 
   const load = useCallback(() => {
     setLoading(true)
@@ -1339,9 +1919,49 @@ function SectionProgress() {
     }
   }
 
+  // Derive formation list from data for the filter tabs
+  const formations = data.reduce((acc, u) => {
+    u.modules.forEach(m => {
+      if (m.formation_id && !acc.find(f => f.id === m.formation_id)) {
+        acc.push({ id: m.formation_id, title: m.formation_title, color: m.formation_color, icon: m.formation_icon })
+      }
+    })
+    return acc
+  }, [])
+
+  const filteredData = filterFormation === 'all'
+    ? data
+    : data.filter(u => u.enrollments && u.enrollments.some(e => e.formation_id === filterFormation))
+
   return (
     <div>
-      <h1 className="text-2xl font-extrabold text-slate-800 mb-6">Progression des apprenants</h1>
+      <h1 className="text-2xl font-extrabold text-slate-800 mb-4">Progression des apprenants</h1>
+
+      {/* Formation filter tabs */}
+      {formations.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-6">
+          <button
+            onClick={() => setFilterFormation('all')}
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${filterFormation === 'all' ? 'bg-saim-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+          >
+            Toutes les formations ({data.length})
+          </button>
+          {formations.map(f => {
+            const tc = FORMATION_COLORS[f.color] || FORMATION_COLORS.blue
+            const count = data.filter(u => u.enrollments && u.enrollments.some(e => e.formation_id === f.id)).length
+            return (
+              <button
+                key={f.id}
+                onClick={() => setFilterFormation(f.id)}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${filterFormation === f.id ? `${tc.bg} ${tc.text}` : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+              >
+                {f.icon} {f.title} ({count})
+              </button>
+            )
+          })}
+        </div>
+      )}
+
       {loading && (
         <div className="space-y-3 animate-pulse">
           {[1, 2, 3].map(i => (
@@ -1355,7 +1975,7 @@ function SectionProgress() {
         </div>
       )}
       <div className="space-y-3">
-        {!loading && data.map(u => (
+        {!loading && filteredData.map(u => (
           <div key={u.id} className="card overflow-hidden">
             {/* Row header */}
             <div className="flex items-center gap-4 p-4 hover:bg-slate-50">
@@ -1370,17 +1990,37 @@ function SectionProgress() {
                 onClick={() => setExpanded(expanded === u.id ? null : u.id)}
               >
                 <OnlineDot online={u.is_online} />
-                <span className="font-semibold text-slate-800 truncate">{u.first_name} {u.last_name}</span>
+                <div>
+                  <span className="font-semibold text-slate-800 truncate">{u.first_name} {u.last_name}</span>
+                  {/* Enrollment badges */}
+                  {u.enrollments && u.enrollments.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-0.5">
+                      {u.enrollments.map(e => {
+                        const tc = FORMATION_COLORS[e.color] || FORMATION_COLORS.blue
+                        return (
+                          <span key={e.formation_id} className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-semibold ${e.status === 'paid' ? 'bg-emerald-100 text-emerald-700' : `${tc.bg} ${tc.text}`}`}>
+                            <span>{e.icon || '🎓'}</span>
+                            <span className="hidden sm:inline max-w-[70px] truncate">{e.title_fr}</span>
+                            <span className="font-bold">{e.status === 'paid' ? '· Complet' : '· Essai'}</span>
+                          </span>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Module progress chips */}
-              <div className="hidden md:flex gap-2">
-                {u.modules.map(m => (
-                  <div key={m.module_id} title={m.module_title} className="text-xs px-2 py-1 bg-slate-100 rounded-full text-slate-600 whitespace-nowrap">
-                    {m.completed}/{m.total_lessons}
-                    {m.quiz_passed && <span className="ml-1 text-emerald-600">✓</span>}
-                  </div>
-                ))}
+              <div className="hidden md:flex gap-2 flex-wrap max-w-xs">
+                {u.modules.filter(m => m.total_lessons > 0).map(m => {
+                  const tc = FORMATION_COLORS[m.formation_color] || FORMATION_COLORS.blue
+                  return (
+                    <div key={m.module_id} title={`${m.formation_title} — ${m.module_title}`} className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${tc.bg} ${tc.text}`}>
+                      {m.formation_icon} {m.completed}/{m.total_lessons}
+                      {m.quiz_passed && <span className="ml-1">✓</span>}
+                    </div>
+                  )
+                })}
               </div>
 
               {/* Overall % */}
@@ -1406,10 +2046,15 @@ function SectionProgress() {
             {/* Expanded detail */}
             {expanded === u.id && (
               <div className="border-t border-slate-100 p-4">
-                {u.modules.map(m => (
+                {u.modules.filter(m => m.total_lessons > 0).map(m => {
+                  const tc = FORMATION_COLORS[m.formation_color] || FORMATION_COLORS.blue
+                  return (
                   <div key={m.module_id} className="mb-4 last:mb-0">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest">{m.module_title}</h3>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${tc.bg} ${tc.text}`}>{m.formation_icon} {m.formation_title}</span>
+                        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest">{m.module_title}</h3>
+                      </div>
                       <button
                         onClick={() => resetProgress(u.id, 'module', m.module_id)}
                         disabled={resetting}
@@ -1459,7 +2104,8 @@ function SectionProgress() {
                       )
                     })()}
                   </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>
@@ -2073,9 +2719,78 @@ function SectionCertificates() {
   )
 }
 
+// ─── Section: Liste d'attente ─────────────────────────────────────────────────
+function SectionWaitlist() {
+  const [rows, setRows] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    api.get('/admin/waitlist').then(r => setRows(r.data)).catch(() => {}).finally(() => setLoading(false))
+  }, [])
+
+  const byFormation = rows.reduce((acc, r) => {
+    if (!acc[r.formation_id]) acc[r.formation_id] = { title: r.formation_title, color: r.color, icon: r.icon, members: [] }
+    acc[r.formation_id].members.push(r)
+    return acc
+  }, {})
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-extrabold text-slate-800">Liste d'attente</h1>
+        <span className="text-sm text-slate-400">{rows.length} inscription{rows.length > 1 ? 's' : ''} au total</span>
+      </div>
+
+      {loading && <div className="animate-pulse space-y-3">{[1,2,3].map(i => <div key={i} className="card p-4 h-16" />)}</div>}
+
+      {!loading && rows.length === 0 && (
+        <div className="card p-8 text-center text-slate-400">
+          <div className="text-4xl mb-3">📭</div>
+          <p className="text-sm">Aucune inscription en liste d'attente pour l'instant.</p>
+        </div>
+      )}
+
+      {!loading && Object.entries(byFormation).map(([fid, group]) => {
+        const tc = FORMATION_COLORS[group.color] || FORMATION_COLORS.blue
+        return (
+          <div key={fid} className="card overflow-hidden mb-5">
+            <div className={`flex items-center gap-3 px-5 py-3 ${tc.bg}`}>
+              <span className="text-xl">{group.icon || '🎓'}</span>
+              <h2 className={`font-extrabold text-sm ${tc.text}`}>{group.title}</h2>
+              <span className={`ml-auto text-xs font-bold px-2 py-0.5 rounded-full bg-white/60 ${tc.text}`}>{group.members.length} personne{group.members.length > 1 ? 's' : ''}</span>
+            </div>
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50 border-b border-slate-100">
+                <tr className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                  <th className="px-4 py-2">Nom</th>
+                  <th className="px-4 py-2">Email</th>
+                  <th className="px-4 py-2 hidden md:table-cell">Téléphone</th>
+                  <th className="px-4 py-2 hidden lg:table-cell">Inscrit le</th>
+                </tr>
+              </thead>
+              <tbody>
+                {group.members.map(m => (
+                  <tr key={m.id} className="border-b border-slate-50 hover:bg-slate-50">
+                    <td className="px-4 py-2.5 font-medium">{m.first_name} {m.last_name}</td>
+                    <td className="px-4 py-2.5 text-slate-500">{m.email}</td>
+                    <td className="px-4 py-2.5 text-slate-400 hidden md:table-cell">{m.phone || '—'}</td>
+                    <td className="px-4 py-2.5 text-slate-400 hidden lg:table-cell">{fmtDate(m.joined_at)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 // ─── Main AdminDashboard ──────────────────────────────────────────────────────
 const NAV_ITEMS = [
   { id: 'dashboard',     label: 'Tableau de bord',      icon: '📊' },
+  { id: 'stats',         label: 'Stats & Revenus',       icon: '💰' },
+  { id: 'formations',    label: 'Formations',            icon: '🎓' },
   { id: 'modules',       label: 'Modules & Cours',       icon: '📚' },
   { id: 'quizzes',       label: 'Quiz',                  icon: '📝' },
   { id: 'exercises',     label: 'Exercices',             icon: '📋' },
@@ -2084,6 +2799,7 @@ const NAV_ITEMS = [
   { id: 'certificates',  label: 'Certificats',           icon: '🏆' },
   { id: 'quotes',        label: 'Demandes de devis',     icon: '📨' },
   { id: 'progress',      label: 'Progression',           icon: '📈' },
+  { id: 'waitlist',      label: "Liste d'attente",        icon: '⏳' },
 ]
 
 export default function AdminDashboard({ onGoLanding }) {
@@ -2111,6 +2827,8 @@ export default function AdminDashboard({ onGoLanding }) {
   const renderSection = () => {
     switch (section) {
       case 'dashboard':    return <SectionDashboard />
+      case 'stats':        return <SectionStats />
+      case 'formations':   return <SectionFormations />
       case 'modules':      return <SectionModules />
       case 'quizzes':      return <SectionQuiz />
       case 'exercises':    return <SectionExercises />
@@ -2119,6 +2837,7 @@ export default function AdminDashboard({ onGoLanding }) {
       case 'certificates': return <SectionCertificates />
       case 'quotes':       return <SectionQuotes />
       case 'progress':     return <SectionProgress />
+      case 'waitlist':     return <SectionWaitlist />
       default:             return <SectionDashboard />
     }
   }

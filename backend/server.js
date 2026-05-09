@@ -29,6 +29,7 @@ app.use('/api/admin/upload',  require('./routes/upload'));
 app.use('/api/questions',     require('./routes/questions'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/exercises',     require('./routes/exercises'));
+app.use('/api/payments',      require('./routes/payments'));
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (_, res) => res.json({ status: 'ok', service: 'SAIM API' }));

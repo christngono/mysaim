@@ -13,12 +13,19 @@ router.get('/users', requireAdmin, (req, res) => {
     FROM users ORDER BY created_at DESC
   `).all();
 
+  const enrollments = db.prepare(`
+    SELECT e.user_id, e.status, e.enrolled_at, e.paid_at,
+           f.id as formation_id, f.title_fr, f.color, f.icon
+    FROM enrollments e JOIN formations f ON f.id = e.formation_id
+  `).all();
+
   const now = Date.now();
   const result = users.map(u => ({
     ...u,
     is_online: u.last_seen
       ? (now - new Date(u.last_seen + 'Z').getTime()) < 5 * 60 * 1000
       : false,
+    enrollments: enrollments.filter(e => e.user_id === u.id),
   }));
 
   res.json(result);
@@ -61,27 +68,98 @@ router.delete('/users/:id', requireAdmin, (req, res) => {
   res.json({ success: true });
 });
 
+// ─── FORMATIONS ───────────────────────────────────────────────────────────────
+router.get('/formations', requireAdmin, (req, res) => {
+  const formations = db.prepare(`
+    SELECT f.*,
+      (SELECT COUNT(*) FROM enrollments e WHERE e.formation_id = f.id) as enrolled_count,
+      (SELECT COUNT(*) FROM modules m WHERE m.formation_id = f.id) as module_count
+    FROM formations f ORDER BY f.order_index
+  `).all();
+  res.json(formations);
+});
+
+router.post('/formations', requireAdmin, (req, res) => {
+  const {
+    title_fr, title_en, description_fr, description_en, price, is_published, order_index,
+    learning_objectives, prerequisites, level, duration_hours, teaser_url, target_audience, color, icon, image_url, programme, why_fr,
+  } = req.body;
+  if (!title_fr) return res.status(400).json({ error: 'title_fr requis' });
+  const lo  = Array.isArray(learning_objectives) ? JSON.stringify(learning_objectives) : (learning_objectives || null);
+  const ta  = Array.isArray(target_audience)     ? JSON.stringify(target_audience)     : (target_audience || null);
+  const prg = Array.isArray(programme)           ? JSON.stringify(programme)           : (programme || null);
+  const key = title_fr.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+  const result = db.prepare(`
+    INSERT INTO formations (key, title_fr, title_en, description_fr, description_en, price, is_published, order_index,
+      learning_objectives, prerequisites, level, duration_hours, teaser_url, target_audience, color, icon, image_url, programme, why_fr)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(key, title_fr, title_en || title_fr, description_fr || null, description_en || null,
+         price || 25500, is_published ? 1 : 0, order_index || 0,
+         lo, prerequisites || null, level || 'débutant', duration_hours || 2,
+         teaser_url || null, ta, color || 'blue', icon || '🤖', image_url || null, prg, why_fr || null);
+  res.status(201).json({ id: result.lastInsertRowid });
+});
+
+router.put('/formations/:id', requireAdmin, (req, res) => {
+  const {
+    title_fr, title_en, description_fr, description_en, price, is_published, order_index,
+    learning_objectives, prerequisites, level, duration_hours, teaser_url, target_audience, color, icon, image_url, programme, why_fr,
+  } = req.body;
+  const lo  = Array.isArray(learning_objectives) ? JSON.stringify(learning_objectives) : (learning_objectives || null);
+  const ta  = Array.isArray(target_audience)     ? JSON.stringify(target_audience)     : (target_audience || null);
+  const prg = Array.isArray(programme)           ? JSON.stringify(programme)           : (programme || null);
+  db.prepare(`
+    UPDATE formations SET title_fr=?, title_en=?, description_fr=?, description_en=?, price=?,
+    is_published=?, order_index=?, learning_objectives=?, prerequisites=?, level=?,
+    duration_hours=?, teaser_url=?, target_audience=?, color=?, icon=?, image_url=?, programme=?, why_fr=?, updated_at=datetime('now')
+    WHERE id=?
+  `).run(
+    title_fr, title_en, description_fr || null, description_en || null, price || 25500,
+    is_published ? 1 : 0, order_index || 0, lo, prerequisites || null, level || 'débutant',
+    duration_hours || 0, teaser_url || null, ta, color || 'blue', icon || '🤖', image_url || null, prg, why_fr || null,
+    req.params.id
+  );
+  res.json({ success: true });
+});
+
+// ─── WAITLIST ─────────────────────────────────────────────────────────────────
+router.get('/waitlist', requireAdmin, (req, res) => {
+  const rows = db.prepare(`
+    SELECT w.id, w.joined_at, w.formation_id,
+           u.id as user_id, u.first_name, u.last_name, u.email, u.phone,
+           f.title_fr as formation_title, f.color, f.icon
+    FROM formation_waitlist w
+    JOIN users u ON u.id = w.user_id
+    JOIN formations f ON f.id = w.formation_id
+    ORDER BY f.order_index, w.joined_at
+  `).all();
+  res.json(rows);
+});
+
 // ─── MODULES ──────────────────────────────────────────────────────────────────
 router.get('/modules', requireAdmin, (req, res) => {
-  const modules = db.prepare('SELECT * FROM modules ORDER BY order_index').all();
+  const formationId = req.query.formation_id ? parseInt(req.query.formation_id) : null;
+  const modules = formationId
+    ? db.prepare('SELECT * FROM modules WHERE formation_id = ? ORDER BY order_index').all(formationId)
+    : db.prepare('SELECT * FROM modules ORDER BY formation_id, order_index').all();
   res.json(modules);
 });
 
 router.post('/modules', requireAdmin, (req, res) => {
-  const { title_fr, title_en, description_fr, description_en, order_index } = req.body;
+  const { title_fr, title_en, description_fr, description_en, order_index, formation_id } = req.body;
   const result = db.prepare(`
-    INSERT INTO modules (title_fr, title_en, description_fr, description_en, order_index)
-    VALUES (?, ?, ?, ?, ?)
-  `).run(title_fr, title_en, description_fr || null, description_en || null, order_index || 0);
+    INSERT INTO modules (title_fr, title_en, description_fr, description_en, order_index, formation_id)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `).run(title_fr, title_en, description_fr || null, description_en || null, order_index || 0, formation_id || null);
   res.status(201).json({ id: result.lastInsertRowid });
 });
 
 router.put('/modules/:id', requireAdmin, (req, res) => {
-  const { title_fr, title_en, description_fr, description_en, order_index, is_published } = req.body;
+  const { title_fr, title_en, description_fr, description_en, order_index, is_published, formation_id } = req.body;
   db.prepare(`
     UPDATE modules SET title_fr=?, title_en=?, description_fr=?, description_en=?,
-    order_index=?, is_published=?, updated_at=datetime('now') WHERE id=?
-  `).run(title_fr, title_en, description_fr, description_en, order_index, is_published ? 1 : 0, req.params.id);
+    order_index=?, is_published=?, formation_id=?, updated_at=datetime('now') WHERE id=?
+  `).run(title_fr, title_en, description_fr, description_en, order_index, is_published ? 1 : 0, formation_id || null, req.params.id);
   res.json({ success: true });
 });
 
@@ -161,7 +239,15 @@ router.get('/progress', requireAdmin, (req, res) => {
     SELECT id, first_name, last_name, email, last_seen FROM users WHERE role = 'user' ORDER BY first_name
   `).all();
 
-  const modules  = db.prepare('SELECT * FROM modules ORDER BY order_index').all();
+  const modules  = db.prepare(`
+    SELECT m.*, f.title_fr as formation_title, f.color as formation_color, f.icon as formation_icon
+    FROM modules m LEFT JOIN formations f ON f.id = m.formation_id ORDER BY m.formation_id, m.order_index
+  `).all();
+  const formations = db.prepare('SELECT id, title_fr, color, icon FROM formations ORDER BY order_index').all();
+  const enrollments = db.prepare(`
+    SELECT e.user_id, e.status, e.formation_id, f.title_fr, f.color, f.icon
+    FROM enrollments e JOIN formations f ON f.id = e.formation_id
+  `).all();
   const lessons  = db.prepare('SELECT * FROM lessons ORDER BY module_id, order_index').all();
   const progress = db.prepare('SELECT user_id, lesson_id, completed, completed_at, started_at FROM user_progress').all();
   const attempts = db.prepare('SELECT user_id, quiz_id, score, total, passed FROM quiz_attempts').all();
@@ -170,8 +256,9 @@ router.get('/progress', requireAdmin, (req, res) => {
   const now = Date.now();
 
   const result = users.map(u => {
-    const userProgress = progress.filter(p => p.user_id === u.id);
-    const userAttempts = attempts.filter(a => a.user_id === u.id);
+    const userProgress  = progress.filter(p => p.user_id === u.id);
+    const userAttempts  = attempts.filter(a => a.user_id === u.id);
+    const userEnrollments = enrollments.filter(e => e.user_id === u.id);
 
     const completedCount = userProgress.filter(p => p.completed).length;
     const totalLessons   = lessons.length;
@@ -185,13 +272,17 @@ router.get('/progress', requireAdmin, (req, res) => {
       const attempt = quiz ? userAttempts.filter(a => a.quiz_id === quiz.id).sort((a, b) => b.score - a.score)[0] : null;
 
       return {
-        module_id:      m.id,
-        module_title:   m.title_fr,
-        total_lessons:  moduleLessons.length,
-        completed:      completedInModule,
-        quiz_score:     attempt ? attempt.score : null,
-        quiz_total:     attempt ? attempt.total : null,
-        quiz_passed:    attempt ? attempt.passed === 1 : false,
+        module_id:        m.id,
+        module_title:     m.title_fr,
+        formation_id:     m.formation_id,
+        formation_title:  m.formation_title,
+        formation_color:  m.formation_color,
+        formation_icon:   m.formation_icon,
+        total_lessons:    moduleLessons.length,
+        completed:        completedInModule,
+        quiz_score:       attempt ? attempt.score : null,
+        quiz_total:       attempt ? attempt.total : null,
+        quiz_passed:      attempt ? attempt.passed === 1 : false,
         lessons: moduleLessons.map(l => {
           const p = userProgress.find(pr => pr.lesson_id === l.id);
           return {
@@ -223,11 +314,71 @@ router.get('/progress', requireAdmin, (req, res) => {
       total_lessons:     totalLessons,
       percent:           totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0,
       last_activity:     lastActivity,
+      enrollments:       userEnrollments,
       modules:           modulesData,
     };
   });
 
   res.json(result);
+});
+
+// ─── KPI ──────────────────────────────────────────────────────────────────────
+router.get('/kpi', requireAdmin, (req, res) => {
+  const total_users  = db.prepare("SELECT COUNT(*) as c FROM users WHERE role='user'").get().c;
+  const paid_users   = db.prepare("SELECT COUNT(DISTINCT user_id) as c FROM enrollments WHERE status='paid'").get().c;
+  const trial_users  = db.prepare(`
+    SELECT COUNT(DISTINCT user_id) as c FROM enrollments WHERE status='trial'
+    AND user_id NOT IN (SELECT DISTINCT user_id FROM enrollments WHERE status='paid')
+  `).get().c;
+  const total_revenue = db.prepare("SELECT COALESCE(SUM(amount),0) as c FROM payments WHERE status='confirmed'").get().c;
+
+  const monthly_revenue = db.prepare(`
+    SELECT strftime('%Y-%m', confirmed_at) as month,
+           SUM(amount) as total, COUNT(*) as count
+    FROM payments WHERE status='confirmed' AND confirmed_at IS NOT NULL
+    GROUP BY month ORDER BY month DESC LIMIT 12
+  `).all();
+
+  const daily_visits = db.prepare(`
+    SELECT strftime('%Y-%m-%d', visited_at) as day,
+           COUNT(*) as visits, COUNT(DISTINCT user_id) as unique_users
+    FROM site_visits WHERE visited_at >= datetime('now', '-30 days')
+    GROUP BY day ORDER BY day DESC
+  `).all();
+
+  const monthly_visits = db.prepare(`
+    SELECT strftime('%Y-%m', visited_at) as month,
+           COUNT(*) as visits, COUNT(DISTINCT user_id) as unique_users
+    FROM site_visits WHERE visited_at >= datetime('now', '-12 months')
+    GROUP BY month ORDER BY month DESC
+  `).all();
+
+  const paid_visit_freq = db.prepare(`
+    SELECT u.id, u.first_name, u.last_name,
+           COUNT(sv.id) as visit_count,
+           MIN(sv.visited_at) as first_visit,
+           MAX(sv.visited_at) as last_visit
+    FROM users u
+    JOIN enrollments e ON e.user_id = u.id AND e.status = 'paid'
+    LEFT JOIN site_visits sv ON sv.user_id = u.id
+    GROUP BY u.id ORDER BY visit_count DESC
+  `).all();
+
+  const formation_stats = db.prepare(`
+    SELECT f.id, f.title_fr, f.color, f.icon,
+           SUM(CASE WHEN e.status='paid'  THEN 1 ELSE 0 END) as paid_count,
+           SUM(CASE WHEN e.status='trial' THEN 1 ELSE 0 END) as trial_count,
+           COUNT(e.id) as total_enrolled
+    FROM formations f
+    LEFT JOIN enrollments e ON e.formation_id = f.id
+    GROUP BY f.id ORDER BY f.order_index
+  `).all();
+
+  res.json({
+    total_users, paid_users, trial_users, total_revenue,
+    monthly_revenue, daily_visits, monthly_visits, paid_visit_freq,
+    formation_stats,
+  });
 });
 
 // ─── QUOTES ───────────────────────────────────────────────────────────────────
