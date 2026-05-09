@@ -1317,6 +1317,30 @@ function FormationDetailPage({ formation, lang, onBack, onEnroll, onContinue, on
           </section>
         )}
 
+        {/* Infos utiles — horizontal bar */}
+        <section className="bg-white rounded-2xl border border-slate-200 px-5 py-4">
+          <div className="flex flex-wrap gap-x-6 gap-y-4">
+            {[
+              { type: 'price', label: lang === 'fr' ? 'Prix' : 'Price',          value: `${(formation.price || 25500).toLocaleString('fr-FR')} FCFA` },
+              { type: 'clock', label: lang === 'fr' ? 'Durée' : 'Duration',      value: `${formation.duration_hours || 3}h` },
+              { type: 'globe', label: lang === 'fr' ? 'Format' : 'Format',       value: lang === 'fr' ? '100% en ligne' : '100% online' },
+              { type: 'badge', label: lang === 'fr' ? 'Certificat' : 'Certificate', value: 'Certificat SAIM AI' },
+              ...(formation.level        ? [{ type: 'bars', label: 'Niveau', value: formation.level }] : []),
+              ...(formation.prerequisites ? [{ type: 'clip', label: lang === 'fr' ? 'Prérequis' : 'Prerequisites', value: formation.prerequisites }] : []),
+            ].map((item, i) => (
+              <div key={i} className="flex items-center gap-2.5">
+                <span className="w-8 h-8 flex-shrink-0 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
+                  <InfoIcon type={item.type} />
+                </span>
+                <div>
+                  <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide">{item.label}</p>
+                  <p className="text-sm font-bold text-slate-800 capitalize">{item.value}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* Descriptif — Pourquoi cette formation? */}
         {formation.why_fr && (
           <section className="bg-white rounded-2xl border border-slate-200 p-6">
@@ -1336,7 +1360,9 @@ function FormationDetailPage({ formation, lang, onBack, onEnroll, onContinue, on
             <div className="grid sm:grid-cols-2 gap-3">
               {objectives.map((o, i) => (
                 <div key={i} className="flex items-start gap-2.5">
-                  <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-extrabold">✓</span>
+                  <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                  </span>
                   <span className="text-sm text-slate-700 leading-snug">{o}</span>
                 </div>
               ))}
@@ -1374,36 +1400,13 @@ function FormationDetailPage({ formation, lang, onBack, onEnroll, onContinue, on
           </section>
         )}
 
-        {/* Infos utiles */}
-        <section className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h2 className="text-lg font-extrabold text-slate-800 mb-4">
-            {lang === 'fr' ? 'Informations utiles' : 'Key info'}
-          </h2>
-          <div className="grid sm:grid-cols-2 gap-3">
-            {[
-              { icon: '💰', label: lang === 'fr' ? 'Prix' : 'Price', value: `${(formation.price || 25500).toLocaleString('fr-FR')} FCFA` },
-              { icon: '⏱', label: lang === 'fr' ? 'Durée' : 'Duration', value: `${formation.duration_hours || 3}h de formation` },
-              { icon: '🌐', label: lang === 'fr' ? 'Format' : 'Format', value: '100% en ligne' },
-              { icon: '🎓', label: lang === 'fr' ? 'Certification' : 'Certificate', value: 'Certificat SAIM AI' },
-              ...(formation.prerequisites ? [{ icon: '📋', label: lang === 'fr' ? 'Prérequis' : 'Prerequisites', value: formation.prerequisites }] : []),
-              ...(formation.level ? [{ icon: '📶', label: 'Niveau', value: formation.level }] : []),
-            ].map((item, i) => (
-              <div key={i} className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl">
-                <span className="text-lg flex-shrink-0">{item.icon}</span>
-                <div>
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">{item.label}</p>
-                  <p className="text-sm font-semibold text-slate-800 mt-0.5">{item.value}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
         {/* CTA card */}
         <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
           {!hasContent ? (
             <div className="text-center">
-              <div className="text-4xl mb-3">🚀</div>
+              <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4 text-slate-400">
+                <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              </div>
               <h3 className="font-extrabold text-slate-800 mb-2">
                 {lang === 'fr' ? 'Formation bientôt disponible' : 'Coming soon'}
               </h3>
