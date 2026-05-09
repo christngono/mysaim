@@ -134,13 +134,14 @@ const formations = [
 ]
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
-export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPage, onFormationPage, onContactPage }) {
+export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPage, onFormationPage, onCatalogPage, onContactPage }) {
   const { user } = useAuth()
   const { lang } = useLang()
   const t = useT(lang)
 
   const [contactForm, setContactForm]     = useState({ name: '', email: '', message: '' })
   const [contactStatus, setContactStatus] = useState(null)
+  const [dbFormations, setDbFormations]   = useState([])
 
   const handleContactSubmit = async (e) => {
     e.preventDefault()
@@ -154,6 +155,10 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
       setContactStatus('error')
     }
   }
+
+  useEffect(() => {
+    api.get('/courses/public').then(r => setDbFormations(r.data)).catch(() => {})
+  }, [])
 
   const refs = {
     hero:     useRef(null),
