@@ -4,6 +4,20 @@ const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
+// ─── GET /courses/public  (no auth, for landing/catalog) ─────────────────────
+router.get('/public', (req, res) => {
+  const formations = db.prepare('SELECT * FROM formations WHERE is_published = 1 ORDER BY order_index').all();
+  const result = formations.map(f => {
+    const moduleCount = db.prepare('SELECT COUNT(*) as cnt FROM modules WHERE formation_id = ? AND is_published = 1').get(f.id)?.cnt ?? 0;
+    let lo = [], ta = [], prg = [];
+    try { lo = JSON.parse(f.learning_objectives || '[]') } catch {}
+    try { ta = JSON.parse(f.target_audience     || '[]') } catch {}
+    try { prg = JSON.parse(f.programme          || '[]') } catch {}
+    return { ...f, module_count: moduleCount, learning_objectives: lo, target_audience: ta, programme: prg };
+  });
+  res.json(result);
+});
+
 function getEnrollment(userId, formationId) {
   return db.prepare('SELECT status, enrolled_at, paid_at FROM enrollments WHERE user_id = ? AND formation_id = ?').get(userId, formationId);
 }

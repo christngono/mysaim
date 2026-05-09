@@ -1231,11 +1231,27 @@ function OnboardingGuide({ onDone }) {
 }
 
 // ─── Formation Detail Page ────────────────────────────────────────────────────
+const INFO_ICONS = {
+  price: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
+  clock: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
+  globe: "M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9",
+  badge: "M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z",
+  clip:  "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
+  bars:  "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
+}
+function InfoIcon({ type }) {
+  return (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={INFO_ICONS[type]} />
+    </svg>
+  )
+}
+
 function FormationDetailPage({ formation, lang, onBack, onEnroll, onContinue, onPay, onWaitlist, isOnWaitlist }) {
   const hasContent = (formation.module_count || 0) > 0
   let objectives = [], programme = []
-  try { objectives = JSON.parse(formation.learning_objectives || '[]') } catch {}
-  try { programme  = JSON.parse(formation.programme           || '[]') } catch {}
+  try { objectives = Array.isArray(formation.learning_objectives) ? formation.learning_objectives : JSON.parse(formation.learning_objectives || '[]') } catch {}
+  try { programme  = Array.isArray(formation.programme)           ? formation.programme           : JSON.parse(formation.programme           || '[]') } catch {}
   const embedUrl = getYoutubeEmbedUrl(formation.teaser_url)
   const title    = lang === 'en' && formation.title_en ? formation.title_en : formation.title_fr
   const color    = formation.color || 'blue'
@@ -1259,10 +1275,25 @@ function FormationDetailPage({ formation, lang, onBack, onEnroll, onContinue, on
         <div className="absolute bottom-0 left-0 right-0 p-6">
           <div className="text-3xl mb-2">{formation.icon || '🤖'}</div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-white leading-tight mb-3">{title}</h1>
-          <div className="flex flex-wrap items-center gap-3 text-white/70 text-sm">
-            {formation.level && <span className="capitalize bg-white/10 px-2.5 py-1 rounded-full">📶 {formation.level}</span>}
-            {formation.duration_hours > 0 && <span className="bg-white/10 px-2.5 py-1 rounded-full">⏱ {formation.duration_hours}h</span>}
-            {hasContent && <span className="bg-white/10 px-2.5 py-1 rounded-full">📚 {formation.module_count} modules</span>}
+          <div className="flex flex-wrap items-center gap-2 text-white/80 text-sm">
+            {formation.level && (
+              <span className="flex items-center gap-1.5 bg-white/10 px-2.5 py-1 rounded-full capitalize">
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={INFO_ICONS.bars} /></svg>
+                {formation.level}
+              </span>
+            )}
+            {formation.duration_hours > 0 && (
+              <span className="flex items-center gap-1.5 bg-white/10 px-2.5 py-1 rounded-full">
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={INFO_ICONS.clock} /></svg>
+                {formation.duration_hours}h
+              </span>
+            )}
+            {hasContent && (
+              <span className="flex items-center gap-1.5 bg-white/10 px-2.5 py-1 rounded-full">
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                {formation.module_count} modules
+              </span>
+            )}
           </div>
         </div>
         <div className={`absolute top-0 left-0 right-0 h-1 ${themeBar}`} />
