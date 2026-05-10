@@ -36,7 +36,7 @@ const THEME = {
 function theme(color) { return THEME[color] || THEME.blue }
 
 // ─── Formation Card (grid) ────────────────────────────────────────────────────
-function FormationCard({ formation, lang, onClick }) {
+function FormationCard({ formation, lang, onClick, onTry }) {
   const t = theme(formation.color)
   const title = lang === 'en' && formation.title_en ? formation.title_en : formation.title_fr
   const desc  = lang === 'en' && formation.description_en ? formation.description_en : formation.description_fr
@@ -47,10 +47,10 @@ function FormationCard({ formation, lang, onClick }) {
 
   return (
     <div
-      className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer flex flex-col"
+      className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 flex flex-col"
       onClick={onClick}
     >
-      <div className="relative h-44 overflow-hidden flex-shrink-0">
+      <div className="relative h-44 overflow-hidden flex-shrink-0 cursor-pointer">
         {formation.image_url
           ? <img src={formation.image_url} alt={title} className="w-full h-full object-cover" />
           : <div className={`w-full h-full ${t.iconBg} flex items-center justify-center text-6xl opacity-60`}>{formation.icon || '🤖'}</div>
@@ -68,7 +68,7 @@ function FormationCard({ formation, lang, onClick }) {
       </div>
 
       <div className="p-4 flex flex-col gap-3 flex-1">
-        <h3 className="font-extrabold text-slate-800 text-sm leading-snug">{title}</h3>
+        <h3 className="font-extrabold text-slate-800 text-sm leading-snug cursor-pointer">{title}</h3>
         {desc && <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">{desc}</p>}
 
         <div className="flex flex-wrap gap-1 mt-auto">
@@ -87,9 +87,30 @@ function FormationCard({ formation, lang, onClick }) {
           <span className="ml-auto font-bold text-slate-600">{(formation.price || 25500).toLocaleString('fr-FR')} FCFA</span>
         </div>
 
-        <button className={`w-full ${t.bar} hover:opacity-90 text-white font-bold py-2.5 rounded-xl text-xs transition-all`}>
-          {lang === 'fr' ? 'En savoir plus' : 'Learn more'} →
-        </button>
+        <div className="flex gap-2" onClick={e => e.stopPropagation()}>
+          <button
+            onClick={onClick}
+            className="flex-1 border border-slate-200 hover:border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold py-2.5 rounded-xl text-xs transition-all"
+          >
+            {lang === 'fr' ? 'En savoir plus' : 'Learn more'}
+          </button>
+          {hasContent && (
+            <button
+              onClick={onTry}
+              className={`flex-1 ${t.bar} hover:opacity-90 text-white font-bold py-2.5 rounded-xl text-xs transition-all`}
+            >
+              {lang === 'fr' ? 'Essai gratuit →' : 'Free trial →'}
+            </button>
+          )}
+          {!hasContent && (
+            <button
+              onClick={onTry}
+              className="flex-1 bg-amber-400 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl text-xs transition-all"
+            >
+              {lang === 'fr' ? "S'inscrire →" : 'Join →'}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )
