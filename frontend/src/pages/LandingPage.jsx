@@ -192,7 +192,7 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
 
   return (
     <div className="min-h-screen">
-      <Navbar onLoginClick={onLoginClick} scrollTo={scrollTo} onAboutPage={onAboutPage} onFormationPage={onFormationPage} onContactPage={onContactPage} />
+      <Navbar onLoginClick={onLoginClick} scrollTo={scrollTo} onAboutPage={onAboutPage} onFormationPage={onFormationPage} onCatalogPage={() => onCatalogPage()} onContactPage={onContactPage} />
 
       {/* ─── HERO SLIDESHOW ─────────────────────────────────────────────────── */}
       <section ref={(el) => { refs.hero.current = el; heroRef.current = el }}
@@ -431,50 +431,62 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
             </div>
           </motion.div>
 
-          <div className="grid lg:grid-cols-2 gap-12 items-start">
-            {/* Image gauche */}
-            <motion.div variants={fadeLeft} initial="hidden" whileInView="visible" viewport={viewOpts}
-              className="relative sticky top-24">
-              <img src="/uploads/apropos/image_apropos.png" alt="Formations SAIM"
-                className="w-full rounded-2xl shadow-xl object-cover max-h-[560px]" />
-              <div className="absolute -bottom-4 -right-4 bg-saim-500 text-white rounded-xl px-5 py-3 shadow-lg">
-                <div className="text-2xl font-extrabold">4</div>
-                <div className="text-xs opacity-90">{t('fmts_count')}</div>
-              </div>
-            </motion.div>
-
-            {/* 4 cartes droite */}
-            <motion.div className="space-y-4"
-              variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
-              {formations.map((f, i) => (
+          <motion.div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
+            variants={staggerGrid} initial="hidden" whileInView="visible" viewport={viewOpts}>
+            {(dbFormations.length > 0 ? dbFormations : formations).map((f, i) => {
+              const isDb = !!f.title_fr
+              const title = isDb ? (lang === 'en' && f.title_en ? f.title_en : f.title_fr) : t(f.titleKey)
+              const desc  = isDb ? f.description_fr : t(f.descKey)
+              const colorMap = { blue:'bg-blue-600', orange:'bg-orange-500', purple:'bg-purple-600', green:'bg-green-600' }
+              const barColor = isDb ? (colorMap[f.color] || 'bg-saim-500') : 'bg-saim-500'
+              const iconBgCls = isDb ? (f.color === 'orange' ? 'bg-orange-100 text-orange-600' : f.color === 'purple' ? 'bg-purple-100 text-purple-600' : f.color === 'green' ? 'bg-green-100 text-green-600' : 'bg-saim-100 text-saim-600') : f.iconBg
+              return (
                 <motion.div key={i} variants={cardItem}
-                  className="card p-5 flex items-start gap-4 hover:shadow-lg transition-all border-2 border-transparent hover:border-saim-100"
-                  whileHover={{ y: -3, transition: { duration: 0.2 } }}>
-                  <div className={`w-12 h-12 rounded-xl ${f.iconBg} flex items-center justify-center flex-shrink-0`}>
-                    {icons[f.iconKey]('w-6 h-6')}
+                  className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer flex flex-col group"
+                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                  onClick={() => onCatalogPage(isDb ? f : null)}>
+                  {/* Cover image */}
+                  <div className="relative h-40 overflow-hidden flex-shrink-0">
+                    {isDb && f.image_url
+                      ? <img src={f.image_url} alt={title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      : <div className={`w-full h-full ${iconBgCls} flex items-center justify-center opacity-70`}>
+                          {isDb ? <span className="text-5xl">{f.icon || '🤖'}</span> : icons[f.iconKey]('w-12 h-12')}
+                        </div>
+                    }
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                    <div className={`absolute top-0 left-0 right-0 h-0.5 ${barColor}`} />
+                    {isDb && !f.module_count && (
+                      <span className="absolute top-2 right-2 text-xs font-bold px-2 py-0.5 rounded-full bg-amber-400 text-white">
+                        {lang === 'fr' ? 'Bientôt' : 'Soon'}
+                      </span>
+                    )}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-extrabold text-saim-800 text-sm leading-snug mb-1">{t(f.titleKey)}</h3>
-                    <p className="text-slate-500 text-xs leading-relaxed mb-3">{t(f.descKey)}</p>
-                    <div className="flex flex-wrap gap-2">
-                      <button onClick={onLoginClick}
-                        className="inline-flex items-center gap-1.5 text-xs font-bold text-saim-600 hover:text-saim-700 bg-saim-50 hover:bg-saim-100 px-3 py-1.5 rounded-full transition-colors">
-                        {icons.check('w-3 h-3')}
-                        {t('fmts_try')}
-                      </button>
-                      <button onClick={onFormationPage}
-                        className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-saim-500 hover:bg-saim-600 px-3 py-1.5 rounded-full transition-colors">
+                  {/* Content */}
+                  <div className="p-4 flex flex-col gap-2 flex-1">
+                    <h3 className="font-extrabold text-slate-800 text-sm leading-snug">{title}</h3>
+                    {desc && <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">{desc}</p>}
+                    <div className="mt-auto pt-3 border-t border-slate-100">
+                      <span className={`inline-flex items-center gap-1 text-xs font-bold text-white ${barColor} px-3 py-1.5 rounded-full`}>
                         {t('fmts_details')}
-                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </button>
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
+                      </span>
                     </div>
                   </div>
                 </motion.div>
-              ))}
-            </motion.div>
-          </div>
+              )
+            })}
+          </motion.div>
+
+          {/* CTA button */}
+          <motion.div className="text-center mt-10" variants={fadeUp} initial="hidden" whileInView="visible" viewport={viewOpts}>
+            <button
+              onClick={() => onCatalogPage()}
+              className="inline-flex items-center gap-2 bg-saim-600 hover:bg-saim-700 text-white font-bold px-8 py-3.5 rounded-full shadow-lg transition-all hover:-translate-y-0.5 active:scale-95 text-sm"
+            >
+              {lang === 'fr' ? 'Explorer toutes les formations' : 'Explore all courses'}
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
+            </button>
+          </motion.div>
         </div>
       </section>
 

@@ -18,7 +18,7 @@ const phoneIcon = (cls) => <svg className={cls} fill="none" viewBox="0 0 24 24" 
 const pinIcon   = (cls) => <svg className={cls} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
 const checkIcon = (cls) => <svg className={cls} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
 
-export default function ContactPage({ onGoLanding, onAboutPage, onFormationPage, onLoginClick, onContactPage }) {
+export default function ContactPage({ onGoLanding, onAboutPage, onFormationPage, onCatalogPage, onLoginClick, onContactPage }) {
   const { user, logout } = useAuth()
   const { lang }         = useLang()
   const t                = useT(lang)
@@ -54,13 +54,13 @@ export default function ContactPage({ onGoLanding, onAboutPage, onFormationPage,
             </button>
 
             <div className="hidden md:flex items-center gap-1 flex-1 ml-6">
-              <button onClick={onGoLanding}
-                className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-saim-600 hover:bg-saim-50 rounded-lg transition-colors">
-                {t('nav_home')}
-              </button>
               <button onClick={onAboutPage}
                 className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-saim-600 hover:bg-saim-50 rounded-lg transition-colors">
                 {t('nav_about')}
+              </button>
+              <button onClick={() => onCatalogPage?.()}
+                className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-saim-600 hover:bg-saim-50 rounded-lg transition-colors">
+                {t('nav_catalog')}
               </button>
               <button onClick={onFormationPage}
                 className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-saim-600 hover:bg-saim-50 rounded-lg transition-colors">
@@ -123,13 +123,13 @@ export default function ContactPage({ onGoLanding, onAboutPage, onFormationPage,
 
           {menuOpen && (
             <div className="md:hidden border-t border-slate-100 py-3 space-y-1">
-              <button onClick={() => { onGoLanding(); setMenuOpen(false) }}
-                className="block w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg">
-                {t('nav_home')}
-              </button>
               <button onClick={() => { onAboutPage(); setMenuOpen(false) }}
                 className="block w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg">
                 {t('nav_about')}
+              </button>
+              <button onClick={() => { onCatalogPage?.(); setMenuOpen(false) }}
+                className="block w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg">
+                {t('nav_catalog')}
               </button>
               <button onClick={() => { onFormationPage(); setMenuOpen(false) }}
                 className="block w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg">

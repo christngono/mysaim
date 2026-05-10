@@ -3,7 +3,7 @@ export const T = {
     // Nav
     nav_home:     'Accueil',
     nav_about:    'À propos de nous',
-    nav_training: 'Formation',
+    nav_training: 'Pour Entreprise',
     nav_catalog:  'Explorer les formations',
     nav_agent:    'Agent IA',
     nav_contact:  'Contact',
@@ -404,7 +404,7 @@ export const T = {
   en: {
     nav_home:     'Home',
     nav_about:    'About us',
-    nav_training: 'Training',
+    nav_training: 'For Companies',
     nav_catalog:  'Explore courses',
     nav_agent:    'AI Agent',
     nav_contact:  'Contact',

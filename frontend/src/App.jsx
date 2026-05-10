@@ -214,6 +214,7 @@ export default function App() {
           onGoLanding={() => setView('landing')}
           onLoginClick={() => setAuthMode('login')}
           onFormationPage={() => setView('formation')}
+          onCatalogPage={goToCatalog}
           onContactPage={() => setView('contact')}
         />
       )}
@@ -222,6 +223,7 @@ export default function App() {
         <FormationPage
           onGoLanding={() => setView('landing')}
           onAboutPage={() => setView('about')}
+          onCatalogPage={goToCatalog}
           onLoginClick={() => setAuthMode('login')}
           onContactPage={() => setView('contact')}
         />
@@ -232,6 +234,7 @@ export default function App() {
           onGoLanding={() => setView('landing')}
           onAboutPage={() => setView('about')}
           onFormationPage={() => setView('formation')}
+          onCatalogPage={goToCatalog}
           onContactPage={() => setView('contact')}
           onLoginClick={() => setAuthMode('login')}
         />

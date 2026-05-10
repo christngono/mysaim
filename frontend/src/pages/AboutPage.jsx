@@ -46,7 +46,7 @@ const galleryMintp = [
 ]
 
 // ─── Composant principal ──────────────────────────────────────────────────────
-export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage, onContactPage }) {
+export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage, onCatalogPage, onContactPage }) {
   const { user, logout } = useAuth()
   const { lang } = useLang()
   const t = useT(lang)
@@ -69,18 +69,18 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage, 
 
             {/* Desktop links */}
             <div className="hidden md:flex items-center gap-1 flex-1 ml-6">
-              <button onClick={onGoLanding}
-                className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-saim-600 hover:bg-saim-50 rounded-lg transition-colors">
-                {t('nav_home')}
-              </button>
               <button className="px-3 py-2 text-sm font-semibold text-saim-600 bg-saim-50 rounded-lg cursor-default">
-                {t('ab_hero_chip')}
+                {t('nav_about')}
+              </button>
+              <button onClick={() => onCatalogPage?.()}
+                className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-saim-600 hover:bg-saim-50 rounded-lg transition-colors">
+                {t('nav_catalog')}
               </button>
               <button onClick={() => onFormationPage?.()}
                 className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-saim-600 hover:bg-saim-50 rounded-lg transition-colors">
                 {t('nav_training')}
               </button>
-              <button onClick={onGoLanding}
+              <button onClick={onContactPage}
                 className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-saim-600 hover:bg-saim-50 rounded-lg transition-colors">
                 {t('nav_contact')}
               </button>
@@ -143,18 +143,18 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage, 
           {/* Mobile menu */}
           {menuOpen && (
             <div className="md:hidden border-t border-slate-100 py-3 space-y-1">
-              <button onClick={() => { onGoLanding(); setMenuOpen(false) }}
-                className="block w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg">
-                {t('nav_home')}
-              </button>
               <button className="block w-full text-left px-4 py-2 text-sm text-saim-600 font-semibold bg-saim-50 rounded-lg">
-                {t('ab_hero_chip')}
+                {t('nav_about')}
+              </button>
+              <button onClick={() => { onCatalogPage?.(); setMenuOpen(false) }}
+                className="block w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg">
+                {t('nav_catalog')}
               </button>
               <button onClick={() => { onFormationPage?.(); setMenuOpen(false) }}
                 className="block w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg">
                 {t('nav_training')}
               </button>
-              <button onClick={() => { onGoLanding(); setMenuOpen(false) }}
+              <button onClick={() => { onContactPage?.(); setMenuOpen(false) }}
                 className="block w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg">
                 {t('nav_contact')}
               </button>
