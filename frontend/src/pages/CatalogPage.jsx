@@ -141,6 +141,15 @@ export default function CatalogPage({
     navigate(`/formations/${toSlug(f.title_fr)}`, { state: { formation: f } })
   }
 
+  const tryFormation = (f) => {
+    if (user) {
+      // Logged in → go to detail page, which will show the enroll/continue CTA
+      navigate(`/formations/${toSlug(f.title_fr)}`, { state: { formation: f } })
+    } else {
+      onLoginClick()
+    }
+  }
+
   const scrollTo = (id) => {
     if (id === 'dashboard') { onEnterDashboard?.(); return }
     if (id === 'hero') { onGoLanding(); return }
@@ -204,6 +213,7 @@ export default function CatalogPage({
                   formation={f}
                   lang={lang}
                   onClick={() => openDetail(f)}
+                  onTry={() => tryFormation(f)}
                 />
               ))}
             </div>

@@ -442,11 +442,10 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
               const iconBgCls = isDb ? (f.color === 'orange' ? 'bg-orange-100 text-orange-600' : f.color === 'purple' ? 'bg-purple-100 text-purple-600' : f.color === 'green' ? 'bg-green-100 text-green-600' : 'bg-saim-100 text-saim-600') : f.iconBg
               return (
                 <motion.div key={i} variants={cardItem}
-                  className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer flex flex-col group"
-                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                  onClick={() => onCatalogPage(isDb ? f : null)}>
+                  className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 flex flex-col group"
+                  whileHover={{ y: -4, transition: { duration: 0.2 } }}>
                   {/* Cover image */}
-                  <div className="relative h-40 overflow-hidden flex-shrink-0">
+                  <div className="relative h-40 overflow-hidden flex-shrink-0 cursor-pointer" onClick={() => onCatalogPage(isDb ? f : null)}>
                     {isDb && f.image_url
                       ? <img src={f.image_url} alt={title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       : <div className={`w-full h-full ${iconBgCls} flex items-center justify-center opacity-70`}>
@@ -465,11 +464,28 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
                   <div className="p-4 flex flex-col gap-2 flex-1">
                     <h3 className="font-extrabold text-slate-800 text-sm leading-snug">{title}</h3>
                     {desc && <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">{desc}</p>}
-                    <div className="mt-auto pt-3 border-t border-slate-100">
-                      <span className={`inline-flex items-center gap-1 text-xs font-bold text-white ${barColor} px-3 py-1.5 rounded-full`}>
+                    <div className="mt-auto pt-3 border-t border-slate-100 flex gap-2" onClick={e => e.stopPropagation()}>
+                      <button
+                        onClick={() => onCatalogPage(isDb ? f : null)}
+                        className="flex-1 border border-slate-200 hover:border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold py-2 rounded-xl text-xs transition-all"
+                      >
                         {t('fmts_details')}
-                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
-                      </span>
+                      </button>
+                      {isDb && f.module_count > 0 ? (
+                        <button
+                          onClick={() => onLoginClick()}
+                          className={`flex-1 ${barColor} hover:opacity-90 text-white font-bold py-2 rounded-xl text-xs transition-all`}
+                        >
+                          {lang === 'fr' ? 'Essai gratuit →' : 'Free trial →'}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => onLoginClick()}
+                          className="flex-1 bg-amber-400 hover:bg-amber-500 text-white font-bold py-2 rounded-xl text-xs transition-all"
+                        >
+                          {lang === 'fr' ? "S'inscrire →" : 'Join →'}
+                        </button>
+                      )}
                     </div>
                   </div>
                 </motion.div>
