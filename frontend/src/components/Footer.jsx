@@ -192,7 +192,7 @@ export default function Footer({ onGoLanding, onAboutPage, onFormationPage, onCo
             <ul className="space-y-2 text-sm text-slate-300">
               <li className="flex items-center gap-2">
                 <span className="text-saim-300 flex-shrink-0">{mailIcon}</span>
-                contact@saim.cm
+                partners@saim.com
               </li>
               <li className="flex items-center gap-2">
                 <span className="text-saim-300 flex-shrink-0">{phoneIcon}</span>

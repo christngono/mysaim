@@ -123,6 +123,7 @@ function initDB() {
   try { db.exec('ALTER TABLE quiz_questions ADD COLUMN explanation_fr TEXT NOT NULL DEFAULT ""'); } catch {}
   try { db.exec('ALTER TABLE quiz_questions ADD COLUMN explanation_en TEXT NOT NULL DEFAULT ""'); } catch {}
   try { db.exec('ALTER TABLE users ADD COLUMN last_seen TEXT'); } catch {}
+  try { db.exec('ALTER TABLE users ADD COLUMN google_id TEXT'); } catch {}
   try { db.exec('ALTER TABLE user_progress ADD COLUMN started_at TEXT'); } catch {}
   try { db.exec('ALTER TABLE modules ADD COLUMN formation_id INTEGER REFERENCES formations(id) ON DELETE SET NULL'); } catch {}
   try { db.exec('ALTER TABLE formations ADD COLUMN learning_objectives TEXT'); } catch {}

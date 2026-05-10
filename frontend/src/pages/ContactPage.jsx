@@ -213,7 +213,7 @@ export default function ContactPage({ onGoLanding, onAboutPage, onFormationPage,
                   {t('contact_label')}
                 </h3>
                 {[
-                  { icon: mailIcon,  label: t('contact_email'),    value: 'partners@mysaim.cm' },
+                  { icon: mailIcon,  label: t('contact_email'),    value: 'partners@mysaim.com' },
                   { icon: phoneIcon, label: t('contact_phone'),    value: '(+237) 677 1 88 62' },
                   { icon: pinIcon,   label: t('contact_location'), value: t('contact_location_val') },
                 ].map(item => (
@@ -288,13 +288,13 @@ export default function ContactPage({ onGoLanding, onAboutPage, onFormationPage,
                   <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
                       <label className="label">{t('contact_name_label')}</label>
-                      <input type="text" className="input-field" placeholder="Jean Dupont"
+                      <input type="text" className="input-field" placeholder="christian kemy"
                         value={form.name}
                         onChange={e => setForm(f => ({ ...f, name: clean(e.target.value) }))} required />
                     </div>
                     <div>
                       <label className="label">{t('contact_email_label')}</label>
-                      <input type="email" className="input-field" placeholder="jean@email.com"
+                      <input type="email" className="input-field" placeholder="kemy@gmail.com"
                         value={form.email}
                         onChange={e => setForm(f => ({ ...f, email: clean(e.target.value) }))} required />
                     </div>

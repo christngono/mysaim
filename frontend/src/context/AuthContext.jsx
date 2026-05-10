@@ -46,6 +46,21 @@ export function AuthProvider({ children }) {
     return u
   }
 
+  const loginWithGoogle = async (credential) => {
+    const res = await api.post('/auth/google', { credential })
+    const { token: t, user: u } = res.data
+    localStorage.setItem('saim_token', t)
+    setToken(t)
+    setUser(u)
+    try {
+      const meRes = await api.get('/auth/me')
+      const { enrollments: enr = [], ...userData } = meRes.data
+      setUser(userData)
+      setEnrollments(enr)
+    } catch {}
+    return u
+  }
+
   const register = async (data) => {
     const res = await api.post('/auth/register', data)
     const { token: t, user: u } = res.data
@@ -98,7 +113,7 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider value={{
       user, token, loading, enrollments,
-      login, register, logout, refreshEnrollments,
+      login, loginWithGoogle, register, logout, refreshEnrollments,
       isPaid, isEnrolled, canAccessModule, getEnrollmentStatus,
     }}>
       {children}
