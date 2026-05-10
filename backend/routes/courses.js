@@ -45,13 +45,15 @@ function getEnrollment(userId, formationId) {
   return db.prepare('SELECT status, enrolled_at, paid_at FROM enrollments WHERE user_id = ? AND formation_id = ?').get(userId, formationId);
 }
 
-// Module 0 (premier module, order_index = 0) est gratuit pour les inscrits (trial ou paid)
+// Premier module (order_index le plus bas) est gratuit pour les inscrits (trial ou paid)
 // Modules suivants nécessitent status = 'paid'
 function canAccessModule(userId, module) {
   const enrollment = getEnrollment(userId, module.formation_id);
   if (!enrollment) return false;
   if (enrollment.status === 'paid') return true;
-  return module.order_index === 0; // trial = module 1 seulement
+  // trial = premier module uniquement (order_index minimal de cette formation)
+  const first = db.prepare('SELECT MIN(order_index) as min_idx FROM modules WHERE formation_id = ? AND is_published = 1').get(module.formation_id);
+  return module.order_index === first.min_idx;
 }
 
 // ─── GET /courses/formations ──────────────────────────────────────────────────
@@ -124,7 +126,8 @@ router.get('/modules', requireAuth, (req, res) => {
   const result = modules.map(m => {
     const accessible = canAccessModule(req.user.id, m);
     const locked = !accessible || m.is_published === 0;
-    const needsPayment = !accessible && m.is_published === 1 && m.order_index > 0;
+    const firstModule = db.prepare('SELECT MIN(order_index) as min_idx FROM modules WHERE formation_id = ? AND is_published = 1').get(m.formation_id);
+    const needsPayment = !accessible && m.is_published === 1 && m.order_index !== firstModule.min_idx;
 
     const quiz = db.prepare('SELECT id, passing_score FROM quizzes WHERE module_id = ? AND is_published = 1').get(m.id);
     let quizInfo = null;

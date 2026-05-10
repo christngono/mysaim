@@ -105,18 +105,22 @@ export default function PaymentModal({ formation, onClose, onSuccess }) {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Opérateur Mobile Money</label>
                   <div className="grid grid-cols-2 gap-3">
-                    {['MTN', 'ORANGE'].map(op => (
+                    {[
+                      { key: 'MTN',    img: '/images/mtnmoney.jpeg',   label: 'MTN MoMo'     },
+                      { key: 'ORANGE', img: '/images/orangemoney.png', label: 'Orange Money' },
+                    ].map(op => (
                       <button
-                        key={op}
+                        key={op.key}
                         type="button"
-                        onClick={() => setOperator(op)}
-                        className={`py-3 rounded-xl border-2 font-semibold text-sm transition-all ${
-                          operator === op
-                            ? 'border-saim-600 bg-saim-50 text-saim-700'
-                            : 'border-gray-200 text-gray-500 hover:border-gray-300'
+                        onClick={() => setOperator(op.key)}
+                        className={`py-3 px-3 rounded-xl border-2 flex flex-col items-center gap-1.5 transition-all ${
+                          operator === op.key
+                            ? 'border-saim-600 bg-saim-50'
+                            : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
-                        {op === 'MTN' ? '📱 MTN MoMo' : '🟠 Orange Money'}
+                        <img src={op.img} alt={op.label} className="h-10 object-contain" />
+                        <span className={`text-xs font-semibold ${operator === op.key ? 'text-saim-700' : 'text-gray-500'}`}>{op.label}</span>
                       </button>
                     ))}
                   </div>

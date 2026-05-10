@@ -5,8 +5,7 @@ const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
-const CAMPAY_BASE_URL = 'https://demo.campay.net/api';
-const FORMATION_PRICE = 100;
+const CAMPAY_BASE_URL = process.env.CAMPAY_BASE_URL || 'https://app.campay.net/api';
 
 async function getCampayToken() {
   const res = await fetch(`${CAMPAY_BASE_URL}/token/`, {
@@ -43,7 +42,7 @@ router.post('/initiate', requireAuth, async (req, res) => {
   }
 
   // Montant toujours validé côté serveur
-  const amount = FORMATION_PRICE;
+  const amount = formation.price || 25500;
   const reference = `SAIM-${Date.now()}-${req.user.id}-${formation_id}`;
 
   try {

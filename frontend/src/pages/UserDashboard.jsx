@@ -2253,10 +2253,10 @@ export default function UserDashboard({ onGoLanding }) {
                         }}
                       >
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-bold text-saim-600 uppercase tracking-wider">Module {module.order_index + 1}</p>
+                          <p className="text-xs font-bold text-saim-600 uppercase tracking-wider">Module {module.order_index}</p>
                           <p className="text-sm font-bold text-slate-800 mt-0.5 leading-snug">{modTitle}</p>
                           {isLocked && !needsPayment && <p className="text-xs text-slate-400 mt-0.5">Bientôt disponible</p>}
-                          {needsPayment && <p className="text-xs text-amber-600 font-semibold mt-0.5">🔒 25 500 FCFA</p>}
+                          {needsPayment && <p className="text-xs text-amber-600 font-semibold mt-0.5">🔒 Cliquer pour déverrouiller</p>}
                           {!isLocked && <p className="text-xs text-slate-400 mt-0.5">{module.lessons.filter(l => l.completed).length}/{module.lessons.length} leçons</p>}
                         </div>
                         {needsPayment && <span className="text-amber-500 text-sm flex-shrink-0">🔒</span>}
