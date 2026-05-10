@@ -134,6 +134,29 @@ router.get('/status/:reference', requireAuth, async (req, res) => {
   }
 });
 
+// ─── POST /payments/redeem ────────────────────────────────────────────────────
+router.post('/redeem', requireAuth, (req, res) => {
+  const { code, formation_id } = req.body;
+  if (!code || !formation_id) return res.status(400).json({ error: 'Code et formation requis' });
+
+  const record = db.prepare(
+    'SELECT * FROM activation_codes WHERE code = ? AND formation_id = ? AND used_by IS NULL'
+  ).get(code.trim().toUpperCase(), formation_id);
+
+  if (!record) return res.status(400).json({ error: 'Code invalide ou déjà utilisé' });
+
+  db.prepare('UPDATE activation_codes SET used_by = ?, used_at = datetime("now") WHERE id = ?')
+    .run(req.user.id, record.id);
+
+  db.prepare(`
+    INSERT INTO enrollments (user_id, formation_id, status, paid_at)
+    VALUES (?, ?, 'paid', datetime('now'))
+    ON CONFLICT(user_id, formation_id) DO UPDATE SET status = 'paid', paid_at = datetime('now')
+  `).run(req.user.id, formation_id);
+
+  res.json({ success: true });
+});
+
 // ─── POST /payments/webhook ───────────────────────────────────────────────────
 router.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
   const secret = process.env.CAMPAY_WEBHOOK_SECRET;

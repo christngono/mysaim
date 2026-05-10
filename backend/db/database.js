@@ -124,6 +124,21 @@ function initDB() {
   try { db.exec('ALTER TABLE quiz_questions ADD COLUMN explanation_en TEXT NOT NULL DEFAULT ""'); } catch {}
   try { db.exec('ALTER TABLE users ADD COLUMN last_seen TEXT'); } catch {}
   try { db.exec('ALTER TABLE users ADD COLUMN google_id TEXT'); } catch {}
+
+  // ─── Activation codes ─────────────────────────────────────────────────────────
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS activation_codes (
+      id           INTEGER PRIMARY KEY AUTOINCREMENT,
+      code         TEXT NOT NULL UNIQUE,
+      formation_id INTEGER NOT NULL REFERENCES formations(id) ON DELETE CASCADE,
+      created_by   INTEGER REFERENCES users(id),
+      used_by      INTEGER REFERENCES users(id),
+      created_at   TEXT NOT NULL DEFAULT (datetime('now')),
+      used_at      TEXT
+    );
+    CREATE INDEX IF NOT EXISTS idx_codes_formation ON activation_codes(formation_id);
+    CREATE INDEX IF NOT EXISTS idx_codes_used_by ON activation_codes(used_by);
+  `);
   try { db.exec('ALTER TABLE user_progress ADD COLUMN started_at TEXT'); } catch {}
   try { db.exec('ALTER TABLE modules ADD COLUMN formation_id INTEGER REFERENCES formations(id) ON DELETE SET NULL'); } catch {}
   try { db.exec('ALTER TABLE formations ADD COLUMN learning_objectives TEXT'); } catch {}
