@@ -4,6 +4,29 @@ const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
+// ─── Slug helper ─────────────────────────────────────────────────────────────
+function toSlug(str = '') {
+  return (str || '').normalize('NFD').replace(/\p{Mn}/gu, '').toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-')
+}
+
+function parseFormation(f) {
+  const moduleCount = db.prepare('SELECT COUNT(*) as cnt FROM modules WHERE formation_id = ? AND is_published = 1').get(f.id)?.cnt ?? 0
+  let lo = [], ta = [], prg = []
+  try { lo  = JSON.parse(f.learning_objectives || '[]') } catch {}
+  try { ta  = JSON.parse(f.target_audience     || '[]') } catch {}
+  try { prg = JSON.parse(f.programme           || '[]') } catch {}
+  return { ...f, module_count: moduleCount, learning_objectives: lo, target_audience: ta, programme: prg }
+}
+
+// ─── GET /courses/public/slug/:slug  (no auth) ────────────────────────────────
+router.get('/public/slug/:slug', (req, res) => {
+  const formations = db.prepare('SELECT * FROM formations WHERE is_published = 1').all()
+  const found = formations.find(f => toSlug(f.title_fr) === req.params.slug)
+  if (!found) return res.status(404).json({ error: 'Not found' })
+  res.json(parseFormation(found))
+})
+
 // ─── GET /courses/public  (no auth, for landing/catalog) ─────────────────────
 router.get('/public', (req, res) => {
   const formations = db.prepare('SELECT * FROM formations WHERE is_published = 1 ORDER BY order_index').all();

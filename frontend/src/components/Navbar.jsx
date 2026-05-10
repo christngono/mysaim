@@ -12,6 +12,7 @@ export default function Navbar({ onLoginClick, scrollTo, onAboutPage, onFormatio
   const [dropOpen, setDropOpen] = useState(false)
 
   const navLinks = [
+    { key: 'home',     label: t('nav_home'),     action: () => scrollTo ? scrollTo('hero') : null },
     { key: 'about',    label: t('nav_about'),    action: () => onAboutPage ? onAboutPage() : (scrollTo ? scrollTo('about') : null) },
     { key: 'catalog',  label: t('nav_catalog'),  action: () => onCatalogPage ? onCatalogPage() : null },
     { key: 'training', label: t('nav_training'), action: () => onFormationPage ? onFormationPage() : null },

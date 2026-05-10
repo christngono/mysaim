@@ -8,6 +8,8 @@ import PaymentModal from '../components/PaymentModal'
 import api from '../api/axios'
 import { clean } from '../utils/sanitize'
 
+import FormationDetailView from '../components/FormationDetailView'
+
 // ─── YouTube embed helper ─────────────────────────────────────────────────────
 function getYoutubeEmbedUrl(url) {
   if (!url) return null
@@ -2069,10 +2071,12 @@ export default function UserDashboard({ onGoLanding }) {
                   ✓ {waitlistMsg}
                 </div>
               )}
-              <FormationDetailPage
+              <FormationDetailView
                 formation={f}
                 lang={lang}
+                user={user}
                 onBack={() => setDetailFormation(null)}
+                onLoginClick={() => {}}
                 onEnroll={() => { enrollAndStart(f); setDetailFormation(null) }}
                 onContinue={() => { switchFormation(f.id); setDetailFormation(null) }}
                 onPay={() => { setPaymentFormation(f); setDetailFormation(null) }}

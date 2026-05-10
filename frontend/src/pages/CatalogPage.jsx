@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useLang } from '../context/LangContext'
 import { useT } from '../i18n/translations'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import api from '../api/axios'
+import { toSlug } from '../utils/slug'
 
 // ─── Shared icon paths ────────────────────────────────────────────────────────
 const IP = {
@@ -32,13 +34,6 @@ const THEME = {
   green:  { bar: 'bg-green-600',  tag: 'bg-green-50 text-green-700',  iconBg: 'bg-green-100 text-green-600',  ring: 'ring-green-200'  },
 }
 function theme(color) { return THEME[color] || THEME.blue }
-
-// ─── YouTube embed helper ─────────────────────────────────────────────────────
-function getEmbedUrl(url) {
-  if (!url) return null
-  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/)
-  return m ? `https://www.youtube.com/embed/${m[1]}` : null
-}
 
 // ─── Formation Card (grid) ────────────────────────────────────────────────────
 function FormationCard({ formation, lang, onClick }) {
@@ -100,208 +95,19 @@ function FormationCard({ formation, lang, onClick }) {
   )
 }
 
-// ─── Formation Detail (public, inline) ───────────────────────────────────────
-function FormationDetail({ formation, lang, onBack, onLoginOrDash }) {
-  const hasContent = (formation.module_count || 0) > 0
-  const objectives = Array.isArray(formation.learning_objectives) ? formation.learning_objectives : []
-  const programme  = Array.isArray(formation.programme)           ? formation.programme           : []
-  const embedUrl   = getEmbedUrl(formation.teaser_url)
-  const title      = lang === 'en' && formation.title_en ? formation.title_en : formation.title_fr
-  const t          = theme(formation.color)
-
-  return (
-    <main className="flex-1 overflow-y-auto bg-slate-50">
-      {/* Banner */}
-      <div className="relative h-64 md:h-80 overflow-hidden">
-        {formation.image_url
-          ? <img src={formation.image_url} alt={title} className="w-full h-full object-cover" />
-          : <div className="w-full h-full bg-slate-700 flex items-center justify-center text-8xl opacity-30">{formation.icon || '🤖'}</div>
-        }
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-        <button
-          onClick={onBack}
-          className="absolute top-4 left-4 flex items-center gap-1.5 text-white/80 hover:text-white bg-black/30 hover:bg-black/50 px-3 py-1.5 rounded-full text-sm backdrop-blur-sm transition-all"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-          {lang === 'fr' ? 'Retour' : 'Back'}
-        </button>
-        <div className="absolute bottom-0 left-0 right-0 p-6">
-          <div className="text-3xl mb-2">{formation.icon || '🤖'}</div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white leading-tight mb-3">{title}</h1>
-          <div className="flex flex-wrap items-center gap-2 text-white/80 text-sm">
-            {formation.level && (
-              <span className="flex items-center gap-1.5 bg-white/10 px-2.5 py-1 rounded-full capitalize">
-                <SvgIcon d={IP.bars} cls="w-3.5 h-3.5" />{formation.level}
-              </span>
-            )}
-            {formation.duration_hours > 0 && (
-              <span className="flex items-center gap-1.5 bg-white/10 px-2.5 py-1 rounded-full">
-                <SvgIcon d={IP.clock} cls="w-3.5 h-3.5" />{formation.duration_hours}h
-              </span>
-            )}
-            {hasContent && (
-              <span className="flex items-center gap-1.5 bg-white/10 px-2.5 py-1 rounded-full">
-                <SvgIcon d={IP.book} cls="w-3.5 h-3.5" />{formation.module_count} modules
-              </span>
-            )}
-          </div>
-        </div>
-        <div className={`absolute top-0 left-0 right-0 h-1 ${t.bar}`} />
-      </div>
-
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-
-        {/* Teaser video */}
-        {embedUrl && (
-          <section>
-            <h2 className="text-lg font-extrabold text-slate-800 mb-4">{lang === 'fr' ? 'Vidéo de présentation' : 'Preview video'}</h2>
-            <div className="aspect-video rounded-2xl overflow-hidden shadow-lg">
-              <iframe src={embedUrl} title="Teaser" className="w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
-            </div>
-          </section>
-        )}
-
-        {/* Infos utiles — horizontal */}
-        <section className="bg-white rounded-2xl border border-slate-200 px-5 py-4">
-          <div className="flex flex-wrap gap-x-6 gap-y-4">
-            {[
-              { type: 'price', label: lang === 'fr' ? 'Prix' : 'Price',         value: `${(formation.price || 25500).toLocaleString('fr-FR')} FCFA` },
-              { type: 'clock', label: lang === 'fr' ? 'Durée' : 'Duration',     value: `${formation.duration_hours || 3}h` },
-              { type: 'globe', label: lang === 'fr' ? 'Format' : 'Format',      value: lang === 'fr' ? '100% en ligne' : '100% online' },
-              { type: 'badge', label: lang === 'fr' ? 'Certificat' : 'Certificate', value: 'Certificat SAIM AI' },
-              ...(formation.level         ? [{ type: 'bars', label: 'Niveau', value: formation.level }] : []),
-              ...(formation.prerequisites ? [{ type: 'clip', label: lang === 'fr' ? 'Prérequis' : 'Prerequisites', value: formation.prerequisites }] : []),
-            ].map((item, i) => (
-              <div key={i} className="flex items-center gap-2.5">
-                <span className="w-8 h-8 flex-shrink-0 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
-                  <SvgIcon d={IP[item.type]} />
-                </span>
-                <div>
-                  <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide">{item.label}</p>
-                  <p className="text-sm font-bold text-slate-800 capitalize">{item.value}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Descriptif */}
-        {formation.why_fr && (
-          <section className="bg-white rounded-2xl border border-slate-200 p-6">
-            <h2 className="text-lg font-extrabold text-slate-800 mb-3">
-              {lang === 'fr' ? 'Pourquoi cette formation ?' : 'Why this course?'}
-            </h2>
-            <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{formation.why_fr}</p>
-          </section>
-        )}
-
-        {/* Objectifs */}
-        {objectives.length > 0 && (
-          <section className="bg-white rounded-2xl border border-slate-200 p-6">
-            <h2 className="text-lg font-extrabold text-slate-800 mb-4">
-              {lang === 'fr' ? 'Objectifs de la formation' : 'Learning objectives'}
-            </h2>
-            <div className="grid sm:grid-cols-2 gap-3">
-              {objectives.map((o, i) => (
-                <div key={i} className="flex items-start gap-2.5">
-                  <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
-                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
-                  </span>
-                  <span className="text-sm text-slate-700 leading-snug">{o}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Programme */}
-        {programme.length > 0 && (
-          <section>
-            <h2 className="text-lg font-extrabold text-slate-800 mb-4">
-              {lang === 'fr' ? 'Programme du cours' : 'Course curriculum'}
-            </h2>
-            <div className="space-y-3">
-              {programme.map((m, i) => (
-                <div key={i} className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-                  <div className="flex items-center gap-3 px-5 py-3.5 bg-slate-50 border-b border-slate-100">
-                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-extrabold text-white ${t.bar}`}>{i + 1}</span>
-                    <h3 className="font-bold text-slate-800 text-sm">{m.module}</h3>
-                    {m.items?.length > 0 && <span className="ml-auto text-xs text-slate-400">{m.items.length} leçon{m.items.length > 1 ? 's' : ''}</span>}
-                  </div>
-                  {m.items?.length > 0 && (
-                    <ul className="divide-y divide-slate-50">
-                      {m.items.map((item, j) => (
-                        <li key={j} className="flex items-center gap-3 px-5 py-2.5 text-sm text-slate-600">
-                          <span className="w-4 h-4 rounded-full border-2 border-slate-200 flex-shrink-0" />
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* CTA */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-          {!hasContent ? (
-            <div className="text-center">
-              <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4 text-slate-400">
-                <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-              </div>
-              <h3 className="font-extrabold text-slate-800 mb-2">
-                {lang === 'fr' ? 'Formation bientôt disponible' : 'Coming soon'}
-              </h3>
-              <p className="text-sm text-slate-500 mb-5">
-                {lang === 'fr'
-                  ? "Cette formation est en cours de préparation. Inscrivez-vous dès maintenant pour être notifié(e) en premier dès son lancement."
-                  : 'This course is being prepared. Sign up now to be notified first when it launches.'}
-              </p>
-              <button
-                onClick={() => onLoginOrDash(formation)}
-                className={`w-full ${t.bar} hover:opacity-90 text-white font-bold px-6 py-3.5 rounded-xl transition-colors text-sm`}
-              >
-                {lang === 'fr' ? "S'inscrire →" : 'Sign up →'}
-              </button>
-            </div>
-          ) : (
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <p className="font-extrabold text-slate-800">{lang === 'fr' ? 'Essai gratuit' : 'Free trial'}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{lang === 'fr' ? 'Accédez au premier module sans engagement' : 'Access the first module for free'}</p>
-                </div>
-                <span className="text-xl font-extrabold text-slate-800">{(formation.price || 25500).toLocaleString('fr-FR')} FCFA</span>
-              </div>
-              <button
-                onClick={() => onLoginOrDash(formation)}
-                className={`w-full ${t.bar} hover:opacity-90 text-white font-bold py-3.5 rounded-xl transition-all text-sm`}
-              >
-                {lang === 'fr' ? "S'essayer gratuitement →" : 'Try for free →'}
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-    </main>
-  )
-}
 
 // ─── Main CatalogPage ─────────────────────────────────────────────────────────
 export default function CatalogPage({
   onGoLanding, onLoginClick, onEnterDashboard,
-  onAboutPage, onContactPage, initialFormation,
+  onAboutPage, onFormationPage, onContactPage, onCatalogPage,
 }) {
   const { user } = useAuth()
   const { lang } = useLang()
   const t = useT(lang)
+  const navigate = useNavigate()
 
-  const [formations, setFormations]   = useState([])
-  const [loading, setLoading]         = useState(true)
-  const [detail, setDetail]           = useState(initialFormation || null)
+  const [formations, setFormations] = useState([])
+  const [loading, setLoading]       = useState(true)
 
   useEffect(() => {
     api.get('/courses/public')
@@ -310,43 +116,14 @@ export default function CatalogPage({
       .finally(() => setLoading(false))
   }, [])
 
-  // When initialFormation changes (App navigates here with a pre-selected formation)
-  useEffect(() => {
-    if (initialFormation) setDetail(initialFormation)
-  }, [initialFormation])
+  const openDetail = (f) => {
+    navigate(`/formations/${toSlug(f.title_fr)}`, { state: { formation: f } })
+  }
 
   const scrollTo = (id) => {
-    if (id === 'dashboard') { onEnterDashboard(); return }
+    if (id === 'dashboard') { onEnterDashboard?.(); return }
     if (id === 'hero') { onGoLanding(); return }
     window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  const handleLoginOrDash = () => {
-    if (user) onEnterDashboard()
-    else onLoginClick()
-  }
-
-  if (detail) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar
-          onLoginClick={onLoginClick}
-          scrollTo={scrollTo}
-          onAboutPage={onAboutPage}
-          onContactPage={onContactPage}
-          onCatalogPage={() => setDetail(null)}
-        />
-        <div className="flex-1 pt-16">
-          <FormationDetail
-            formation={detail}
-            lang={lang}
-            onBack={() => setDetail(null)}
-            onLoginOrDash={handleLoginOrDash}
-          />
-        </div>
-        <Footer />
-      </div>
-    )
   }
 
   return (
@@ -355,6 +132,7 @@ export default function CatalogPage({
         onLoginClick={onLoginClick}
         scrollTo={scrollTo}
         onAboutPage={onAboutPage}
+        onFormationPage={onFormationPage}
         onContactPage={onContactPage}
         onCatalogPage={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
       />
@@ -404,7 +182,7 @@ export default function CatalogPage({
                   key={f.id}
                   formation={f}
                   lang={lang}
-                  onClick={() => { setDetail(f); window.scrollTo({ top: 0, behavior: 'instant' }) }}
+                  onClick={() => openDetail(f)}
                 />
               ))}
             </div>

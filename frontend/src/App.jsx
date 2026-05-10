@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from './context/AuthContext'
 import { useLang } from './context/LangContext'
@@ -7,22 +8,27 @@ import AboutPage from './pages/AboutPage'
 import FormationPage from './pages/FormationPage'
 import ContactPage from './pages/ContactPage'
 import CatalogPage from './pages/CatalogPage'
+import FormationDetailRoute from './pages/FormationDetailRoute'
 import UserDashboard from './pages/UserDashboard'
 import AdminDashboard from './pages/AdminDashboard'
 import AuthModal from './components/AuthModal'
+import { toSlug } from './utils/slug'
 
 export default function App() {
   const { user, loading } = useAuth()
-  const { lang } = useLang()
-  const [view, setView]                       = useState('landing')
-  const [authMode, setAuthMode]               = useState(null)
-  const [splashDone, setSplashDone]           = useState(false)
-  const [catalogFormation, setCatalogFormation] = useState(null)
+  const { lang }          = useLang()
+  const navigate          = useNavigate()
+  const location          = useLocation()
+  const [authMode, setAuthMode]     = useState(null)
+  const [splashDone, setSplashDone] = useState(false)
 
-  const goToCatalog = (formation = null) => {
-    setCatalogFormation(formation)
-    setView('catalog')
-  }
+  // Navigation helpers (keep callback API so pages need no changes)
+  const goLanding   = ()           => navigate('/')
+  const goAbout     = ()           => navigate('/a-propos')
+  const goFormation = ()           => navigate('/entreprise')
+  const goContact   = ()           => navigate('/contact')
+  const goCatalog   = (f = null)   => f ? navigate(`/formations/${toSlug(f.title_fr)}`, { state: { formation: f } }) : navigate('/formations')
+  const goDashboard = ()           => user ? navigate('/dashboard') : setAuthMode('login')
 
   useEffect(() => {
     document.documentElement.lang = lang
@@ -30,7 +36,7 @@ export default function App() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' })
-  }, [view])
+  }, [location.pathname])
 
   // Durée minimale du splash : 1.4 secondes
   useEffect(() => {
@@ -183,82 +189,88 @@ export default function App() {
 
   const handleAuthSuccess = () => {
     setAuthMode(null)
-    setView('dashboard')
-  }
-
-  // Redirect to dashboard if user is logged in and tries to go there
-  if (view === 'dashboard' && !user) {
-    setView('landing')
-    setAuthMode('login')
+    navigate('/dashboard')
   }
 
   return (
     <>
-      {view === 'landing' && (
-        <LandingPage
-          onLoginClick={() => setAuthMode('login')}
-          onRegisterClick={() => setAuthMode('register')}
-          onAboutPage={() => setView('about')}
-          onFormationPage={() => setView('formation')}
-          onCatalogPage={goToCatalog}
-          onContactPage={() => setView('contact')}
-          onEnterDashboard={() => {
-            if (user) setView('dashboard')
-            else setAuthMode('login')
-          }}
-        />
-      )}
+      <Routes>
+        <Route path="/" element={
+          <LandingPage
+            onLoginClick={() => setAuthMode('login')}
+            onRegisterClick={() => setAuthMode('register')}
+            onAboutPage={goAbout}
+            onFormationPage={goFormation}
+            onCatalogPage={goCatalog}
+            onContactPage={goContact}
+            onEnterDashboard={goDashboard}
+          />
+        } />
 
-      {view === 'about' && (
-        <AboutPage
-          onGoLanding={() => setView('landing')}
-          onLoginClick={() => setAuthMode('login')}
-          onFormationPage={() => setView('formation')}
-          onCatalogPage={goToCatalog}
-          onContactPage={() => setView('contact')}
-        />
-      )}
+        <Route path="/a-propos" element={
+          <AboutPage
+            onGoLanding={goLanding}
+            onLoginClick={() => setAuthMode('login')}
+            onFormationPage={goFormation}
+            onCatalogPage={goCatalog}
+            onContactPage={goContact}
+          />
+        } />
 
-      {view === 'formation' && (
-        <FormationPage
-          onGoLanding={() => setView('landing')}
-          onAboutPage={() => setView('about')}
-          onCatalogPage={goToCatalog}
-          onLoginClick={() => setAuthMode('login')}
-          onContactPage={() => setView('contact')}
-        />
-      )}
+        <Route path="/formations" element={
+          <CatalogPage
+            onGoLanding={goLanding}
+            onLoginClick={() => setAuthMode('login')}
+            onEnterDashboard={goDashboard}
+            onAboutPage={goAbout}
+            onFormationPage={goFormation}
+            onContactPage={goContact}
+            onCatalogPage={goCatalog}
+          />
+        } />
 
-      {view === 'contact' && (
-        <ContactPage
-          onGoLanding={() => setView('landing')}
-          onAboutPage={() => setView('about')}
-          onFormationPage={() => setView('formation')}
-          onCatalogPage={goToCatalog}
-          onContactPage={() => setView('contact')}
-          onLoginClick={() => setAuthMode('login')}
-        />
-      )}
+        <Route path="/formations/:slug" element={
+          <FormationDetailRoute
+            onLoginClick={() => setAuthMode('login')}
+            onGoLanding={goLanding}
+            onAboutPage={goAbout}
+            onCatalogPage={goCatalog}
+            onFormationPage={goFormation}
+            onContactPage={goContact}
+          />
+        } />
 
-      {view === 'catalog' && (
-        <CatalogPage
-          onGoLanding={() => setView('landing')}
-          onLoginClick={() => setAuthMode('login')}
-          onEnterDashboard={() => { if (user) setView('dashboard'); else setAuthMode('login') }}
-          onAboutPage={() => setView('about')}
-          onContactPage={() => setView('contact')}
-          onCatalogPage={goToCatalog}
-          initialFormation={catalogFormation}
-        />
-      )}
+        <Route path="/entreprise" element={
+          <FormationPage
+            onGoLanding={goLanding}
+            onAboutPage={goAbout}
+            onCatalogPage={goCatalog}
+            onLoginClick={() => setAuthMode('login')}
+            onContactPage={goContact}
+          />
+        } />
 
-      {view === 'dashboard' && user && user.role === 'admin' && (
-        <AdminDashboard onGoLanding={() => setView('landing')} />
-      )}
+        <Route path="/contact" element={
+          <ContactPage
+            onGoLanding={goLanding}
+            onAboutPage={goAbout}
+            onFormationPage={goFormation}
+            onCatalogPage={goCatalog}
+            onContactPage={goContact}
+            onLoginClick={() => setAuthMode('login')}
+          />
+        } />
 
-      {view === 'dashboard' && user && user.role !== 'admin' && (
-        <UserDashboard onGoLanding={() => setView('landing')} />
-      )}
+        <Route path="/dashboard" element={
+          !user
+            ? <Navigate to="/" replace />
+            : user.role === 'admin'
+              ? <AdminDashboard onGoLanding={goLanding} />
+              : <UserDashboard onGoLanding={goLanding} />
+        } />
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
 
       {authMode && (
         <AuthModal

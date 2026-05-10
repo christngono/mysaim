@@ -6,7 +6,7 @@ const { requireAuth } = require('../middleware/auth');
 const router = express.Router();
 
 const CAMPAY_BASE_URL = 'https://demo.campay.net/api';
-const FORMATION_PRICE = 25500;
+const FORMATION_PRICE = 100;
 
 async function getCampayToken() {
   const res = await fetch(`${CAMPAY_BASE_URL}/token/`, {
