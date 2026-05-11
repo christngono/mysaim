@@ -2786,6 +2786,155 @@ function SectionWaitlist() {
   )
 }
 
+// ─── Section: Codes d'activation ─────────────────────────────────────────────
+function SectionCodes() {
+  const [formations, setFormations] = useState([])
+  const [codes, setCodes]           = useState([])
+  const [formId, setFormId]         = useState('')
+  const [count, setCount]           = useState(1)
+  const [newCodes, setNewCodes]     = useState([])
+  const [loading, setLoading]       = useState(false)
+  const [copied, setCopied]         = useState(null)
+
+  useEffect(() => {
+    api.get('/admin/formations').then(r => {
+      setFormations(r.data)
+      if (r.data.length > 0) setFormId(String(r.data[0].id))
+    }).catch(() => {})
+    api.get('/admin/codes').then(r => setCodes(r.data)).catch(() => {})
+  }, [])
+
+  const generate = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    setNewCodes([])
+    try {
+      const res = await api.post('/admin/codes', { formation_id: parseInt(formId), count })
+      setNewCodes(res.data.codes)
+      const r = await api.get('/admin/codes')
+      setCodes(r.data)
+    } catch {}
+    setLoading(false)
+  }
+
+  const deleteCode = async (id) => {
+    await api.delete(`/admin/codes/${id}`).catch(() => {})
+    setCodes(c => c.filter(x => x.id !== id))
+  }
+
+  const copy = (text, id) => {
+    navigator.clipboard.writeText(text)
+    setCopied(id)
+    setTimeout(() => setCopied(null), 1500)
+  }
+
+  const copyAll = () => {
+    navigator.clipboard.writeText(newCodes.join('\n'))
+    setCopied('all')
+    setTimeout(() => setCopied(null), 1500)
+  }
+
+  return (
+    <div className="space-y-8">
+      <h1 className="text-2xl font-extrabold text-slate-800">Codes d'activation</h1>
+
+      {/* Generator */}
+      <div className="card p-6">
+        <h2 className="font-bold text-slate-700 mb-4">Générer des codes</h2>
+        <form onSubmit={generate} className="flex flex-wrap gap-3 items-end">
+          <div>
+            <label className="label">Formation</label>
+            <select className="input-field w-64" value={formId} onChange={e => setFormId(e.target.value)}>
+              {formations.map(f => <option key={f.id} value={f.id}>{f.title_fr}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="label">Quantité</label>
+            <input type="number" min={1} max={50} className="input-field w-24"
+              value={count} onChange={e => setCount(parseInt(e.target.value) || 1)} />
+          </div>
+          <button type="submit" disabled={loading} className="btn-primary">
+            {loading ? '…' : '🔑 Générer'}
+          </button>
+        </form>
+
+        {newCodes.length > 0 && (
+          <div className="mt-5">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-semibold text-emerald-700">{newCodes.length} code(s) généré(s)</p>
+              <button onClick={copyAll} className="text-xs text-saim-600 hover:underline font-medium">
+                {copied === 'all' ? '✓ Copié !' : 'Tout copier'}
+              </button>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-2">
+              {newCodes.map(c => (
+                <div key={c} className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
+                  <span className="font-mono text-sm font-bold text-saim-700 tracking-wider">{c}</span>
+                  <button onClick={() => copy(c, c)} className="text-xs text-slate-400 hover:text-saim-600 ml-2">
+                    {copied === c ? '✓' : '📋'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Code list */}
+      <div className="card overflow-hidden">
+        <div className="p-4 border-b border-slate-100 font-bold text-slate-700">
+          Tous les codes ({codes.length})
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-slate-50 text-left">
+                <th className="px-4 py-3 font-semibold text-slate-500">Code</th>
+                <th className="px-4 py-3 font-semibold text-slate-500">Formation</th>
+                <th className="px-4 py-3 font-semibold text-slate-500">Statut</th>
+                <th className="px-4 py-3 font-semibold text-slate-500">Utilisé par</th>
+                <th className="px-4 py-3 font-semibold text-slate-500">Créé le</th>
+                <th className="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {codes.map(c => (
+                <tr key={c.id} className="hover:bg-slate-50">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono font-bold text-saim-700 tracking-wider">{c.code}</span>
+                      <button onClick={() => copy(c.code, c.id)} className="text-slate-300 hover:text-saim-500 text-xs">
+                        {copied === c.id ? '✓' : '📋'}
+                      </button>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-slate-600 max-w-[180px] truncate">{c.formation_title}</td>
+                  <td className="px-4 py-3">
+                    {c.used_by
+                      ? <span className="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-0.5 rounded-full">Utilisé</span>
+                      : <span className="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-0.5 rounded-full">Disponible</span>
+                    }
+                  </td>
+                  <td className="px-4 py-3 text-slate-500 text-xs">{c.used_by_email || '—'}</td>
+                  <td className="px-4 py-3 text-slate-400 text-xs">{c.created_at?.slice(0, 10)}</td>
+                  <td className="px-4 py-3">
+                    {!c.used_by && (
+                      <button onClick={() => deleteCode(c.id)} className="text-red-400 hover:text-red-600 text-xs font-medium">Supprimer</button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              {codes.length === 0 && (
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-slate-400">Aucun code généré</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Main AdminDashboard ──────────────────────────────────────────────────────
 const NAV_ITEMS = [
   { id: 'dashboard',     label: 'Tableau de bord',      icon: '📊' },
@@ -2800,6 +2949,7 @@ const NAV_ITEMS = [
   { id: 'quotes',        label: 'Demandes de devis',     icon: '📨' },
   { id: 'progress',      label: 'Progression',           icon: '📈' },
   { id: 'waitlist',      label: "Liste d'attente",        icon: '⏳' },
+  { id: 'codes',         label: "Codes d'activation",     icon: '🔑' },
 ]
 
 export default function AdminDashboard({ onGoLanding }) {
@@ -2838,6 +2988,7 @@ export default function AdminDashboard({ onGoLanding }) {
       case 'quotes':       return <SectionQuotes />
       case 'progress':     return <SectionProgress />
       case 'waitlist':     return <SectionWaitlist />
+      case 'codes':        return <SectionCodes />
       default:             return <SectionDashboard />
     }
   }
