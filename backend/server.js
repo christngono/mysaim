@@ -46,8 +46,22 @@ if (isProd) {
 }
 
 // ─── Start ────────────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`\n🚀 SAIM Backend running on port ${PORT} [${isProd ? 'PRODUCTION' : 'development'}]`);
   console.log(`   API:    http://localhost:${PORT}/api`);
   console.log(`   Health: http://localhost:${PORT}/api/health\n`);
+});
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`\n⚠️  Port ${PORT} déjà utilisé — tentative de libération…`);
+    const { execSync } = require('child_process');
+    try {
+      execSync(`lsof -ti:${PORT} | xargs kill -9`);
+      console.log(`✅ Port ${PORT} libéré. Relancez le serveur.\n`);
+    } catch {}
+    process.exit(1);
+  } else {
+    throw err;
+  }
 });

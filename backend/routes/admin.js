@@ -330,12 +330,20 @@ router.get('/kpi', requireAdmin, (req, res) => {
     SELECT COUNT(DISTINCT user_id) as c FROM enrollments WHERE status='trial'
     AND user_id NOT IN (SELECT DISTINCT user_id FROM enrollments WHERE status='paid')
   `).get().c;
-  const total_revenue = db.prepare("SELECT COALESCE(SUM(amount),0) as c FROM payments WHERE status='confirmed'").get().c;
+  // Compte toutes les formations payées (CampPay + codes d'activation)
+  const total_revenue = db.prepare(`
+    SELECT COALESCE(SUM(f.price), 0) as c
+    FROM enrollments e
+    JOIN formations f ON f.id = e.formation_id
+    WHERE e.status = 'paid'
+  `).get().c;
 
   const monthly_revenue = db.prepare(`
-    SELECT strftime('%Y-%m', confirmed_at) as month,
-           SUM(amount) as total, COUNT(*) as count
-    FROM payments WHERE status='confirmed' AND confirmed_at IS NOT NULL
+    SELECT strftime('%Y-%m', e.paid_at) as month,
+           SUM(f.price) as total, COUNT(*) as count
+    FROM enrollments e
+    JOIN formations f ON f.id = e.formation_id
+    WHERE e.status = 'paid' AND e.paid_at IS NOT NULL
     GROUP BY month ORDER BY month DESC LIMIT 12
   `).all();
 

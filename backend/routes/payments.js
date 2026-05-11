@@ -145,7 +145,7 @@ router.post('/redeem', requireAuth, (req, res) => {
 
   if (!record) return res.status(400).json({ error: 'Code invalide ou déjà utilisé' });
 
-  db.prepare('UPDATE activation_codes SET used_by = ?, used_at = datetime("now") WHERE id = ?')
+  db.prepare("UPDATE activation_codes SET used_by = ?, used_at = datetime('now') WHERE id = ?")
     .run(req.user.id, record.id);
 
   db.prepare(`
