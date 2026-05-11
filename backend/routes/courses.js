@@ -12,11 +12,13 @@ function toSlug(str = '') {
 
 function parseFormation(f) {
   const moduleCount = db.prepare('SELECT COUNT(*) as cnt FROM modules WHERE formation_id = ? AND is_published = 1').get(f.id)?.cnt ?? 0
-  let lo = [], ta = [], prg = []
-  try { lo  = JSON.parse(f.learning_objectives || '[]') } catch {}
-  try { ta  = JSON.parse(f.target_audience     || '[]') } catch {}
-  try { prg = JSON.parse(f.programme           || '[]') } catch {}
-  return { ...f, module_count: moduleCount, learning_objectives: lo, target_audience: ta, programme: prg }
+  let lo = [], ta = [], prg = [], loEn = [], prgEn = []
+  try { lo    = JSON.parse(f.learning_objectives    || '[]') } catch {}
+  try { ta    = JSON.parse(f.target_audience        || '[]') } catch {}
+  try { prg   = JSON.parse(f.programme              || '[]') } catch {}
+  try { loEn  = JSON.parse(f.learning_objectives_en || '[]') } catch {}
+  try { prgEn = JSON.parse(f.programme_en           || '[]') } catch {}
+  return { ...f, module_count: moduleCount, learning_objectives: lo, target_audience: ta, programme: prg, learning_objectives_en: loEn, programme_en: prgEn }
 }
 
 // ─── GET /courses/public/slug/:slug  (no auth) ────────────────────────────────
@@ -30,14 +32,7 @@ router.get('/public/slug/:slug', (req, res) => {
 // ─── GET /courses/public  (no auth, for landing/catalog) ─────────────────────
 router.get('/public', (req, res) => {
   const formations = db.prepare('SELECT * FROM formations WHERE is_published = 1 ORDER BY order_index').all();
-  const result = formations.map(f => {
-    const moduleCount = db.prepare('SELECT COUNT(*) as cnt FROM modules WHERE formation_id = ? AND is_published = 1').get(f.id)?.cnt ?? 0;
-    let lo = [], ta = [], prg = [];
-    try { lo = JSON.parse(f.learning_objectives || '[]') } catch {}
-    try { ta = JSON.parse(f.target_audience     || '[]') } catch {}
-    try { prg = JSON.parse(f.programme          || '[]') } catch {}
-    return { ...f, module_count: moduleCount, learning_objectives: lo, target_audience: ta, programme: prg };
-  });
+  const result = formations.map(parseFormation);
   res.json(result);
 });
 

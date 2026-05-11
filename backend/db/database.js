@@ -160,6 +160,10 @@ function initDB() {
   `); } catch {}
   try { db.exec('ALTER TABLE formations ADD COLUMN programme TEXT'); } catch {}
   try { db.exec('ALTER TABLE formations ADD COLUMN why_fr TEXT'); } catch {}
+  try { db.exec('ALTER TABLE formations ADD COLUMN learning_objectives_en TEXT'); } catch {}
+  try { db.exec('ALTER TABLE formations ADD COLUMN prerequisites_en TEXT'); } catch {}
+  try { db.exec('ALTER TABLE formations ADD COLUMN programme_en TEXT'); } catch {}
+  try { db.exec('ALTER TABLE formations ADD COLUMN why_en TEXT'); } catch {}
   try { db.exec(`
     CREATE TABLE IF NOT EXISTS formation_waitlist (
       id           INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -202,6 +206,57 @@ function initDB() {
     { module: "Déploiement & Production", items: ["APIs et intégration dans les workflows", "Optimisation des coûts et performances", "Monitoring et maintenance des modèles"] },
     { module: "Projets Avancés", items: ["Chatbot métier personnalisé", "Automatisation de processus complexes", "Projet final : Modèle IA spécialisé pour son secteur"] },
   ]), 4);
+
+  // ─── Seed English objectives/prerequisites/programme (idempotent) ─────────────
+  const seedEN = db.prepare('UPDATE formations SET learning_objectives_en=?, prerequisites_en=?, programme_en=? WHERE id=? AND learning_objectives_en IS NULL');
+  seedEN.run(
+    JSON.stringify(["Use ChatGPT and other AI tools to write professional emails in minutes","Automate report, presentation and summary creation with AI","Create effective prompts to get precise and relevant results","Save time on your daily tasks through AI automation","Integrate AI into your meetings, notes and schedules"]),
+    "No technical prerequisites. A computer and motivation are sufficient.",
+    JSON.stringify([
+      { module: "Introduction to AI and Generative AI", items: ["Understanding artificial intelligence", "Generative AI: ChatGPT, Claude, Gemini", "How AI transforms your professional daily life"] },
+      { module: "Optimize productivity with AI", items: ["Write emails and reports in minutes", "Automate repetitive tasks", "AI tools for time management"] },
+      { module: "The art of Prompting", items: ["Effective prompting techniques", "Advanced prompts by industry", "Practical prompt writing exercises"] },
+      { module: "Discover multimodal queries", items: ["Analyze images and documents with AI", "Image generation and editing", "Audio processing and content generation"] },
+      { module: "Using AI Tools", items: ["Overview of essential AI tools", "Integration into your workflow", "Final project: automate a business process"] },
+    ]),
+    1
+  );
+  seedEN.run(
+    JSON.stringify(["Create impactful visuals, slogans and advertising content with AI","Automate scheduling and publishing on social media","Generate personalized email campaigns at scale","Analyze marketing performance and optimize your strategies with AI","Write AI-optimized video scripts and SEO articles"]),
+    "Basic knowledge of digital marketing recommended.",
+    JSON.stringify([
+      { module: "AI Marketing Fundamentals", items: ["Overview of AI tools for marketing", "Automatic data analysis and segmentation", "AI-powered campaign personalization"] },
+      { module: "Content Creation with AI", items: ["Write compelling ad copy", "Generate brand visuals and images", "AI-assisted SEO content strategies"] },
+      { module: "Campaign Automation", items: ["Plan and schedule with AI", "Email marketing and automation", "Social media management with AI"] },
+      { module: "Analysis & Optimization", items: ["AI dashboards and KPIs", "Smart A/B testing", "Campaign performance prediction"] },
+      { module: "Growth Strategies", items: ["Growth hacking with AI", "AI-optimized Facebook & Google ads", "Final project: complete marketing campaign"] },
+    ]),
+    2
+  );
+  seedEN.run(
+    JSON.stringify(["Generate short videos and animations from a simple text prompt","Use AI for automatic subtitling and video translation","Remove backgrounds and retouch videos with AI tools","Create realistic voiceovers and background music with AI","Automate editing of advertising videos and reels for social media"]),
+    "Basic video editing skills appreciated.",
+    JSON.stringify([
+      { module: "Introduction to AI Video Tools", items: ["Overview: Runway, Pika, Sora, HeyGen", "Choosing the right tool for your project", "Video editing basics with AI"] },
+      { module: "Video Generation", items: ["Create videos from a text prompt", "AI avatars and virtual presenters", "Automatic animation and motion graphics"] },
+      { module: "Intelligent Post-production", items: ["Automatic subtitles and translation", "AI color grading and special effects", "Audio enhancement and noise removal"] },
+      { module: "Short-form & Social Media Content", items: ["Optimize for Reels, TikTok and Shorts", "Automatic content repurposing", "Templates and consistent visual identity"] },
+      { module: "Publishing & Strategy", items: ["Video SEO optimization", "AI publication calendar", "Final project: video series from A to Z"] },
+    ]),
+    3
+  );
+  seedEN.run(
+    JSON.stringify(["Understand and apply language model fine-tuning techniques (LLM)","Build a RAG (Retrieval Augmented Generation) system on your own data","Deploy your AI models in production via API or web interface","Optimize performance and reduce costs of your AI models","Build autonomous AI agents for advanced business tasks"]),
+    "Python and Machine Learning concepts required.",
+    JSON.stringify([
+      { module: "Language Model Fundamentals", items: ["Transformer architecture and attention mechanism", "Understanding parameters and hyperparameters", "Model evaluation and benchmarks"] },
+      { module: "Fine-tuning & Adaptation", items: ["Preparing and cleaning datasets", "LoRA and QLoRA techniques", "Training on business use cases"] },
+      { module: "RAG & Knowledge Bases", items: ["Retrieval-Augmented Generation (RAG)", "Embeddings and vector databases", "Integrating company documents"] },
+      { module: "Deployment & Production", items: ["APIs and workflow integration", "Cost and performance optimization", "Model monitoring and maintenance"] },
+      { module: "Advanced Projects", items: ["Custom business chatbot", "Complex process automation", "Final project: specialized AI model for your industry"] },
+    ]),
+    4
+  );
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS quote_requests (

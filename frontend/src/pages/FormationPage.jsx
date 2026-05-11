@@ -539,6 +539,10 @@ export default function FormationPage({ onGoLanding, onAboutPage, onCatalogPage,
             </button>
 
             <div className="hidden md:flex items-center gap-1 flex-1 ml-6">
+              <button onClick={onGoLanding}
+                className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-saim-600 hover:bg-saim-50 rounded-lg transition-colors">
+                {t('nav_home')}
+              </button>
               <button onClick={onAboutPage}
                 className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-saim-600 hover:bg-saim-50 rounded-lg transition-colors">
                 {t('nav_about')}
@@ -610,6 +614,10 @@ export default function FormationPage({ onGoLanding, onAboutPage, onCatalogPage,
 
           {menuOpen && (
             <div className="md:hidden border-t border-slate-100 py-3 space-y-1">
+              <button onClick={() => { onGoLanding(); setMenuOpen(false) }}
+                className="block w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg">
+                {t('nav_home')}
+              </button>
               <button onClick={() => { onAboutPage(); setMenuOpen(false) }}
                 className="block w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg">
                 {t('nav_about')}

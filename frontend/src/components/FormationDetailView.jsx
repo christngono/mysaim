@@ -32,8 +32,12 @@ export default function FormationDetailView({
 }) {
   const hasContent = (formation.module_count || 0) > 0
   let objectives = [], programme = []
-  try { objectives = Array.isArray(formation.learning_objectives) ? formation.learning_objectives : JSON.parse(formation.learning_objectives || '[]') } catch {}
-  try { programme  = Array.isArray(formation.programme)           ? formation.programme           : JSON.parse(formation.programme           || '[]') } catch {}
+  const objRaw  = lang === 'en' && formation.learning_objectives_en?.length ? formation.learning_objectives_en : formation.learning_objectives
+  const progRaw = lang === 'en' && formation.programme_en?.length           ? formation.programme_en           : formation.programme
+  try { objectives = Array.isArray(objRaw)  ? objRaw  : JSON.parse(objRaw  || '[]') } catch {}
+  try { programme  = Array.isArray(progRaw) ? progRaw : JSON.parse(progRaw || '[]') } catch {}
+  const prereqs = lang === 'en' && formation.prerequisites_en ? formation.prerequisites_en : formation.prerequisites
+  const why     = lang === 'en' && formation.why_en            ? formation.why_en            : formation.why_fr
 
   const embedUrl = getEmbedUrl(formation.teaser_url)
   const title    = lang === 'en' && formation.title_en ? formation.title_en : formation.title_fr
@@ -46,7 +50,7 @@ export default function FormationDetailView({
       {/* ─── Banner ─────────────────────────────────────────────────────────── */}
       <div className="relative h-64 md:h-80 overflow-hidden">
         {formation.image_url
-          ? <img src={formation.image_url} alt={title} className="w-full h-full object-cover" />
+          ? <img src={formation.image_url} alt={title} className="w-full h-full object-cover" loading="eager" />
           : <div className="w-full h-full bg-slate-700 flex items-center justify-center text-8xl opacity-30">{formation.icon || '🤖'}</div>
         }
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
@@ -107,8 +111,8 @@ export default function FormationDetailView({
               { type: 'clock', label: lang === 'fr' ? 'Durée'       : 'Duration',     value: `${formation.duration_hours || 3}h` },
               { type: 'globe', label: lang === 'fr' ? 'Format'      : 'Format',       value: lang === 'fr' ? '100% en ligne' : '100% online' },
               { type: 'badge', label: lang === 'fr' ? 'Certificat'  : 'Certificate',  value: 'Certificat SAIM AI' },
-              ...(formation.level         ? [{ type: 'bars', label: 'Niveau', value: formation.level }] : []),
-              ...(formation.prerequisites ? [{ type: 'clip', label: lang === 'fr' ? 'Prérequis' : 'Prerequisites', value: formation.prerequisites }] : []),
+              ...(formation.level ? [{ type: 'bars', label: lang === 'fr' ? 'Niveau' : 'Level', value: formation.level }] : []),
+              ...(prereqs ? [{ type: 'clip', label: lang === 'fr' ? 'Prérequis' : 'Prerequisites', value: prereqs }] : []),
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-2.5">
                 <span className="w-8 h-8 flex-shrink-0 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
@@ -124,12 +128,12 @@ export default function FormationDetailView({
         </section>
 
         {/* ─── Pourquoi cette formation ──────────────────────────────────────── */}
-        {formation.why_fr && (
+        {why && (
           <section className="bg-white rounded-2xl border border-slate-200 p-6">
             <h2 className="text-lg font-extrabold text-slate-800 mb-3">
               {lang === 'fr' ? 'Pourquoi cette formation ?' : 'Why this course?'}
             </h2>
-            <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{formation.why_fr}</p>
+            <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{why}</p>
           </section>
         )}
 
@@ -164,7 +168,7 @@ export default function FormationDetailView({
                   <div className="flex items-center gap-3 px-5 py-3.5 bg-slate-50 border-b border-slate-100">
                     <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-extrabold text-white ${themeBar}`}>{i + 1}</span>
                     <h3 className="font-bold text-slate-800 text-sm">{m.module}</h3>
-                    {m.items?.length > 0 && <span className="ml-auto text-xs text-slate-400">{m.items.length} leçon{m.items.length > 1 ? 's' : ''}</span>}
+                    {m.items?.length > 0 && <span className="ml-auto text-xs text-slate-400">{m.items.length} {lang === 'fr' ? `leçon${m.items.length > 1 ? 's' : ''}` : `lesson${m.items.length > 1 ? 's' : ''}`}</span>}
                   </div>
                   {m.items?.length > 0 && (
                     <ul className="divide-y divide-slate-50">

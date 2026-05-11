@@ -333,6 +333,7 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
             <motion.div className="relative" variants={fadeRight} initial="hidden" whileInView="visible" viewport={viewOpts}>
               <motion.img src="/images/image_Annie.jpeg" alt="SAIM Formation"
                 className="w-full rounded-2xl shadow-2xl object-cover max-h-96"
+                loading="lazy"
                 whileHover={{ scale: 1.02 }} transition={{ duration: 0.4 }} />
               <motion.div className="absolute -bottom-4 -left-4 bg-saim-500 text-white rounded-xl px-5 py-3 shadow-lg"
                 initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }}
@@ -357,7 +358,7 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
           {[0, 1].map(pass => (
             <div key={pass} aria-hidden={pass === 1} className="flex items-center gap-16 animate-marquee px-8 flex-shrink-0">
               <div className="flex-shrink-0 flex items-center justify-center h-16 w-40 grayscale hover:grayscale-0 transition-all duration-300 opacity-70 hover:opacity-100">
-                <img src="/images/EDC_Cameroun_logo.jpg" alt="EDC Cameroun" className="max-h-14 max-w-full object-contain" />
+                <img src="/images/EDC_Cameroun_logo.jpg" alt="EDC Cameroun" className="max-h-14 max-w-full object-contain" loading="lazy" />
               </div>
               <div className="flex-shrink-0 flex items-center justify-center h-16 w-56">
                 <div className="text-center opacity-60 hover:opacity-100 transition-all">
@@ -366,7 +367,7 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
                 </div>
               </div>
               <div className="flex-shrink-0 flex items-center justify-center h-16 w-40 grayscale hover:grayscale-0 transition-all duration-300 opacity-70 hover:opacity-100">
-                <img src="/images/GOOGLE.webp" alt="Google" className="max-h-10 max-w-full object-contain" />
+                <img src="/images/GOOGLE.webp" alt="Google" className="max-h-10 max-w-full object-contain" loading="lazy" />
               </div>
               <div className="flex-shrink-0 flex items-center justify-center h-16 w-40 opacity-60 hover:opacity-100 transition-all">
                 <div className="flex items-center gap-2">
@@ -447,7 +448,7 @@ export default function LandingPage({ onLoginClick, onEnterDashboard, onAboutPag
                   {/* Cover image */}
                   <div className="relative h-40 overflow-hidden flex-shrink-0 cursor-pointer" onClick={() => onCatalogPage(isDb ? f : null)}>
                     {isDb && f.image_url
-                      ? <img src={f.image_url} alt={title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      ? <img src={f.image_url} alt={title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
                       : <div className={`w-full h-full ${iconBgCls} flex items-center justify-center opacity-70`}>
                           {isDb ? <span className="text-5xl">{f.icon || '🤖'}</span> : icons[f.iconKey]('w-12 h-12')}
                         </div>

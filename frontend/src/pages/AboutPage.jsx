@@ -69,6 +69,10 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage, 
 
             {/* Desktop links */}
             <div className="hidden md:flex items-center gap-1 flex-1 ml-6">
+              <button onClick={onGoLanding}
+                className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-saim-600 hover:bg-saim-50 rounded-lg transition-colors">
+                {t('nav_home')}
+              </button>
               <button className="px-3 py-2 text-sm font-semibold text-saim-600 bg-saim-50 rounded-lg cursor-default">
                 {t('nav_about')}
               </button>
@@ -143,6 +147,10 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage, 
           {/* Mobile menu */}
           {menuOpen && (
             <div className="md:hidden border-t border-slate-100 py-3 space-y-1">
+              <button onClick={() => { onGoLanding(); setMenuOpen(false) }}
+                className="block w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg">
+                {t('nav_home')}
+              </button>
               <button className="block w-full text-left px-4 py-2 text-sm text-saim-600 font-semibold bg-saim-50 rounded-lg">
                 {t('nav_about')}
               </button>
@@ -181,7 +189,7 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage, 
       {/* ─── HERO BANNER ──────────────────────────────────────────────────── */}
       <section className="relative pt-16 overflow-hidden">
         <div className="absolute inset-0">
-          <img src="/uploads/apropos/image_apropos.png" alt="" className="w-full h-full object-cover" />
+          <img src="/uploads/apropos/image_apropos.png" alt="" className="w-full h-full object-cover" loading="lazy" />
           <div className="absolute inset-0 bg-gradient-to-br from-saim-800/85 via-saim-700/75 to-saim-900/85" />
         </div>
         <div className="absolute inset-0 pointer-events-none">
@@ -294,7 +302,7 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage, 
                 <motion.div key={i}
                   className="aspect-video rounded-xl overflow-hidden shadow-md bg-slate-100"
                   whileHover={{ scale: 1.03 }} transition={{ duration: 0.3 }}>
-                  <img src={src} alt={`Formation EDC ${i + 1}`} className="w-full h-full object-cover" />
+                  <img src={src} alt={`Formation EDC ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
                 </motion.div>
               ))}
             </div>
@@ -312,7 +320,7 @@ export default function AboutPage({ onGoLanding, onLoginClick, onFormationPage, 
                 <motion.div key={i}
                   className="aspect-video rounded-xl overflow-hidden shadow-md bg-slate-100"
                   whileHover={{ scale: 1.03 }} transition={{ duration: 0.3 }}>
-                  <img src={src} alt={`Formation MINTP ${i + 1}`} className="w-full h-full object-cover" />
+                  <img src={src} alt={`Formation MINTP ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
                 </motion.div>
               ))}
             </div>

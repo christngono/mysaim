@@ -10,5 +10,16 @@ export default defineConfig({
       '/images':  { target: 'http://localhost:5001', changeOrigin: true },
       '/uploads': { target: 'http://localhost:5001', changeOrigin: true },
     }
-  }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          motion: ['framer-motion'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 600,
+  },
 })

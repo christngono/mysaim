@@ -52,7 +52,7 @@ function FormationCard({ formation, lang, onClick, onTry }) {
     >
       <div className="relative h-44 overflow-hidden flex-shrink-0 cursor-pointer">
         {formation.image_url
-          ? <img src={formation.image_url} alt={title} className="w-full h-full object-cover" />
+          ? <img src={formation.image_url} alt={title} className="w-full h-full object-cover" loading="lazy" />
           : <div className={`w-full h-full ${t.iconBg} flex items-center justify-center text-6xl opacity-60`}>{formation.icon || '🤖'}</div>
         }
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
@@ -167,30 +167,25 @@ export default function CatalogPage({
         onCatalogPage={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
       />
 
-      {/* Hero */}
-      <section className="pt-28 pb-12 px-6 bg-white border-b border-slate-100">
-        <div className="max-w-7xl mx-auto">
-          <button
-            onClick={onGoLanding}
-            className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-700 mb-6 transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-            {lang === 'fr' ? 'Accueil' : 'Home'}
-          </button>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-saim-800 mb-3">
-            {lang === 'fr' ? 'Explorer nos formations' : 'Explore our courses'}
-          </h1>
-          <p className="text-slate-500 max-w-xl">
-            {lang === 'fr'
-              ? 'Choisissez la formation IA qui correspond à votre profil et boostez votre carrière.'
-              : 'Choose the AI course that matches your profile and accelerate your career.'}
-          </p>
-          {!user && (
-            <div className="mt-4 inline-flex items-center gap-2 bg-saim-50 border border-saim-200 text-saim-700 text-sm px-4 py-2 rounded-full">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              {lang === 'fr' ? 'Créez un compte gratuit pour vous inscrire.' : 'Create a free account to enroll.'}
-            </div>
-          )}
+      {/* Banner */}
+      <section className="pt-24 pb-8 px-6 bg-white border-b border-slate-100">
+        <div className="max-w-7xl mx-auto rounded-2xl overflow-hidden relative h-48 md:h-64 shadow-sm">
+          <img
+            src="/uploads/apropos/image_videoai.png"
+            alt="IA SAIM"
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-saim-900/70 to-transparent flex flex-col justify-center px-8 md:px-12">
+            <p className="text-saim-200 text-xs font-semibold uppercase tracking-widest mb-1">
+              {lang === 'fr' ? 'Apprenez l\'IA en pratique' : 'Learn AI in practice'}
+            </p>
+            <h2 className="text-white text-xl md:text-2xl font-extrabold max-w-sm leading-snug">
+              {lang === 'fr'
+                ? 'Des formations conçues pour transformer votre carrière'
+                : 'Courses designed to transform your career'}
+            </h2>
+          </div>
         </div>
       </section>
 
