@@ -138,7 +138,7 @@ export default function PaymentModal({ formation, onClose, onSuccess }) {
                     onChange={e => { setCode(e.target.value.toUpperCase()); setError('') }}
                     placeholder="SAIM-XXXXX-XXXXX"
                     className="w-full border border-slate-300 rounded-xl px-4 py-3 text-center text-lg font-mono font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-saim-500 uppercase"
-                    maxLength={15}
+                    maxLength={16}
                     autoFocus
                   />
                   {error && <p className="text-sm text-red-600 mt-2 text-center">{error}</p>}
@@ -146,7 +146,7 @@ export default function PaymentModal({ formation, onClose, onSuccess }) {
 
                 <button
                   type="submit"
-                  disabled={loading || code.length < 13}
+                  disabled={loading || code.length < 16}
                   className="w-full bg-saim-600 hover:bg-saim-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl transition-colors"
                 >
                   {loading ? 'Vérification…' : 'Activer mon accès'}

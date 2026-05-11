@@ -740,4 +740,51 @@ router.delete('/users/:userId/progress', requireAdmin, (req, res) => {
   return res.status(400).json({ error: 'scope must be "all" or "module" with module_id' });
 });
 
+// ─── GET /admin/codes ─────────────────────────────────────────────────────────
+router.get('/codes', requireAdmin, (req, res) => {
+  const codes = db.prepare(`
+    SELECT ac.*, f.title_fr as formation_title,
+           u.email as used_by_email, u.first_name as used_by_first
+    FROM activation_codes ac
+    JOIN formations f ON ac.formation_id = f.id
+    LEFT JOIN users u ON ac.used_by = u.id
+    ORDER BY ac.created_at DESC
+  `).all();
+  res.json(codes);
+});
+
+// ─── POST /admin/codes ────────────────────────────────────────────────────────
+router.post('/codes', requireAdmin, (req, res) => {
+  const { formation_id, count = 1 } = req.body;
+  if (!formation_id) return res.status(400).json({ error: 'formation_id requis' });
+  const n = Math.min(parseInt(count) || 1, 50);
+
+  function makeCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let s = 'SAIM-';
+    for (let i = 0; i < 5; i++) s += chars[Math.floor(Math.random() * chars.length)];
+    s += '-';
+    for (let i = 0; i < 5; i++) s += chars[Math.floor(Math.random() * chars.length)];
+    return s;
+  }
+
+  const codes = [];
+  for (let i = 0; i < n; i++) {
+    let code, tries = 0;
+    do { code = makeCode(); tries++; } while (
+      db.prepare('SELECT 1 FROM activation_codes WHERE code = ?').get(code) && tries < 20
+    );
+    db.prepare('INSERT INTO activation_codes (code, formation_id, created_by) VALUES (?, ?, ?)')
+      .run(code, formation_id, req.user.id);
+    codes.push(code);
+  }
+  res.json({ codes });
+});
+
+// ─── DELETE /admin/codes/:id ──────────────────────────────────────────────────
+router.delete('/codes/:id', requireAdmin, (req, res) => {
+  db.prepare('DELETE FROM activation_codes WHERE id = ? AND used_by IS NULL').run(req.params.id);
+  res.json({ success: true });
+});
+
 module.exports = router;
