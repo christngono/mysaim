@@ -119,6 +119,90 @@ function initDB() {
     CREATE INDEX IF NOT EXISTS idx_attempts_quiz       ON quiz_attempts(quiz_id);
   `);
 
+  // ─── Formations / Enrollments / Payments (créés EN PREMIER car référencés partout) ───
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS formations (
+      id             INTEGER PRIMARY KEY AUTOINCREMENT,
+      key            TEXT    NOT NULL UNIQUE,
+      title_fr       TEXT    NOT NULL,
+      title_en       TEXT    NOT NULL,
+      description_fr TEXT,
+      description_en TEXT,
+      image_url      TEXT,
+      price          INTEGER NOT NULL DEFAULT 25500,
+      is_published   INTEGER NOT NULL DEFAULT 1,
+      order_index    INTEGER NOT NULL DEFAULT 0,
+      created_at     TEXT    NOT NULL DEFAULT (datetime('now')),
+      updated_at     TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS enrollments (
+      id            INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id       INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      formation_id  INTEGER NOT NULL REFERENCES formations(id) ON DELETE CASCADE,
+      status        TEXT    NOT NULL DEFAULT 'trial' CHECK(status IN ('trial','paid')),
+      enrolled_at   TEXT    NOT NULL DEFAULT (datetime('now')),
+      paid_at       TEXT,
+      UNIQUE(user_id, formation_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS payments (
+      id           INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id      INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      formation_id INTEGER NOT NULL REFERENCES formations(id) ON DELETE CASCADE,
+      reference    TEXT    NOT NULL UNIQUE,
+      operator     TEXT    NOT NULL CHECK(operator IN ('MTN','ORANGE')),
+      phone        TEXT    NOT NULL,
+      amount       INTEGER NOT NULL DEFAULT 25500,
+      status       TEXT    NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','confirmed','failed')),
+      campay_ref   TEXT,
+      created_at   TEXT    NOT NULL DEFAULT (datetime('now')),
+      confirmed_at TEXT
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_enrollments_user      ON enrollments(user_id);
+    CREATE INDEX IF NOT EXISTS idx_enrollments_formation ON enrollments(formation_id);
+    CREATE INDEX IF NOT EXISTS idx_payments_user         ON payments(user_id);
+    CREATE INDEX IF NOT EXISTS idx_payments_reference    ON payments(reference);
+  `);
+
+  // ─── Seed formations (idempotent) ────────────────────────────────────────────
+  db.exec(`
+    INSERT OR IGNORE INTO formations (id, key, title_fr, title_en, description_fr, description_en, price, is_published, order_index)
+    VALUES
+      (1, 'maitrise-ia',
+       'Maîtriser l''IA pour la Productivité Professionnelle',
+       'Mastering AI for Professional Productivity',
+       'Apprenez à utiliser l''intelligence artificielle dans votre vie professionnelle et personnelle.',
+       'Learn to use artificial intelligence in your professional and personal life.',
+       25500, 1, 0),
+      (2, 'ia-marketing',
+       'Utiliser l''IA dans le Marketing',
+       'Using AI in Marketing',
+       'Découvrez comment l''IA transforme le marketing digital et les stratégies de croissance.',
+       'Discover how AI is transforming digital marketing and growth strategies.',
+       25500, 0, 1),
+      (3, 'montage-video-ia',
+       'Montage Vidéo avec les Outils IA',
+       'Video Editing with AI Tools',
+       'Maîtrisez les outils IA pour créer des vidéos professionnelles rapidement.',
+       'Master AI tools to create professional videos quickly.',
+       25500, 0, 2),
+      (4, 'specialisation-ia-pros',
+       'Spécialisation des Modèles IA pour les Professionnels',
+       'AI Model Specialization for Professionals',
+       'Apprenez à fine-tuner et spécialiser les modèles IA pour vos besoins métier.',
+       'Learn to fine-tune and specialize AI models for your business needs.',
+       25500, 0, 3);
+  `);
+
+  // ─── Seed image_url (idempotent: seulement si NULL) ──────────────────────────
+  const seedImg = db.prepare('UPDATE formations SET image_url=? WHERE id=? AND image_url IS NULL');
+  seedImg.run('/uploads/apropos/image_apropos.png',     1);
+  seedImg.run('/uploads/apropos/formation_marketing.png', 2);
+  seedImg.run('/uploads/apropos/image_videoai.png',     3);
+  seedImg.run('/uploads/apropos/facebook_pub3.png',     4);
+
   // ─── Migrations (add columns if not exist) ──────────────────────────────────
   try { db.exec('ALTER TABLE quiz_questions ADD COLUMN explanation_fr TEXT NOT NULL DEFAULT ""'); } catch {}
   try { db.exec('ALTER TABLE quiz_questions ADD COLUMN explanation_en TEXT NOT NULL DEFAULT ""'); } catch {}
@@ -350,83 +434,6 @@ function initDB() {
     );
     CREATE INDEX IF NOT EXISTS idx_time_user   ON section_time(user_id);
     CREATE INDEX IF NOT EXISTS idx_time_module ON section_time(module_id);
-  `);
-
-  // ─── Formations ──────────────────────────────────────────────────────────────
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS formations (
-      id             INTEGER PRIMARY KEY AUTOINCREMENT,
-      key            TEXT    NOT NULL UNIQUE,
-      title_fr       TEXT    NOT NULL,
-      title_en       TEXT    NOT NULL,
-      description_fr TEXT,
-      description_en TEXT,
-      image_url      TEXT,
-      price          INTEGER NOT NULL DEFAULT 25500,
-      is_published   INTEGER NOT NULL DEFAULT 1,
-      order_index    INTEGER NOT NULL DEFAULT 0,
-      created_at     TEXT    NOT NULL DEFAULT (datetime('now')),
-      updated_at     TEXT    NOT NULL DEFAULT (datetime('now'))
-    );
-
-    CREATE TABLE IF NOT EXISTS enrollments (
-      id            INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id       INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      formation_id  INTEGER NOT NULL REFERENCES formations(id) ON DELETE CASCADE,
-      status        TEXT    NOT NULL DEFAULT 'trial' CHECK(status IN ('trial','paid')),
-      enrolled_at   TEXT    NOT NULL DEFAULT (datetime('now')),
-      paid_at       TEXT,
-      UNIQUE(user_id, formation_id)
-    );
-
-    CREATE TABLE IF NOT EXISTS payments (
-      id           INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id      INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      formation_id INTEGER NOT NULL REFERENCES formations(id) ON DELETE CASCADE,
-      reference    TEXT    NOT NULL UNIQUE,
-      operator     TEXT    NOT NULL CHECK(operator IN ('MTN','ORANGE')),
-      phone        TEXT    NOT NULL,
-      amount       INTEGER NOT NULL DEFAULT 25500,
-      status       TEXT    NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','confirmed','failed')),
-      campay_ref   TEXT,
-      created_at   TEXT    NOT NULL DEFAULT (datetime('now')),
-      confirmed_at TEXT
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_enrollments_user      ON enrollments(user_id);
-    CREATE INDEX IF NOT EXISTS idx_enrollments_formation ON enrollments(formation_id);
-    CREATE INDEX IF NOT EXISTS idx_payments_user         ON payments(user_id);
-    CREATE INDEX IF NOT EXISTS idx_payments_reference    ON payments(reference);
-  `);
-
-  // ─── Seed formations (idempotent) ────────────────────────────────────────────
-  db.exec(`
-    INSERT OR IGNORE INTO formations (id, key, title_fr, title_en, description_fr, description_en, price, is_published, order_index)
-    VALUES
-      (1, 'maitrise-ia',
-       'Maîtriser l''IA pour la Productivité Professionnelle',
-       'Mastering AI for Professional Productivity',
-       'Apprenez à utiliser l''intelligence artificielle dans votre vie professionnelle et personnelle.',
-       'Learn to use artificial intelligence in your professional and personal life.',
-       25500, 1, 0),
-      (2, 'ia-marketing',
-       'Utiliser l''IA dans le Marketing',
-       'Using AI in Marketing',
-       'Découvrez comment l''IA transforme le marketing digital et les stratégies de croissance.',
-       'Discover how AI is transforming digital marketing and growth strategies.',
-       25500, 0, 1),
-      (3, 'montage-video-ia',
-       'Montage Vidéo avec les Outils IA',
-       'Video Editing with AI Tools',
-       'Maîtrisez les outils IA pour créer des vidéos professionnelles rapidement.',
-       'Master AI tools to create professional videos quickly.',
-       25500, 0, 2),
-      (4, 'specialisation-ia-pros',
-       'Spécialisation des Modèles IA pour les Professionnels',
-       'AI Model Specialization for Professionals',
-       'Apprenez à fine-tuner et spécialiser les modèles IA pour vos besoins métier.',
-       'Learn to fine-tune and specialize AI models for your business needs.',
-       25500, 0, 3);
   `);
 
   // ─── Seed formation metadata (idempotent: only when color IS NULL = fresh install) ─
